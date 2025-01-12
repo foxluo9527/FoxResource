@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">FoxResource</string>
+    <string name="home">首页</string>
+    <string name="chat">聊天</string>
+    <string name="group">社区</string>
+    <string name="mine">我的</string>
+    <string name="music">音乐</string>
+    <string name="video">影视</string>
+    <string name="novel">小说</string>
+    <string name="recently_played">最近播放</string>
+    <string name="recommend">推荐</string>
+    <string name="singer">歌手</string>
+    <string name="playlist">歌单</string>
+</resources>

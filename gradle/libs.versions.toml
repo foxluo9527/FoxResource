@@ -1,0 +1,48 @@
+[versions]
+agp = "8.7.2"
+androidDefensecrash = "4.0.3"
+exoplayer = "2.18.5"
+kotlin = "2.0.0"
+coreKtx = "1.10.1"
+junit = "4.13.2"
+junitVersion = "1.1.5"
+espressoCore = "3.5.1"
+appcompat = "1.6.1"
+material = "1.10.0"
+appcompatVersion = "1.7.0"
+constraintlayoutVersion = "2.2.0"
+pandora = "v2.0.0"
+utilcodex = "1.31.1"
+videocache = "2.7.1"
+junitJunit = "4.12"
+monitor = "1.6.1"
+runner = "1.5.2"
+coreAnimation = "1.0.0"
+xui = "1.2.1"
+
+[libraries]
+android-defensecrash = { module = "com.github.xuuhaoo:Android-DefenseCrash", version.ref = "androidDefensecrash" }
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+exoplayer = { module = "com.google.android.exoplayer:exoplayer", version.ref = "exoplayer" }
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompatVersion" }
+constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayoutVersion" }
+pandora = { module = "com.github.whataa:pandora", version.ref = "pandora" }
+utilcodex = { module = "com.blankj:utilcodex", version.ref = "utilcodex" }
+videocache = { module = "com.danikula:videocache", version.ref = "videocache" }
+junit-junit = { group = "junit", name = "junit", version.ref = "junitJunit" }
+androidx-monitor = { group = "androidx.test", name = "monitor", version.ref = "monitor" }
+androidx-runner = { group = "androidx.test", name = "runner", version.ref = "runner" }
+androidx-core-animation = { group = "androidx.core", name = "core-animation", version.ref = "coreAnimation" }
+xui = { module = "com.github.xuexiangjys:XUI", version.ref = "xui" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+
