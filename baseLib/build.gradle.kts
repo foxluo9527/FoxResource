@@ -37,6 +37,16 @@ android {
 
 dependencies {
     api(libs.xui)
+    api(libs.github.glide)
+    api(libs.retrofit2.retrofit)
+    api(libs.glide.transformations)
+    api(libs.refresh.layout.kernel)
+    api(libs.refresh.header.classics)
+    api(libs.converter.gson)
+    api(libs.lifecycle.runtime.ktx)
+    api(libs.lifecycle.viewmodel.ktx)
+    api(libs.androidx.activity.activity.ktx)
+    api(libs.androidx.fragment.ktx)
     api(libs.videocache)
     api(libs.androidx.core.ktx)
     api(libs.androidx.appcompat)

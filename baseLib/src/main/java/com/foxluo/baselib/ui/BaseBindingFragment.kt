@@ -9,6 +9,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
 import com.blankj.utilcode.util.BarUtils
+import com.xuexiang.xui.widget.dialog.LoadingDialog
 
 abstract class BaseBindingFragment<Binding:ViewBinding>:Fragment() {
     val binding by lazy {
@@ -19,12 +20,24 @@ abstract class BaseBindingFragment<Binding:ViewBinding>:Fragment() {
         BarUtils.getStatusBarHeight()
     }
 
+    private val loadingDialog by lazy {
+        LoadingDialog(requireContext())
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         return binding.root
+    }
+
+    fun setLoading(loading: Boolean) {
+        if (loading) {
+            loadingDialog.performShow()
+        } else {
+            loadingDialog.dismiss()
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

@@ -1,4 +1,4 @@
-package com.foxluo.resource.music.ui
+package com.foxluo.resource.music.ui.activity
 
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
