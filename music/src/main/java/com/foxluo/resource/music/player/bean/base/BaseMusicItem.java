@@ -17,6 +17,8 @@
 package com.foxluo.resource.music.player.bean.base;
 
 
+import androidx.annotation.Nullable;
+
 import java.io.Serializable;
 
 /**
@@ -25,6 +27,7 @@ import java.io.Serializable;
 public class BaseMusicItem<A extends BaseArtistItem> implements Serializable {
 
   public final String musicId;
+  @Nullable
   public final String coverImg;
   public final String url;
   public final String title;
@@ -32,7 +35,7 @@ public class BaseMusicItem<A extends BaseArtistItem> implements Serializable {
 
   public BaseMusicItem(
           String musicId,
-          String coverImg,
+          @Nullable String coverImg,
           String url,
           String title,
           A artist

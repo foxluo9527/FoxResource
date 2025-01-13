@@ -9,9 +9,15 @@ import com.foxluo.baselib.util.ViewExt.visible
 import com.foxluo.resource.music.data.bean.MusicData
 import com.foxluo.resource.music.databinding.ItemMusicListBinding
 
-class MusicListAdapter(val onItemClick: (Boolean, MusicData) -> Unit) : RecyclerView.Adapter<MusicListAdapter.MusicListViewHolder>() {
+class MusicListAdapter(
+    val moreVisible: Boolean,
+    val onItemClick: (Boolean, MusicData, Int) -> Unit
+) :
+    RecyclerView.Adapter<MusicListAdapter.MusicListViewHolder>() {
     private val musicList = mutableListOf<MusicData>()
-    private var moreVisible = false
+
+    fun getPlayList() = musicList
+
     @SuppressLint("NotifyDataSetChanged")
     fun setDataList(list: List<MusicData>) {
         musicList.clear()
@@ -25,38 +31,32 @@ class MusicListAdapter(val onItemClick: (Boolean, MusicData) -> Unit) : Recycler
         notifyDataSetChanged()
     }
 
-    fun setVisibleMore(visible: Boolean){
-
-    }
-
-    inner class MusicListViewHolder(val binding: ItemMusicListBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class MusicListViewHolder(val binding: ItemMusicListBinding) :
+        RecyclerView.ViewHolder(binding.root) {
         fun setData(data: MusicData) {
             binding.cover.loadUrlWithCorner(data.coverImg, 6)
             binding.name.text = data.title
             binding.singer.text = data.artist.name
-        }
-
-        fun visibleMore(visible: Boolean) {
-            binding.more.visible(visible)
+            binding.more.visible(moreVisible)
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MusicListViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        val binding = ItemMusicListBinding.inflate(inflater)
+        val binding = ItemMusicListBinding.inflate(inflater, parent, false)
         return MusicListViewHolder(binding)
     }
 
     override fun getItemCount() = musicList.size
 
     override fun onBindViewHolder(holder: MusicListViewHolder, position: Int) {
-        val data = musicList.get(position)
+        val data = musicList[position]
         holder.setData(data)
         holder.binding.more.setOnClickListener {
-            onItemClick.invoke(true, data)
+            onItemClick.invoke(true, data, position)
         }
         holder.binding.root.setOnClickListener {
-            onItemClick.invoke(false, data)
+            onItemClick.invoke(false, data, position)
         }
     }
 }

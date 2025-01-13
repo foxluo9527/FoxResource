@@ -1,9 +1,6 @@
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="26dp"
-    android:height="26dp"
-    android:viewportWidth="1024"
-    android:viewportHeight="1024">
-  <path
-      android:pathData="M384,752.3l299.7,-231.6L384,289.2L384,752.3zM320,817.4L320,224a32,32 0,0 1,51.6 -25.3l384,296.7a32,32 0,0 1,0 50.7l-384,296.7A32,32 0,0 1,320 817.4z"
-      android:fillColor="#3E3A39"/>
-</vector>
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/iv_pause" android:state_selected="true"/>
+    <item android:drawable="@drawable/iv_pause" android:state_checked="true"/>
+    <item android:drawable="@drawable/iv_play"/>
+</selector>

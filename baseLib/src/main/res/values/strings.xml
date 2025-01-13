@@ -7,8 +7,12 @@
     <string name="music">音乐</string>
     <string name="video">影视</string>
     <string name="novel">小说</string>
+    <string name="lyrics">歌词</string>
+    <string name="trans_original">原</string>
+    <string name="trans_chinese">译</string>
     <string name="recently_played">最近播放</string>
     <string name="recommend">推荐</string>
     <string name="singer">歌手</string>
     <string name="playlist">歌单</string>
+    <string name="song">歌曲</string>
 </resources>

@@ -8,7 +8,7 @@ import com.foxluo.resource.music.data.bean.MusicData
 import com.foxluo.resource.music.data.repo.MusicRepository
 import kotlinx.coroutines.launch
 
-class MusicViewModel: BaseViewModel() {
+class MusicViewModel : BaseViewModel() {
     private val repo by lazy {
         MusicRepository()
     }
@@ -17,19 +17,19 @@ class MusicViewModel: BaseViewModel() {
         MutableLiveData<List<MusicData>>()
     }
 
-    fun getMusicData(isRefresh:Boolean){
-        if (isRefresh){
-            page=1
-        }else{
+    fun getMusicData(isRefresh: Boolean) {
+        if (isRefresh) {
+            page = 1
+        } else {
             page++
         }
-        viewModelScope.launch{
+        viewModelScope.launch {
             isLoading.postValue(true)
-            val result=repo.getMusicList(page,size)
-            if (result is RequestResult.Success<*>){
+            val result = repo.getMusicList(page, size)
+            if (result is RequestResult.Success<*>) {
                 dataList.postValue(result.data as List<MusicData>?)
-            }else if (result is RequestResult.Error){
-                toast.postValue(Pair(false,result.message))
+            } else if (result is RequestResult.Error) {
+                toast.postValue(Pair(false, result.message))
             }
             isLoading.postValue(false)
         }

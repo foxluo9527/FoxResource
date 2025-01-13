@@ -43,6 +43,7 @@ dependencies {
     implementation(project(":chat"))
     implementation(project(":notification"))
     implementation(project(":mine"))
+    implementation(libs.androidx.core.animation)
     testImplementation(libs.junit.junit)
     androidTestImplementation(libs.androidx.monitor)
     androidTestImplementation(libs.junit.junit)

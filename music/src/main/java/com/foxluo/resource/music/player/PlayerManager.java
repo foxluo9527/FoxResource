@@ -22,7 +22,9 @@ import android.content.Context;
 import androidx.lifecycle.LiveData;
 
 
-import com.foxluo.resource.music.player.bean.DefaultAlbum;
+import com.foxluo.resource.music.data.bean.ArtistData;
+import com.foxluo.resource.music.data.bean.MusicData;
+import com.foxluo.resource.music.data.bean.AlbumData;
 import com.foxluo.resource.music.player.contract.ICacheProxy;
 import com.foxluo.resource.music.player.contract.IPlayController;
 import com.foxluo.resource.music.player.contract.IServiceNotifier;
@@ -35,12 +37,12 @@ import java.util.List;
 /**
  * Create by KunMinX at 19/10/31
  */
-public class PlayerManager implements IPlayController<DefaultAlbum, DefaultAlbum.DefaultMusic, DefaultAlbum.DefaultArtist> {
+public class PlayerManager implements IPlayController<AlbumData, MusicData, ArtistData> {
 
   @SuppressLint("StaticFieldLeak")
   private static final PlayerManager sManager = new PlayerManager();
 
-  private final PlayerController<DefaultAlbum, DefaultAlbum.DefaultMusic, DefaultAlbum.DefaultArtist> mController;
+  private final PlayerController<AlbumData, MusicData, ArtistData> mController;
 
   private PlayerManager() {
     mController = new PlayerController<>();
@@ -56,12 +58,12 @@ public class PlayerManager implements IPlayController<DefaultAlbum, DefaultAlbum
   }
 
   @Override
-  public void loadAlbum(DefaultAlbum musicAlbum) {
+  public void loadAlbum(AlbumData musicAlbum) {
     mController.loadAlbum(musicAlbum);
   }
 
   @Override
-  public void loadAlbum(DefaultAlbum musicAlbum, int playIndex) {
+  public void loadAlbum(AlbumData musicAlbum, int playIndex) {
     mController.loadAlbum(musicAlbum, playIndex);
   }
 
@@ -136,17 +138,17 @@ public class PlayerManager implements IPlayController<DefaultAlbum, DefaultAlbum
   }
 
   @Override
-  public LiveData<MusicDTO<DefaultAlbum, DefaultAlbum.DefaultMusic, DefaultAlbum.DefaultArtist>> getUiStates() {
+  public LiveData<MusicDTO<AlbumData, MusicData, ArtistData>> getUiStates() {
     return mController.getUiStates();
   }
 
   @Override
-  public DefaultAlbum getAlbum() {
+  public AlbumData getAlbum() {
     return mController.getAlbum();
   }
 
   @Override
-  public List<DefaultAlbum.DefaultMusic> getAlbumMusics() {
+  public List<MusicData> getAlbumMusics() {
     return mController.getAlbumMusics();
   }
 
@@ -171,7 +173,7 @@ public class PlayerManager implements IPlayController<DefaultAlbum, DefaultAlbum
   }
 
   @Override
-  public DefaultAlbum.DefaultMusic getCurrentPlayingMusic() {
+  public MusicData getCurrentPlayingMusic() {
     return mController.getCurrentPlayingMusic();
   }
 }
