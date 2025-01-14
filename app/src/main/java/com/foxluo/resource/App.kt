@@ -7,12 +7,13 @@ import com.android.tony.defenselib.DefenseCrash
 import com.android.tony.defenselib.handler.IExceptionHandler
 import com.blankj.utilcode.util.ActivityUtils
 import com.danikula.videocache.HttpProxyCacheServer
+import com.foxluo.baselib.ui.BaseApplication
 import com.foxluo.resource.activity.CrashActivity
 import com.foxluo.resource.music.player.PlayerManager
 import com.foxluo.resource.music.player.contract.ICacheProxy
 import com.foxluo.resource.music.player.contract.IServiceNotifier
 
-class App : Application(), IServiceNotifier, ICacheProxy {
+class App : BaseApplication(), IServiceNotifier, ICacheProxy {
     private val proxy by lazy {
         HttpProxyCacheServer
             .Builder(this)

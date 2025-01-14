@@ -9,6 +9,10 @@ import com.foxluo.resource.music.data.repo.MusicRepository
 import kotlinx.coroutines.launch
 
 class MusicViewModel : BaseViewModel() {
+    val currentMusic by lazy {
+        MutableLiveData<MusicData?>()
+    }
+
     private val repo by lazy {
         MusicRepository()
     }
@@ -24,7 +28,6 @@ class MusicViewModel : BaseViewModel() {
             page++
         }
         viewModelScope.launch {
-            isLoading.postValue(true)
             val result = repo.getMusicList(page, size)
             if (result is RequestResult.Success<*>) {
                 dataList.postValue(result.data as List<MusicData>?)

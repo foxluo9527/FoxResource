@@ -3,9 +3,10 @@ package com.foxluo.resource.music.ui.fragment
 import androidx.fragment.app.viewModels
 import com.blankj.utilcode.util.ToastUtils
 import com.foxluo.baselib.R
+import com.foxluo.baselib.domain.viewmodel.getAppViewModel
 import com.foxluo.baselib.ui.BaseBindingFragment
 import com.foxluo.resource.music.data.bean.AlbumData
-import com.foxluo.resource.music.data.bean.MusicData
+import com.foxluo.resource.music.data.domain.viewmodel.MainMusicViewModel
 import com.foxluo.resource.music.data.domain.viewmodel.MusicViewModel
 import com.foxluo.resource.music.databinding.FragmentMusicListBinding
 import com.foxluo.resource.music.player.PlayerManager
@@ -17,9 +18,11 @@ class MusicListFragment : BaseBindingFragment<FragmentMusicListBinding>() {
     private val adapter by lazy {
         MusicListAdapter(false, onClickItem)
     }
-
-    private val onClickItem: (Boolean, MusicData, Int) -> Unit =
-        { showMore: Boolean, data: MusicData, position: Int ->
+    private val musicViewModel by lazy {
+        getAppViewModel<MainMusicViewModel>()
+    }
+    private val onClickItem: (Boolean, Int) -> Unit = { _: Boolean, position: Int ->
+        musicViewModel.isCurrentMusicByUser = true
             PlayerManager.getInstance().loadAlbum(
                 AlbumData(
                     null,
@@ -41,12 +44,22 @@ class MusicListFragment : BaseBindingFragment<FragmentMusicListBinding>() {
         vm.toast.observe(this) {
             ToastUtils.showShort(it.second)
         }
-        vm.dataList.observe(this) {
+        vm.dataList.observe(this) { dataList ->
             if (vm.page == 1) {
-                adapter.setDataList(it)
+                adapter.setDataList(dataList)
             } else {
-                adapter.insertDataList(it)
+                adapter.insertDataList(dataList)
             }
+        }
+        PlayerManager.getInstance().uiStates.observe(this) {
+            if (it != null && it.musicId != vm.currentMusic.value?.musicId) {
+                vm.currentMusic.value = PlayerManager.getInstance().currentPlayingMusic
+            }
+        }
+        vm.currentMusic.observe(this) { currentMusic ->
+            currentMusic ?: return@observe
+            val musicList = adapter.getPlayList()
+            adapter.currentIndex = musicList.indexOf(musicList.find { it.musicId == currentMusic.musicId })
         }
     }
 

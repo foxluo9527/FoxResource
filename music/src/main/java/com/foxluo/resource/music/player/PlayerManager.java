@@ -21,10 +21,9 @@ import android.content.Context;
 
 import androidx.lifecycle.LiveData;
 
-
+import com.foxluo.resource.music.data.bean.AlbumData;
 import com.foxluo.resource.music.data.bean.ArtistData;
 import com.foxluo.resource.music.data.bean.MusicData;
-import com.foxluo.resource.music.data.bean.AlbumData;
 import com.foxluo.resource.music.player.contract.ICacheProxy;
 import com.foxluo.resource.music.player.contract.IPlayController;
 import com.foxluo.resource.music.player.contract.IServiceNotifier;
@@ -175,5 +174,13 @@ public class PlayerManager implements IPlayController<AlbumData, MusicData, Arti
   @Override
   public MusicData getCurrentPlayingMusic() {
     return mController.getCurrentPlayingMusic();
+  }
+
+  public boolean removeAlbumIndex(int index) {
+   return mController.removeAlbumIndex(index);
+  }
+
+  public void currentAlbumIndex(int index) {
+    mController.currentPlayAlbumIndex(index);
   }
 }

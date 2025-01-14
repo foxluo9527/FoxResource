@@ -115,6 +115,39 @@ public class PlayingInfoManager<B extends BaseAlbumItem<M, A>, M extends BaseMus
     mAlbumIndex = mOriginPlayingList.indexOf(getCurrentPlayingMusic());
   }
 
+  void updateModelChangePlayIndex(){
+    mPlayIndex = getPlayingList().indexOf(mOriginPlayingList.get(mAlbumIndex));
+  }
+
+  boolean removeAlbumIndex(int albumIndex) {
+    boolean removeCurrentPlay = mAlbumIndex == albumIndex;
+    if (removeCurrentPlay) {
+      if (mPlayIndex == (getPlayingList().size() - 1)) {
+        mPlayIndex = 0;
+      } else {
+        ++mPlayIndex;
+      }
+      mAlbumIndex = mOriginPlayingList.indexOf(getCurrentPlayingMusic());
+      M nextMusic = mOriginPlayingList.get(mAlbumIndex);
+      getOriginPlayingList().remove(albumIndex);
+      fitShuffle();
+      mAlbumIndex = mOriginPlayingList.indexOf(nextMusic);
+    } else {
+      if (albumIndex < mAlbumIndex) {
+        mAlbumIndex--;
+      }
+      getOriginPlayingList().remove(albumIndex);
+      fitShuffle();
+    }
+    mPlayIndex = getPlayingList().indexOf(mOriginPlayingList.get(mAlbumIndex));
+    return removeCurrentPlay;
+  }
+
+  void currentAlbumIndex(int albumIndex) {
+    this.mAlbumIndex = albumIndex;
+    mPlayIndex = getPlayingList().indexOf(getOriginPlayingList().get(albumIndex));
+  }
+
   int getAlbumIndex() {
     return mAlbumIndex;
   }

@@ -110,8 +110,11 @@ public class PlayerController<
   }
 
   public void playAudio() {
+    if (getCurrentPlayingMusic() == null) {
+      return;
+    }
     if (mIsChangingPlayingMusic) getUrlAndPlay();
-    else if (isPaused()) resumeAudio();
+    else if (isPaused() || mCurrentPlay.getProgress() > 0) resumeAudio();
   }
 
   private void getUrlAndPlay() {
@@ -169,6 +172,21 @@ public class PlayerController<
     }
   }
 
+  public boolean removeAlbumIndex(int removeIndex) {
+    if (mPlayingInfoManager.removeAlbumIndex(removeIndex)) {
+      setChangingPlayingMusic(true);
+      playAudio();
+      return true;
+    }
+    return false;
+  }
+
+  public void currentPlayAlbumIndex(int currentIndex) {
+    mPlayingInfoManager.currentAlbumIndex(currentIndex);
+    setChangingPlayingMusic(true);
+    playAudio();
+  }
+
   public void playNext() {
     mPlayingInfoManager.countNextIndex();
     setChangingPlayingMusic(true);
@@ -218,6 +236,7 @@ public class PlayerController<
 
   public void changeMode() {
     mCurrentPlay.setRepeatMode(mPlayingInfoManager.changeMode());
+    mPlayingInfoManager.updateModelChangePlayIndex();
     mUiStates.setValue(mCurrentPlay);
   }
 
@@ -250,7 +269,7 @@ public class PlayerController<
   }
 
   public void togglePlay() {
-    if (isPlaying()) pauseAudio();
+    if (isPlaying() || mCurrentPlay.isPaused() == false) pauseAudio();
     else playAudio();
   }
 

@@ -5,36 +5,35 @@ import android.animation.ValueAnimator
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.LinearInterpolator
-import androidx.fragment.app.Fragment
+import androidx.lifecycle.MutableLiveData
+import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.blankj.utilcode.util.ConvertUtils.px2dp
+import com.foxluo.baselib.domain.viewmodel.getAppViewModel
 import com.foxluo.baselib.ui.BaseBindingActivity
 import com.foxluo.baselib.ui.MainPageFragment
 import com.foxluo.baselib.util.ImageExt.loadUrlWithCircle
 import com.foxluo.chat.ui.ChatFragment
 import com.foxluo.home.ui.HomeFragment
 import com.foxluo.mine.ui.MineFragment
+import com.foxluo.resource.R
 import com.foxluo.resource.community.ui.CommunityFragment
 import com.foxluo.resource.databinding.ActivityMainBinding
-import com.foxluo.resource.R
+import com.foxluo.resource.music.data.bean.MusicData
+import com.foxluo.resource.music.data.domain.viewmodel.MainMusicViewModel
 import com.foxluo.resource.music.player.PlayerManager
-import com.foxluo.resource.music.ui.fragment.DetailFragment
+import com.foxluo.resource.music.ui.activity.PlayActivity
 
 class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
-    private val home by lazy {
-        HomeFragment()
-    }
-    private val chat by lazy {
-        ChatFragment()
-    }
-    private val community by lazy {
-        CommunityFragment()
-    }
-    private val mine by lazy {
-        MineFragment()
+    private val fragments by lazy {
+        listOf(HomeFragment(), ChatFragment(), CommunityFragment(), MineFragment())
     }
 
-    private val detail by lazy {
-        DetailFragment()
+    private val currentMusic by lazy {
+        MutableLiveData<MusicData?>()
+    }
+
+    private val musicViewModel by lazy {
+        getAppViewModel<MainMusicViewModel>()
     }
 
     private val animator by lazy {
@@ -48,19 +47,40 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
 
 
     override fun initView() {
-        replaceFragment(home, "HomeFragment")
+        val adapter = object : FragmentStateAdapter(this) {
+            override fun createFragment(position: Int) = fragments[position]
+
+            override fun getItemCount() = fragments.size
+        }
+        binding.fragmentContainer.adapter = adapter
+        binding.fragmentContainer.isUserInputEnabled = false
         binding.playCover.loadUrlWithCircle(null)
     }
 
     override fun initListener() {
         binding.navBottom.setOnItemSelectedListener { item ->
-            when (item.itemId) {
-                R.id.item_home -> replaceFragment(home, "HomeFragment")
-                R.id.item_chat -> replaceFragment(chat, "ChatFragment")
-                R.id.item_group -> replaceFragment(community, "CommunityFragment")
-                else -> replaceFragment(mine, "MineFragment")
+            binding.fragmentContainer.currentItem = when (item.itemId) {
+                R.id.item_home -> 0
+                R.id.item_chat -> 1
+                R.id.item_group -> 2
+                else -> 3
             }
-
+            val currentFragment = fragments[binding.fragmentContainer.currentItem]
+            (currentFragment as? MainPageFragment<*>)?.let {
+                if (!(currentFragment.showPlaView())) {
+                    binding.playView.visibility = View.INVISIBLE
+                    return@let
+                }
+                binding.playView.visibility = View.VISIBLE
+                binding.navBottom.post {
+                    binding.playView.setDragPadding(
+                        currentFragment.leftPlayPadding,
+                        statusBarHeight + currentFragment.topPlayPadding,
+                        currentFragment.rightPlayPadding,
+                        px2dp(binding.navBottom.height.toFloat()) + currentFragment.bottomPlayPadding + 10
+                    )
+                }
+            }
             true
         }
         val menuView = binding.navBottom.getChildAt(0) as? ViewGroup
@@ -73,44 +93,28 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
             }
         }
         binding.playView.setOnClickListener {
-            detail.show(supportFragmentManager, "DetailFragment")
+            PlayActivity.startPlayDetail(this)
         }
         binding.playState.setOnClickListener{
             PlayerManager.getInstance().togglePlay()
         }
     }
 
-    private fun replaceFragment(fragment: Fragment, tag: String) {
-        var currentFragment = supportFragmentManager.findFragmentByTag(tag) ?: fragment
-        if (!currentFragment.isAdded) {
-            supportFragmentManager.beginTransaction().add(R.id.fragment_container, fragment, tag)
-                .commitAllowingStateLoss()
-        } else {
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, fragment, tag).commit()
-            currentFragment = fragment
-        }
-        (currentFragment as? MainPageFragment<*>)?.let {
-            if (!(currentFragment.showPlaView())) {
-                binding.playView.visibility = View.INVISIBLE
-                return
-            }
-            binding.playView.visibility = View.VISIBLE
-            binding.navBottom.post {
-                binding.playView.setDragPadding(
-                    currentFragment.leftPlayPadding,
-                    statusBarHeight + currentFragment.topPlayPadding,
-                    currentFragment.rightPlayPadding,
-                    px2dp(binding.navBottom.height.toFloat()) + currentFragment.bottomPlayPadding + 10
-                )
-            }
-        }
-    }
-
     override fun initObserver() {
         PlayerManager.getInstance().uiStates.observe(this) {
-            binding.playCover.loadUrlWithCircle(it?.img)
-            setPlaying(it != null && it.isPaused == false)
+            val isPlaying = it != null && it.isPaused == false
+            setPlaying(isPlaying)
+            if (it != null && it.musicId != currentMusic.value?.musicId) {
+                currentMusic.value = PlayerManager.getInstance().currentPlayingMusic
+            }
+        }
+        currentMusic.observe(this) { currentMusic ->
+            currentMusic ?: return@observe
+            binding.playCover.loadUrlWithCircle(currentMusic.coverImg)
+            if (musicViewModel.isCurrentMusicByUser) {
+                PlayActivity.startPlayDetail(this)
+                musicViewModel.isCurrentMusicByUser = false
+            }
         }
     }
 

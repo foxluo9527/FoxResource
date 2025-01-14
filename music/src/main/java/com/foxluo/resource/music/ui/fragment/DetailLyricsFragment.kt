@@ -1,12 +1,15 @@
 package com.foxluo.resource.music.ui.fragment
 
 import com.dirror.lyricviewx.OnPlayClickListener
+import com.dirror.lyricviewx.OnSingleClickListener
 import com.foxluo.baselib.ui.BaseBindingFragment
 import com.foxluo.resource.music.databinding.FragmentDetailLrcBinding
 import com.foxluo.baselib.R
 import com.foxluo.baselib.util.ViewExt.visible
 
 class DetailLyricsFragment : BaseBindingFragment<FragmentDetailLrcBinding>() {
+    var targetPage :(()->Unit)?=null
+
     private var showTansLrc = false
 
     private var lyrics: String? = null
@@ -41,10 +44,18 @@ class DetailLyricsFragment : BaseBindingFragment<FragmentDetailLrcBinding>() {
     }
 
     override fun initListener() {
+        binding.root.setOnClickListener {
+            targetPage?.invoke()
+        }
         binding.lyricView.setDraggable(true, object : OnPlayClickListener {
             override fun onPlayClick(time: Long): Boolean {
                 currentPlay?.invoke(time)
                 return true
+            }
+        })
+        binding.lyricView.setOnSingerClickListener(object :OnSingleClickListener{
+            override fun onClick() {
+                targetPage?.invoke()
             }
         })
         binding.trans.setOnClickListener {

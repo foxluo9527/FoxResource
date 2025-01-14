@@ -3,10 +3,10 @@ package com.foxluo.home.ui
 import android.view.View
 import androidx.core.os.bundleOf
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.foxluo.baselib.ui.MainPageFragment
-import com.foxluo.home.databinding.FragmentHomeBinding
 import com.foxluo.baselib.R
+import com.foxluo.baselib.ui.MainPageFragment
 import com.foxluo.baselib.ui.fragment.TempFragment
+import com.foxluo.home.databinding.FragmentHomeBinding
 import com.foxluo.resource.music.ui.fragment.MainMusicFragment
 import com.google.android.material.tabs.TabLayoutMediator
 
