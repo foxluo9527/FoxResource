@@ -5,9 +5,8 @@ import com.foxluo.baselib.data.api.BaseApi
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.create
 
-private const val BASE_URL = "http://39.106.30.151/"
+ const val BASE_URL = "http://39.106.30.151:9000"
 
 open class BaseRepository{
     private val client by lazy {

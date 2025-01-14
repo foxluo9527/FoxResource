@@ -1,17 +1,23 @@
 package com.foxluo.resource.activity
 
+import android.animation.ObjectAnimator
+import android.animation.ValueAnimator
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.LinearInterpolator
 import androidx.fragment.app.Fragment
 import com.blankj.utilcode.util.ConvertUtils.px2dp
 import com.foxluo.baselib.ui.BaseBindingActivity
 import com.foxluo.baselib.ui.MainPageFragment
+import com.foxluo.baselib.util.ImageExt.loadUrlWithCircle
 import com.foxluo.chat.ui.ChatFragment
 import com.foxluo.home.ui.HomeFragment
 import com.foxluo.mine.ui.MineFragment
 import com.foxluo.resource.community.ui.CommunityFragment
 import com.foxluo.resource.databinding.ActivityMainBinding
 import com.foxluo.resource.R
+import com.foxluo.resource.music.player.PlayerManager
+import com.foxluo.resource.music.ui.fragment.DetailFragment
 
 class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
     private val home by lazy {
@@ -27,8 +33,23 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
         MineFragment()
     }
 
+    private val detail by lazy {
+        DetailFragment()
+    }
+
+    private val animator by lazy {
+        ObjectAnimator.ofFloat(binding.playCover, "rotation", 0.0F, 360.0F).apply {
+            setDuration(10 * 1000)
+            interpolator = LinearInterpolator()
+            repeatCount = ObjectAnimator.INFINITE
+            repeatMode = ValueAnimator.RESTART
+        }
+    }
+
+
     override fun initView() {
         replaceFragment(home, "HomeFragment")
+        binding.playCover.loadUrlWithCircle(null)
     }
 
     override fun initListener() {
@@ -51,10 +72,16 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
                 }
             }
         }
+        binding.playView.setOnClickListener {
+            detail.show(supportFragmentManager, "DetailFragment")
+        }
+        binding.playState.setOnClickListener{
+            PlayerManager.getInstance().togglePlay()
+        }
     }
 
     private fun replaceFragment(fragment: Fragment, tag: String) {
-        var currentFragment = supportFragmentManager.findFragmentByTag(tag)?:fragment
+        var currentFragment = supportFragmentManager.findFragmentByTag(tag) ?: fragment
         if (!currentFragment.isAdded) {
             supportFragmentManager.beginTransaction().add(R.id.fragment_container, fragment, tag)
                 .commitAllowingStateLoss()
@@ -80,5 +107,29 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
         }
     }
 
+    override fun initObserver() {
+        PlayerManager.getInstance().uiStates.observe(this) {
+            binding.playCover.loadUrlWithCircle(it?.img)
+            setPlaying(it != null && it.isPaused == false)
+        }
+    }
+
     override fun initBinding() = ActivityMainBinding.inflate(layoutInflater)
+
+    // 更新播放状态
+    private fun setPlaying(isPlaying: Boolean) {
+        binding.playState.isSelected = isPlaying
+        if (isPlaying) {
+            if (!animator.isRunning) {
+                animator.start()
+            } else {
+                animator.resume()
+            }
+        } else {
+            if (!animator.isStarted || !animator.isRunning) {
+                animator.cancel()
+            }
+            animator.pause()
+        }
+    }
 }

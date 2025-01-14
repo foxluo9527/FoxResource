@@ -21,8 +21,9 @@ class App : Application(), IServiceNotifier, ICacheProxy {
             .build()
     }
 
-    override fun attachBaseContext(base: Context?) {
-        super.attachBaseContext(base)
+    override fun onCreate() {
+        super.onCreate()
+        PlayerManager.getInstance().init(this, this, this)
         DefenseCrash.initialize(this)
         DefenseCrash.install(object : IExceptionHandler{
             override fun onCaughtException(
@@ -36,11 +37,6 @@ class App : Application(), IServiceNotifier, ICacheProxy {
                 startActivity(intent)
             }
         })
-    }
-
-    override fun onCreate() {
-        super.onCreate()
-        PlayerManager.getInstance().init(this, this, this)
     }
 
     override fun notifyService(startOrStop: Boolean) {

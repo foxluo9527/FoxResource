@@ -1,5 +1,6 @@
 package com.foxluo.resource.music.data.repo
 
+import com.foxluo.baselib.data.respository.BASE_URL
 import com.foxluo.baselib.data.respository.BaseRepository
 import com.foxluo.baselib.data.result.RequestResult
 import com.foxluo.resource.music.data.api.MusicApi
@@ -18,7 +19,7 @@ class MusicRepository : BaseRepository() {
                 MusicData(
                     it.id.toString(),
                     it.cover_image,
-                    it.url,
+                    BASE_URL + it.url,
                     it.title,
                     it.artists?.firstOrNull()?.let { artist ->
                         ArtistData(artist.name).apply {

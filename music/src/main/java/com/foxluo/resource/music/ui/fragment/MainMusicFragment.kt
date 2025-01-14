@@ -14,9 +14,7 @@ class MainMusicFragment : BaseBindingFragment<FragmentMainMusicBinding>() {
     private val fragments by lazy {
         arrayOf(TempFragment().apply {
             arguments = bundleOf("type" to "最近播放")
-        }, TempFragment().apply {
-            arguments = bundleOf("type" to "推荐")
-        }, TempFragment().apply {
+        }, MusicListFragment(), TempFragment().apply {
             arguments = bundleOf("type" to "歌单")
         }, TempFragment().apply {
             arguments = bundleOf("type" to "歌手")
@@ -38,11 +36,11 @@ class MainMusicFragment : BaseBindingFragment<FragmentMainMusicBinding>() {
     }
 
     override fun initListener() {
-        tags.forEachIndexed {i, tag->
+        tags.forEachIndexed { i, tag ->
             tag.setOnClickListener { _ ->
                 replaceFragment(fragments[i])
                 tags.forEachIndexed { index, view ->
-                    val isCurrent=i==index
+                    val isCurrent = i == index
                     view.isSelected = isCurrent
                     (view as TextView).setTypeface(
                         if (isCurrent)
