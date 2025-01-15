@@ -133,6 +133,7 @@ class PlayActivity : BaseBindingActivity<ActivityPlayBinding>() {
                 }
                 binding.togglePlay.isSelected = playManager.isPlaying
                 binding.playProgress.progress = it.progress
+                binding.playProgress.secondaryProgress = it.duration / 100 * it.cacheBufferProgress//这里的进度是百分比进度，转换对应秒数
                 binding.playProgress.max = it.duration
                 (fragments[1] as DetailLyricsFragment).setLyricsDuration(
                     it.progress.toLong()

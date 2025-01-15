@@ -35,7 +35,6 @@ android {
 }
 
 dependencies {
-    implementation(libs.exoplayer)
     implementation(project(":baseLib"))
     implementation(libs.lyricviewx)
 }

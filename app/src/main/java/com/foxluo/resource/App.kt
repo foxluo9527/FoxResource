@@ -14,16 +14,13 @@ import com.foxluo.resource.music.player.contract.ICacheProxy
 import com.foxluo.resource.music.player.contract.IServiceNotifier
 
 class App : BaseApplication(), IServiceNotifier, ICacheProxy {
-    private val proxy by lazy {
-        HttpProxyCacheServer
+    override fun onCreate() {
+        super.onCreate()
+        proxy = HttpProxyCacheServer
             .Builder(this)
             .maxCacheSize(1024 * 1024 * 1024)
             .maxCacheFilesCount(200)
             .build()
-    }
-
-    override fun onCreate() {
-        super.onCreate()
         PlayerManager.getInstance().init(this, this, this)
         DefenseCrash.initialize(this)
         DefenseCrash.install(object : IExceptionHandler{

@@ -43,6 +43,7 @@ public class MusicDTO<
   private String allTime = "00:00";
   private int duration;
   private int progress;
+  private int cacheBufferProgress;
   private boolean isPaused = true;
   private Enum<PlayingInfoManager.RepeatMode> repeatMode = PlayingInfoManager.RepeatMode.LIST_CYCLE;
 
@@ -78,6 +79,9 @@ public class MusicDTO<
   }
   public int getProgress() {
     return progress;
+  }
+  public int getCacheBufferProgress(){
+    return cacheBufferProgress;
   }
   public boolean isPaused() {
     return isPaused;
@@ -123,6 +127,9 @@ public class MusicDTO<
   }
   void setProgress(int progress) {
     this.progress = progress;
+  }
+  void setCacheBufferProgress(int progress){
+    this.cacheBufferProgress = progress;
   }
   void setPaused(boolean paused) {
     isPaused = paused;
