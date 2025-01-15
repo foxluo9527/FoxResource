@@ -31,15 +31,14 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_margin="60dp"
-        app:cardCornerRadius="8dp"
-        app:cardElevation="2dp"
+        app:cardElevation="3dp"
         app:layout_constraintBottom_toTopOf="@id/music_actions"
         app:layout_constraintDimensionRatio="h,1:1"
         app:layout_constraintTop_toTopOf="parent">
-        <ImageView
+        <com.foxluo.resource.music.ui.view.RotateAlbumView
             android:id="@+id/cover"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"/>
     </androidx.cardview.widget.CardView>
 
 

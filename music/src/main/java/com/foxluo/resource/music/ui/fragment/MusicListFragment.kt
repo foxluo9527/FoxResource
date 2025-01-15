@@ -13,6 +13,9 @@ import com.foxluo.resource.music.player.PlayerManager
 import com.foxluo.resource.music.ui.adapter.MusicListAdapter
 
 class MusicListFragment : BaseBindingFragment<FragmentMusicListBinding>() {
+    companion object {
+        const val PLAY_LIST_ALBUM_TITLE = "播放列表"
+    }
     private val vm: MusicViewModel by viewModels()
 
     private val adapter by lazy {
@@ -21,12 +24,15 @@ class MusicListFragment : BaseBindingFragment<FragmentMusicListBinding>() {
     private val musicViewModel by lazy {
         getAppViewModel<MainMusicViewModel>()
     }
+    private val playerManager by lazy {
+        PlayerManager.getInstance()
+    }
     private val onClickItem: (Boolean, Int) -> Unit = { _: Boolean, position: Int ->
         musicViewModel.isCurrentMusicByUser = true
             PlayerManager.getInstance().loadAlbum(
                 AlbumData(
                     null,
-                    "播放列表",
+                    PLAY_LIST_ALBUM_TITLE,
                     null,
                     null,
                     null,
@@ -49,6 +55,9 @@ class MusicListFragment : BaseBindingFragment<FragmentMusicListBinding>() {
                 adapter.setDataList(dataList)
             } else {
                 adapter.insertDataList(dataList)
+                if (playerManager.albumMusics.isNotEmpty() && playerManager.album.title == PLAY_LIST_ALBUM_TITLE) {
+                    playerManager.appendPlayList(dataList)
+                }
             }
         }
         PlayerManager.getInstance().uiStates.observe(this) {

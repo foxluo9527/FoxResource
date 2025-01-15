@@ -183,4 +183,8 @@ public class PlayerManager implements IPlayController<AlbumData, MusicData, Arti
   public void currentAlbumIndex(int index) {
     mController.currentPlayAlbumIndex(index);
   }
+
+  public void appendPlayList(List<MusicData> list) {
+    mController.appendPlayingList(list);
+  }
 }

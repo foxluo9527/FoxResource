@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.foxluo.baselib.R
 import com.foxluo.baselib.ui.BaseBindingActivity
+import com.foxluo.baselib.util.ImageExt.loadUrlWithBlur
 import com.foxluo.resource.music.data.bean.MusicData
 import com.foxluo.resource.music.databinding.ActivityPlayBinding
 import com.foxluo.resource.music.player.PlayerManager
@@ -25,7 +26,7 @@ class PlayActivity : BaseBindingActivity<ActivityPlayBinding>() {
         }
     }
 
-    override fun initStatusBarView(): View? {
+    override fun initStatusBarView(): View {
         return binding.main
     }
 
@@ -131,6 +132,9 @@ class PlayActivity : BaseBindingActivity<ActivityPlayBinding>() {
                     RepeatMode.SINGLE_CYCLE -> binding.playModel.setImageResource(R.drawable.ic_single)
                     RepeatMode.RANDOM -> binding.playModel.setImageResource(R.drawable.ic_random)
                 }
+                if (binding.togglePlay.isSelected != playManager.isPlaying) {
+                    (fragments[0] as DetailSongFragment).initPlayState(playManager.isPlaying)
+                }
                 binding.togglePlay.isSelected = playManager.isPlaying
                 binding.playProgress.progress = it.progress
                 binding.playProgress.secondaryProgress = it.duration / 100 * it.cacheBufferProgress//这里的进度是百分比进度，转换对应秒数
@@ -150,6 +154,7 @@ class PlayActivity : BaseBindingActivity<ActivityPlayBinding>() {
     private fun initCurrentMusicDetail() {
         playManager.currentPlayingMusic.let { music ->
             mCurrentMusic = music
+            binding.blur.loadUrlWithBlur(music.coverImg)
             (fragments[0] as DetailSongFragment).initMusicData(music)
             (fragments[1] as DetailLyricsFragment).setLyrics(
                 music?.lyrics,

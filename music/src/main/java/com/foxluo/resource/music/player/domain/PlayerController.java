@@ -244,6 +244,10 @@ public class PlayerController<
     return false;
   }
 
+  public void appendPlayingList(List<M> list) {
+    mPlayingInfoManager.appendPlayingList(list);
+  }
+
   public void currentPlayAlbumIndex(int currentIndex) {
     mPlayingInfoManager.currentAlbumIndex(currentIndex);
     setChangingPlayingMusic(true);

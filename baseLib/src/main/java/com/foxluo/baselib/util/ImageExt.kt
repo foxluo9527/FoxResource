@@ -3,10 +3,9 @@ package com.foxluo.baselib.util
 import android.widget.ImageView
 import com.blankj.utilcode.util.SizeUtils.dp2px
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.foxluo.baselib.R
 import com.foxluo.baselib.data.respository.BASE_URL
-import com.foxluo.baselib.util.ImageExt.loadUrl
+import com.foxluo.baselib.ui.BaseApplication
 import jp.wasabeef.glide.transformations.BlurTransformation
 import jp.wasabeef.glide.transformations.CropCircleTransformation
 import jp.wasabeef.glide.transformations.RoundedCornersTransformation
@@ -24,8 +23,8 @@ object ImageExt {
         Glide.with(this)
             .load(processUrl(url)?:R.mipmap.ic_app)
             .transform(BlurTransformation(70))
-            .placeholder(R.mipmap.ic_app)
-            .error(R.mipmap.ic_app)
+            .placeholder(R.mipmap.ic_app_blur)
+            .error(R.mipmap.ic_app_blur)
             .into(this)
     }
 
@@ -42,16 +41,20 @@ object ImageExt {
         Glide.with(this)
             .load(processUrl(url)?:R.mipmap.ic_app)
             .transform(CropCircleTransformation())
-            .placeholder(R.mipmap.ic_app)
-            .error(R.mipmap.ic_app)
+            .placeholder(R.mipmap.ic_app_round)
+            .error(R.mipmap.ic_app_round)
             .into(this)
     }
 
     private fun processUrl(url: String?): String? {
         return if (!(url.isNullOrEmpty()) && url.startsWith("http") == false) {
-            BASE_URL + url
+            BaseApplication.proxy.getProxyUrl(BASE_URL + url)
         } else {
-            url
+            if (url.isNullOrEmpty()) {
+                null
+            } else {
+                url
+            }
         }
     }
 }

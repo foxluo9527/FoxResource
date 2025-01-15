@@ -143,6 +143,12 @@ public class PlayingInfoManager<B extends BaseAlbumItem<M, A>, M extends BaseMus
     return removeCurrentPlay;
   }
 
+  void appendPlayingList(List<M> appended){
+    mOriginPlayingList.addAll(appended);
+    fitShuffle();
+    mPlayIndex = getPlayingList().indexOf(mOriginPlayingList.get(mAlbumIndex));
+  }
+
   void currentAlbumIndex(int albumIndex) {
     this.mAlbumIndex = albumIndex;
     mPlayIndex = getPlayingList().indexOf(getOriginPlayingList().get(albumIndex));
