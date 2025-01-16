@@ -43,6 +43,7 @@ dependencies {
     api(libs.refresh.layout.kernel)
     api(libs.refresh.header.classics)
     api(libs.converter.gson)
+    api(libs.xxpermissions)
     api(libs.lifecycle.runtime.ktx)
     api(libs.lifecycle.viewmodel.ktx)
     api(libs.androidx.activity.activity.ktx)

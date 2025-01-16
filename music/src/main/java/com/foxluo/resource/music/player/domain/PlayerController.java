@@ -17,8 +17,6 @@
 package com.foxluo.resource.music.player.domain;
 
 import android.content.Context;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -27,17 +25,21 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.blankj.utilcode.util.SPUtils;
-import com.blankj.utilcode.util.Utils;
 import com.danikula.videocache.CacheListener;
-import com.foxluo.baselib.ui.BaseApplication;
+import com.foxluo.baselib.util.StringUtil;
 import com.foxluo.resource.music.player.bean.base.BaseAlbumItem;
 import com.foxluo.resource.music.player.bean.base.BaseArtistItem;
 import com.foxluo.resource.music.player.bean.base.BaseMusicItem;
 import com.foxluo.resource.music.player.contract.ICacheProxy;
 import com.foxluo.resource.music.player.contract.IServiceNotifier;
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.PlaybackException;
+import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.audio.AudioAttributes;
 
 import java.io.File;
-import java.net.URL;
 import java.util.List;
 
 /**
@@ -56,7 +58,7 @@ public class PlayerController<
   private final com.foxluo.resource.music.player.domain.MusicDTO<B, M, A> mCurrentPlay = new com.foxluo.resource.music.player.domain.MusicDTO<>();
   private final MutableLiveData<com.foxluo.resource.music.player.domain.MusicDTO<B, M, A>> mUiStates = new MutableLiveData<>();
 
-  private MediaPlayer mPlayer;
+  private ExoPlayer mPlayer;
   private final static Handler mHandler = new Handler();
   private final Runnable mProgressAction = this::updateProgress;
   private CacheListener lastCacheListener = null;
@@ -64,7 +66,14 @@ public class PlayerController<
   public void init(Context context, IServiceNotifier iServiceNotifier, ICacheProxy iCacheProxy) {
     mIServiceNotifier = iServiceNotifier;
     mICacheProxy = iCacheProxy;
-    mPlayer = new MediaPlayer();
+    AudioAttributes audioAttributes = new AudioAttributes.Builder()
+            .setUsage(C.USAGE_MEDIA)
+            .setContentType(C.AUDIO_CONTENT_TYPE_MUSIC)
+            .build();
+    mPlayer = new ExoPlayer.Builder(context)
+            .setHandleAudioBecomingNoisy(true)
+            .setAudioAttributes(audioAttributes, true)
+            .build();
   }
 
   public boolean isInit() {
@@ -78,8 +87,8 @@ public class PlayerController<
   private void updateProgress() {
     mCurrentPlay.setNowTime(calculateTime(mPlayer.getCurrentPosition() / 1000));
     mCurrentPlay.setAllTime(calculateTime(mPlayer.getDuration() / 1000));
-    mCurrentPlay.setDuration(mPlayer.getDuration());
-    mCurrentPlay.setProgress(mPlayer.getCurrentPosition());
+    mCurrentPlay.setDuration((int) mPlayer.getDuration());
+    mCurrentPlay.setProgress((int) mPlayer.getCurrentPosition());
     mUiStates.setValue(mCurrentPlay);
     mHandler.postDelayed(mProgressAction, 1000);
   }
@@ -116,8 +125,27 @@ public class PlayerController<
     if (getCurrentPlayingMusic() == null) {
       return;
     }
-    if (mIsChangingPlayingMusic) getUrlAndPlay();
-    else if (isPaused() || mCurrentPlay.getProgress() > 0) resumeAudio();
+    if (mIsChangingPlayingMusic) {
+      getUrlAndPlay();
+    } else if (isPaused() || mCurrentPlay.getProgress() > 0) {
+      resumeAudio();
+    }
+  }
+
+  public void reloadAudio() {
+    if (getCurrentPlayingMusic() == null) {
+      return;
+    }
+    setChangingPlayingMusic(true);
+    String filePath = SPUtils.getInstance().getString(StringUtil.INSTANCE.getUrlName(getCurrentPlayingMusic().url));
+    File cacheFile = new File(filePath);
+    try {
+      cacheFile.delete();
+      System.out.println("重新加载缓存文件：" + cacheFile.getName());
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+    }
+    playAudio();
   }
 
   private void getUrlAndPlay() {
@@ -129,29 +157,15 @@ public class PlayerController<
       pauseAudio();
     } else {
       try {
-        mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        mPlayer.reset();
         if ((url.contains("http:") || url.contains("ftp:") || url.contains("https:"))) {
-          String urlPath = new URL(url).getPath().toLowerCase();
-          String urlName = urlPath.substring(urlPath.lastIndexOf('/') + 1);
-          //清除未缓存完成的文件，因为服务器是转发的，每次获取的内容都不一样，缓存框架会追加写入已缓存的部分后面，导致文件错误
-          //todo 服务器转发文件待修改
-          String filePath = SPUtils.getInstance().getString(urlName);
-          File cacheFile = new File(filePath);
-          int cachedPercent = SPUtils.getInstance().getInt(urlName + "-percent", 0);
-          if (cacheFile.isFile() && cacheFile.exists() && cachedPercent < 100) {
-            try {
-              cacheFile.delete();
-              System.out.println("删除未完成缓存文件：" + cacheFile.getName());
-            } catch (Exception e) {
-              System.out.println(e.getMessage());
-            }
-          } else if (BaseApplication.proxy.isCached(url)) {
+          String urlName = StringUtil.INSTANCE.getUrlName(url);
+          if (mICacheProxy.getHttpProxy().isCached(url)) {
             mCurrentPlay.setCacheBufferProgress(100);
           }
-          mPlayer.setDataSource(mICacheProxy.getCacheUrl(url));
+          MediaItem item = MediaItem.fromUri(mICacheProxy.getCacheUrl(url));
+          mPlayer.setMediaItem(item);
           if (lastCacheListener != null) {
-            BaseApplication.proxy.unregisterCacheListener(lastCacheListener);
+            mICacheProxy.getHttpProxy().unregisterCacheListener(lastCacheListener);
           }
           lastCacheListener = new CacheListener() {
             @Override
@@ -165,38 +179,39 @@ public class PlayerController<
               SPUtils.getInstance().put(urlName + "-percent", percent);
             }
           };
-          BaseApplication.proxy.registerCacheListener(lastCacheListener, url);
+          mICacheProxy.getHttpProxy().registerCacheListener(lastCacheListener, url);
         } else if (url.contains("storage")) {
-          mPlayer.setDataSource(url);
+          MediaItem item = MediaItem.fromUri(url);
+          mPlayer.setMediaItem(item);
         } else {
-          mPlayer.setDataSource(Utils.getApp(), Uri.parse("file:///android_asset/" + url));
+          MediaItem item = MediaItem.fromUri(Uri.parse("file:///android_asset/" + url));
+          mPlayer.setMediaItem(item);
         }
-        mPlayer.prepareAsync();
-        mPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+        mPlayer.prepare();
+        mPlayer.addListener(new Player.Listener() {
           @Override
-          public void onPrepared(MediaPlayer iMediaPlayer) {
-            iMediaPlayer.start();
-            iMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-              @Override
-              public void onCompletion(MediaPlayer iMediaPlayer) {
-                System.out.println("播放完成");
-                if (getRepeatMode() == PlayingInfoManager.RepeatMode.SINGLE_CYCLE) playAgain();
-                else playNext();
-              }
-            });
-          }
-        });
-        mPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
-          @Override
-          public boolean onError(MediaPlayer mp, int what, int extra) {
-            System.out.println("播放错误");
-            if (extra == MediaPlayer.MEDIA_ERROR_TIMED_OUT || (what == 1 && extra == -2147483648)) {
+          public void onPlaybackStateChanged(int playbackState) {
+            Player.Listener.super.onPlaybackStateChanged(playbackState);
+            if (playbackState == Player.STATE_ENDED) {
+              System.out.println("播放完成");
               if (getRepeatMode() == PlayingInfoManager.RepeatMode.SINGLE_CYCLE) playAgain();
               else playNext();
+            } else if (playbackState == Player.STATE_READY) {
+              if (mIServiceNotifier != null) mIServiceNotifier.notifyService(true);
             }
-            return true;
+            mCurrentPlay.setBuffering(playbackState == Player.STATE_BUFFERING);
+          }
+
+          @Override
+          public void onPlayerError(PlaybackException error) {
+            Player.Listener.super.onPlayerError(error);
+            System.out.println("播放错误");
+            if (getRepeatMode() == PlayingInfoManager.RepeatMode.SINGLE_CYCLE) playAgain();
+            else playNext();
           }
         });
+        mPlayer.setPlayWhenReady(true);
+        mPlayer.play();
       } catch (Exception e) {
         throw new RuntimeException(e);
       }
@@ -280,7 +295,7 @@ public class PlayerController<
   }
 
   public void resumeAudio() {
-    mPlayer.start();
+    mPlayer.play();
     mHandler.post(mProgressAction);
     mCurrentPlay.setPaused(false);
     mUiStates.setValue(mCurrentPlay);
@@ -289,6 +304,7 @@ public class PlayerController<
 
   public void clear() {
     mPlayer.stop();
+    mPlayer.clearMediaItems();
     mPlayer.release();
     mCurrentPlay.setPaused(true);
     mUiStates.setValue(mCurrentPlay);

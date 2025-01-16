@@ -1,7 +1,8 @@
 [versions]
-agp = "8.7.2"
+agp = "8.6.1"
 androidDefensecrash = "4.0.3"
 androidxActivityKtx = "1.8.2"
+exoplayer = "2.18.5"
 fragmentKtx = "1.6.2"
 glideTransformations = "4.0.1"
 glideVersion = "4.16.0"
@@ -27,8 +28,11 @@ monitor = "1.6.1"
 runner = "1.5.2"
 coreAnimation = "1.0.0"
 xui = "1.2.1"
+media3Session = "1.5.1"
+xxpermissions = "20.0"
 
 [libraries]
+exoplayer = { module = "com.google.android.exoplayer:exoplayer", version.ref = "exoplayer" }
 android-defensecrash = { module = "com.github.xuuhaoo:Android-DefenseCrash", version.ref = "androidDefensecrash" }
 androidx-activity-activity-ktx = { module = "androidx.activity:activity-ktx", version.ref = "androidxActivityKtx" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -57,6 +61,8 @@ androidx-monitor = { group = "androidx.test", name = "monitor", version.ref = "m
 androidx-runner = { group = "androidx.test", name = "runner", version.ref = "runner" }
 androidx-core-animation = { group = "androidx.core", name = "core-animation", version.ref = "coreAnimation" }
 xui = { module = "com.github.xuexiangjys:XUI", version.ref = "xui" }
+androidx-media3-session = { group = "androidx.media3", name = "media3-session", version.ref = "media3Session" }
+xxpermissions = { module = "com.github.getActivity:XXPermissions", version.ref = "xxpermissions" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

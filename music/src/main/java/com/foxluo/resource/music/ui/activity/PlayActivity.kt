@@ -1,14 +1,20 @@
 package com.foxluo.resource.music.ui.activity
 
+import android.animation.ObjectAnimator
+import android.animation.ValueAnimator
 import android.content.Intent
 import android.view.View
+import android.view.animation.LinearInterpolator
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.foxluo.baselib.R
+import com.foxluo.baselib.domain.viewmodel.getAppViewModel
 import com.foxluo.baselib.ui.BaseBindingActivity
 import com.foxluo.baselib.util.ImageExt.loadUrlWithBlur
+import com.foxluo.baselib.util.ViewExt.visible
 import com.foxluo.resource.music.data.bean.MusicData
+import com.foxluo.resource.music.data.domain.viewmodel.MainMusicViewModel
 import com.foxluo.resource.music.databinding.ActivityPlayBinding
 import com.foxluo.resource.music.player.PlayerManager
 import com.foxluo.resource.music.player.domain.PlayingInfoManager.RepeatMode
@@ -23,6 +29,15 @@ class PlayActivity : BaseBindingActivity<ActivityPlayBinding>() {
             activity.startActivity(Intent(activity, PlayActivity::class.java))
             activity.overridePendingTransition(R.anim.activity_open, 0)
 
+        }
+    }
+
+    private val animator by lazy {
+        ObjectAnimator.ofFloat(binding.buffering, "rotation", 0.0F, 360.0F).apply {
+            setDuration(1000)
+            interpolator = LinearInterpolator()
+            repeatCount = ObjectAnimator.INFINITE
+            repeatMode = ValueAnimator.RESTART
         }
     }
 
@@ -51,6 +66,10 @@ class PlayActivity : BaseBindingActivity<ActivityPlayBinding>() {
                 }
             }
         )
+    }
+
+    private val musicViewModel by lazy {
+        getAppViewModel<MainMusicViewModel>()
     }
 
     private val targetPage: () -> Unit by lazy {
@@ -87,6 +106,14 @@ class PlayActivity : BaseBindingActivity<ActivityPlayBinding>() {
     override fun initListener() {
         binding.back.setOnClickListener {
             finish()
+        }
+        binding.reload.setOnClickListener {
+            if (playManager.currentPlayingMusic == null ||
+                playManager.currentPlayingMusic.url.contains("http").not()
+            ) {
+                return@setOnClickListener
+            }
+            playManager.reloadAudio()
         }
         binding.togglePlay.setOnClickListener {
             if (playManager.currentPlayingMusic == null) return@setOnClickListener
@@ -139,6 +166,7 @@ class PlayActivity : BaseBindingActivity<ActivityPlayBinding>() {
                 binding.playProgress.progress = it.progress
                 binding.playProgress.secondaryProgress = it.duration / 100 * it.cacheBufferProgress//这里的进度是百分比进度，转换对应秒数
                 binding.playProgress.max = it.duration
+                setBuffering(it.isBuffering)
                 (fragments[1] as DetailLyricsFragment).setLyricsDuration(
                     it.progress.toLong()
                 )
@@ -160,6 +188,24 @@ class PlayActivity : BaseBindingActivity<ActivityPlayBinding>() {
                 music?.lyrics,
                 music?.lyricsTrans
             )
+        }
+    }
+
+    // 更新缓冲状态
+    private fun setBuffering(isBuffering: Boolean) {
+        binding.togglePlay.visible(!isBuffering)
+        binding.buffering.visible(isBuffering)
+        if (isBuffering) {
+            if (!animator.isRunning) {
+                animator.start()
+            } else {
+                animator.resume()
+            }
+        } else {
+            if (!animator.isStarted || !animator.isRunning) {
+                animator.cancel()
+            }
+            animator.pause()
         }
     }
 

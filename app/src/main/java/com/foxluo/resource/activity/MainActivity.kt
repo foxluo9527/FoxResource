@@ -2,6 +2,7 @@ package com.foxluo.resource.activity
 
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
+import android.content.Intent
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.LinearInterpolator
@@ -22,7 +23,13 @@ import com.foxluo.resource.music.data.bean.MusicData
 import com.foxluo.resource.music.data.domain.viewmodel.MainMusicViewModel
 import com.foxluo.resource.music.player.PlayerManager
 import com.foxluo.resource.music.ui.activity.PlayActivity
+import com.foxluo.resource.service.MusicService
+import com.foxluo.resource.service.MusicService.Companion.ACTION_NEXT
+import com.foxluo.resource.service.MusicService.Companion.ACTION_PAUSE
+import com.foxluo.resource.service.MusicService.Companion.ACTION_PLAY
+import com.foxluo.resource.service.MusicService.Companion.ACTION_PREV
 
+const val PERMISSIONS_REQUEST_FOREGROUND_SERVICE = 2333
 class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
     private val fragments by lazy {
         listOf(HomeFragment(), ChatFragment(), CommunityFragment(), MineFragment())
@@ -47,6 +54,7 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
 
 
     override fun initView() {
+        startForegroundService(Intent(this, MusicService::class.java))
         val adapter = object : FragmentStateAdapter(this) {
             override fun createFragment(position: Int) = fragments[position]
 
@@ -56,6 +64,7 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
         binding.fragmentContainer.isUserInputEnabled = false
         binding.playCover.loadUrlWithCircle(null)
     }
+
 
     override fun initListener() {
         binding.navBottom.setOnItemSelectedListener { item ->

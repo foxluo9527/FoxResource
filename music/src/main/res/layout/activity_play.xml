@@ -40,6 +40,15 @@
             app:tabIndicatorHeight="0dp"
             app:tabMode="fixed" />
 
+        <ImageView
+            android:id="@+id/reload"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:padding="18dp"
+            android:src="@drawable/ic_loading"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/detail_viewpager"
             android:layout_width="match_parent"
@@ -119,6 +128,13 @@
                 android:padding="18dp"
                 android:src="@drawable/ic_previous" />
 
+            <ImageView
+                android:id="@+id/buffering"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:padding="10dp"
+                android:src="@drawable/ic_buffering"
+                android:visibility="gone" />
             <ImageView
                 android:id="@+id/toggle_play"
                 android:layout_width="60dp"

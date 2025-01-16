@@ -45,6 +45,8 @@ public class MusicDTO<
   private int progress;
   private int cacheBufferProgress;
   private boolean isPaused = true;
+  private boolean isBuffering = false;
+
   private Enum<PlayingInfoManager.RepeatMode> repeatMode = PlayingInfoManager.RepeatMode.LIST_CYCLE;
 
   public MusicDTO() {
@@ -85,6 +87,14 @@ public class MusicDTO<
   }
   public boolean isPaused() {
     return isPaused;
+  }
+
+  public void setBuffering(boolean isBuffering) {
+    this.isBuffering = isBuffering;
+  }
+
+  public boolean isBuffering() {
+    return isBuffering;
   }
   public Enum<PlayingInfoManager.RepeatMode> getRepeatMode() {
     return repeatMode;

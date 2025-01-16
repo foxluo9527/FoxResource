@@ -17,7 +17,10 @@
 package com.foxluo.resource.music.player;
 
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 
 import androidx.lifecycle.LiveData;
 
@@ -53,7 +56,7 @@ public class PlayerManager implements IPlayController<AlbumData, MusicData, Arti
 
   @Override
   public void init(Context context, IServiceNotifier iServiceNotifier, ICacheProxy iCacheProxy) {
-    mController.init(context.getApplicationContext(), iServiceNotifier, iCacheProxy);
+    mController.init(context, iServiceNotifier, iCacheProxy);
   }
 
   @Override
@@ -69,6 +72,10 @@ public class PlayerManager implements IPlayController<AlbumData, MusicData, Arti
   @Override
   public void playAudio() {
     mController.playAudio();
+  }
+
+  public void reloadAudio() {
+    mController.reloadAudio();
   }
 
   @Override
@@ -104,6 +111,7 @@ public class PlayerManager implements IPlayController<AlbumData, MusicData, Arti
   @Override
   public void clear() {
     mController.clear();
+
   }
 
   @Override

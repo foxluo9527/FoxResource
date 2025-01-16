@@ -35,6 +35,8 @@ android {
 }
 
 dependencies {
+    implementation(libs.exoplayer)
     implementation(project(":baseLib"))
     implementation(libs.lyricviewx)
+    implementation(libs.androidx.media3.session)
 }

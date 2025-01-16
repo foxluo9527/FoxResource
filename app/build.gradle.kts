@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.foxluo.resource"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.foxluo.resource"
