@@ -234,7 +234,7 @@ class MusicService : Service(), IServiceNotifier, ICacheProxy {
             }, Intent(this, PlayActivity::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }),
-            PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
         )
     }
 
@@ -252,7 +252,7 @@ class MusicService : Service(), IServiceNotifier, ICacheProxy {
             Intent(MUSIC_ACTION_INTENT_FILTER).apply {
                 setPackage(packageName)
             putExtra("action", action)
-        }, PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        }, PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
     }
 
     override fun getCacheUrl(url: String?): String? {
