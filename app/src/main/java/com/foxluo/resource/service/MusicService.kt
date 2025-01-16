@@ -1,6 +1,7 @@
 package com.foxluo.resource.service
 
 import android.annotation.SuppressLint
+import android.app.ActivityOptions
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -21,10 +22,7 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.app.NotificationCompat
 import androidx.core.graphics.drawable.toBitmap
 import com.blankj.utilcode.util.LogUtils
-import com.blankj.utilcode.util.SizeUtils.dp2px
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.MultiTransformation
-import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.AppWidgetTarget
 import com.danikula.videocache.HttpProxyCacheServer
@@ -36,7 +34,6 @@ import com.foxluo.resource.music.player.PlayerManager
 import com.foxluo.resource.music.player.contract.ICacheProxy
 import com.foxluo.resource.music.player.contract.IServiceNotifier
 import com.foxluo.resource.music.ui.activity.PlayActivity
-import jp.wasabeef.glide.transformations.RoundedCornersTransformation
 
 class MusicService : Service(), IServiceNotifier, ICacheProxy {
 
@@ -226,15 +223,19 @@ class MusicService : Service(), IServiceNotifier, ICacheProxy {
     }
 
     private fun getJumpPendingIntent(): PendingIntent {
+        val activityOptions =
+            ActivityOptions.makeCustomAnimation(this, com.foxluo.baselib.R.anim.activity_open, 0)
         return PendingIntent.getActivities(
             this,
             105,
             arrayOf(Intent(this, MainActivity::class.java).apply {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
             }, Intent(this, PlayActivity::class.java).apply {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or Intent.FLAG_ACTIVITY_SINGLE_TOP)
             }),
-            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_CANCEL_CURRENT or
+                    PendingIntent.FLAG_UPDATE_CURRENT or
+                    PendingIntent.FLAG_IMMUTABLE, activityOptions.toBundle()
         )
     }
 
@@ -252,7 +253,10 @@ class MusicService : Service(), IServiceNotifier, ICacheProxy {
             Intent(MUSIC_ACTION_INTENT_FILTER).apply {
                 setPackage(packageName)
             putExtra("action", action)
-        }, PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
+            }, PendingIntent.FLAG_CANCEL_CURRENT or
+                    PendingIntent.FLAG_UPDATE_CURRENT or
+                    PendingIntent.FLAG_IMMUTABLE
+        )
     }
 
     override fun getCacheUrl(url: String?): String? {
