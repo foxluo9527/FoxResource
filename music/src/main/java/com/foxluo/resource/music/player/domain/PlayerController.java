@@ -16,6 +16,8 @@
 
 package com.foxluo.resource.music.player.domain;
 
+import static com.xuexiang.xui.utils.XToastUtils.toast;
+
 import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
@@ -137,14 +139,14 @@ public class PlayerController<
       return;
     }
     setChangingPlayingMusic(true);
-    String filePath = SPUtils.getInstance().getString(StringUtil.INSTANCE.getUrlName(getCurrentPlayingMusic().url));
-    File cacheFile = new File(filePath);
-    try {
-      cacheFile.delete();
-      System.out.println("重新加载缓存文件：" + cacheFile.getName());
-    } catch (Exception e) {
-      System.out.println(e.getMessage());
-    }
+//    String filePath = SPUtils.getInstance().getString(StringUtil.INSTANCE.getUrlName(getCurrentPlayingMusic().url));
+//    File cacheFile = new File(filePath);
+//    try {
+//      cacheFile.delete();
+//      System.out.println("重新加载缓存文件：" + cacheFile.getName());
+//    } catch (Exception e) {
+//      System.out.println(e.getMessage());
+//    }
     playAudio();
   }
 
@@ -205,7 +207,8 @@ public class PlayerController<
           @Override
           public void onPlayerError(PlaybackException error) {
             Player.Listener.super.onPlayerError(error);
-            System.out.println("播放错误");
+            System.out.println("播放错误=>" + mCurrentPlay.getTitle());
+            toast("播放错误:" + mCurrentPlay.getTitle());
             if (getRepeatMode() == PlayingInfoManager.RepeatMode.SINGLE_CYCLE) playAgain();
             else playNext();
           }

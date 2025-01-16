@@ -21,20 +21,22 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.app.NotificationCompat
 import androidx.core.graphics.drawable.toBitmap
 import com.blankj.utilcode.util.LogUtils
-import com.blankj.utilcode.util.SPUtils
+import com.blankj.utilcode.util.SizeUtils.dp2px
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.MultiTransformation
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.AppWidgetTarget
 import com.danikula.videocache.HttpProxyCacheServer
 import com.foxluo.baselib.ui.BaseApplication.Companion.proxy
-import com.foxluo.baselib.util.StringUtil.getUrlName
+import com.foxluo.baselib.util.ImageExt.processUrl
 import com.foxluo.resource.activity.MainActivity
 import com.foxluo.resource.music.R
 import com.foxluo.resource.music.player.PlayerManager
 import com.foxluo.resource.music.player.contract.ICacheProxy
 import com.foxluo.resource.music.player.contract.IServiceNotifier
 import com.foxluo.resource.music.ui.activity.PlayActivity
-import java.io.File
+import jp.wasabeef.glide.transformations.RoundedCornersTransformation
 
 class MusicService : Service(), IServiceNotifier, ICacheProxy {
 
@@ -62,15 +64,19 @@ class MusicService : Service(), IServiceNotifier, ICacheProxy {
         MediaSession(this, javaClass.name)
     }
 
-    private val musicActionReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-        public override fun onReceive(context: Context, intent: Intent?) {
-            intent ?: return
-            var action = intent.getStringExtra("action")
-            when (action) {
-                "ACTION_PREV" -> playManager.playPrevious()
-                "ACTION_NEXT" -> playManager.playNext()
-                "ACTION_PAUSE" -> playManager.pauseAudio()
-                "ACTION_PLAY" -> playManager.playAudio()
+    private val musicActionReceiver: BroadcastReceiver by lazy {
+        object : BroadcastReceiver() {
+            public override fun onReceive(context: Context, intent: Intent?) {
+                LogUtils.e("广播接收器被触发")
+                LogUtils.e("Intent: $intent")
+                intent ?: return
+                var action = intent.getStringExtra("action")
+                when (action) {
+                    ACTION_PREV -> playManager.playPrevious()
+                    ACTION_NEXT -> playManager.playNext()
+                    ACTION_PAUSE -> playManager.pauseAudio()
+                    ACTION_PLAY -> playManager.playAudio()
+                }
             }
         }
     }
@@ -83,11 +89,14 @@ class MusicService : Service(), IServiceNotifier, ICacheProxy {
             .maxCacheFilesCount(200)
             .build()
         PlayerManager.getInstance().init(this, this, this)
+        // 在 Android 13（Tiramisu）及以上版本，需要显式声明 RECEIVER_EXPORTED
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             registerReceiver(
                 musicActionReceiver,
-                IntentFilter(MUSIC_ACTION_INTENT_FILTER),
-                RECEIVER_EXPORTED
+                IntentFilter().apply {
+                    addAction(MUSIC_ACTION_INTENT_FILTER)
+                },
+                RECEIVER_NOT_EXPORTED
             )
         } else {
             registerReceiver(musicActionReceiver, IntentFilter(MUSIC_ACTION_INTENT_FILTER))
@@ -135,7 +144,7 @@ class MusicService : Service(), IServiceNotifier, ICacheProxy {
         )
         try {
             val defaultCarPic = com.foxluo.baselib.R.mipmap.ic_app
-            Glide.with(this@MusicService).asBitmap().load(url)
+            Glide.with(this@MusicService).asBitmap().load(processUrl(url))
                 .apply(
                     RequestOptions()
                         .placeholder(defaultCarPic).error(defaultCarPic)
@@ -176,6 +185,7 @@ class MusicService : Service(), IServiceNotifier, ICacheProxy {
                 )
                 setOnClickPendingIntent(R.id.next, getActionPendingIntent(ACTION_NEXT))
             }
+            setOnClickPendingIntent(R.id.root,getJumpPendingIntent())
         }
         val context = this
         val notificationManger =
@@ -195,7 +205,6 @@ class MusicService : Service(), IServiceNotifier, ICacheProxy {
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setSmallIcon(com.foxluo.baselib.R.mipmap.ic_app)
             .setCategory(NotificationCompat.CATEGORY_REMINDER)
-            .setContentIntent(getJumpPendingIntent())
             .setLargeIcon(
                 AppCompatResources.getDrawable(
                     context,
@@ -219,7 +228,7 @@ class MusicService : Service(), IServiceNotifier, ICacheProxy {
     private fun getJumpPendingIntent(): PendingIntent {
         return PendingIntent.getActivities(
             this,
-            1,
+            105,
             arrayOf(Intent(this, MainActivity::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }, Intent(this, PlayActivity::class.java).apply {
@@ -230,27 +239,29 @@ class MusicService : Service(), IServiceNotifier, ICacheProxy {
     }
 
     private fun getActionPendingIntent(action: String? = null): PendingIntent {
-        return PendingIntent.getBroadcast(this, 2, Intent(MUSIC_ACTION_INTENT_FILTER).apply {
+        val requestCode = when (action) {
+            ACTION_PREV -> 101
+            ACTION_NEXT -> 102
+            ACTION_PLAY -> 103
+            ACTION_PAUSE -> 104
+            else -> 100
+        }
+        return PendingIntent.getBroadcast(
+            this,
+            requestCode,
+            Intent(MUSIC_ACTION_INTENT_FILTER).apply {
+                setPackage(packageName)
             putExtra("action", action)
         }, PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE)
     }
 
     override fun getCacheUrl(url: String?): String? {
-        var urlName: String = getUrlName(url)
-        //清除未缓存完成的文件，因为服务器是转发的，每次获取的内容都不一样，缓存框架会追加写入已缓存的部分后面，导致文件错误
-        //todo 服务器转发文件待修改
-        var filePath = SPUtils.getInstance().getString(urlName)
-        var cacheFile = File(filePath)
-        var cachedPercent = SPUtils.getInstance().getInt("$urlName-percent", 0)
-        if (cacheFile.isFile && cacheFile.exists() && cachedPercent < 100) {
-            try {
-                cacheFile.delete()
-                println("删除未完成缓存文件：" + cacheFile.name)
-            } catch (e: Exception) {
-                println(e.message)
-            }
-        }
         return proxy.getProxyUrl(url)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(musicActionReceiver)
     }
 
     override fun getHttpProxy() = proxy

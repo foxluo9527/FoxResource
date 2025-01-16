@@ -22,7 +22,7 @@ object ImageExt {
     fun ImageView.loadUrlWithBlur(url: String?) {
         Glide.with(this)
             .load(processUrl(url)?:R.mipmap.ic_app)
-            .transform(BlurTransformation(70))
+            .transform(BlurTransformation(100))
             .placeholder(R.mipmap.ic_app_blur)
             .error(R.mipmap.ic_app_blur)
             .into(this)
@@ -46,7 +46,7 @@ object ImageExt {
             .into(this)
     }
 
-    private fun processUrl(url: String?): String? {
+    fun processUrl(url: String?): String? {
         return if (!(url.isNullOrEmpty()) && url.startsWith("http") == false) {
             BaseApplication.proxy.getProxyUrl(BASE_URL + url)
         } else {

@@ -24,10 +24,11 @@ import com.foxluo.resource.music.data.domain.viewmodel.MainMusicViewModel
 import com.foxluo.resource.music.player.PlayerManager
 import com.foxluo.resource.music.ui.activity.PlayActivity
 import com.foxluo.resource.service.MusicService
-import com.foxluo.resource.service.MusicService.Companion.ACTION_NEXT
-import com.foxluo.resource.service.MusicService.Companion.ACTION_PAUSE
-import com.foxluo.resource.service.MusicService.Companion.ACTION_PLAY
-import com.foxluo.resource.service.MusicService.Companion.ACTION_PREV
+import com.hjq.permissions.OnPermissionCallback
+import com.hjq.permissions.Permission
+import com.hjq.permissions.XXPermissions
+import com.xuexiang.xui.utils.XToastUtils.toast
+
 
 const val PERMISSIONS_REQUEST_FOREGROUND_SERVICE = 2333
 class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
@@ -63,6 +64,25 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
         binding.fragmentContainer.adapter = adapter
         binding.fragmentContainer.isUserInputEnabled = false
         binding.playCover.loadUrlWithCircle(null)
+        XXPermissions.with(this) // 申请安装包权限
+            //.permission(Permission.REQUEST_INSTALL_PACKAGES)
+            // 申请悬浮窗权限
+            .permission(Permission.SYSTEM_ALERT_WINDOW)
+            // 申请通知栏权限
+            //.permission(Permission.NOTIFICATION_SERVICE)
+            // 申请系统设置权限
+            //.permission(Permission.WRITE_SETTINGS)
+            // 申请单个权限
+            //.permission(Permission.RECORD_AUDIO) // 申请多个权限
+            //.permission(Permission.Group.CALENDAR)
+            .request(object : OnPermissionCallback {
+                override fun onGranted(permissions: MutableList<String>, all: Boolean) {
+                }
+
+                override fun onDenied(permissions: MutableList<String>, never: Boolean) {
+                    toast("弹窗权限被拒绝，可能导致状态栏跳转异常")
+                }
+            })
     }
 
 

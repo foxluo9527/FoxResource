@@ -22,7 +22,7 @@ open class BaseRepository{
             .client(client)
     }
 
-    inline fun <reified API:BaseApi> getApi(): API {
-        return retrofit.build().create(API::class.java)
+    inline fun <reified API:BaseApi> getApi(): API? {
+        return kotlin.runCatching { retrofit.build().create(API::class.java) }.getOrNull()
     }
 }

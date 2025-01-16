@@ -11,6 +11,7 @@
     <color name="color_ED6C40">#ed6c40</color>
     <color name="color_F05019">#F05019</color>
     <color name="color_white_trans">#99FFFFFF</color>
+    <color name="color_white_trans_30">#4DFFFFFF</color>
     <color name="C1C1C1">#C1C1C1</color>
     <color name="F7F7F7">#f7f7f7</color>
 </resources>

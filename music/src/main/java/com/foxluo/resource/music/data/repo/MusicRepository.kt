@@ -13,8 +13,8 @@ class MusicRepository : BaseRepository() {
     }
 
     suspend fun getMusicList(page: Int, size: Int, keyword: String = ""): RequestResult {
-        val result = api.getMusicList(page, size, keyword)
-        val dataList = result.data?.let { data ->
+        val result = kotlin.runCatching { api?.getMusicList(page, size, keyword) }.getOrNull()
+        val dataList = result?.data?.let { data ->
             data.list?.map {
                 MusicData(
                     it.id.toString(),
@@ -39,7 +39,7 @@ class MusicRepository : BaseRepository() {
         return if (dataList != null) {
             RequestResult.Success<List<MusicData>?>(dataList)
         } else {
-            RequestResult.Error(result.message)
+            RequestResult.Error(result?.message?:"网络连接错误")
         }
 
     }
