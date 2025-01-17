@@ -4,13 +4,16 @@
     android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
-
-    <ImageView
-        android:id="@+id/cover"
+    <LinearLayout
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:src="@mipmap/ic_app" />
-
+        android:padding="6dp">
+        <ImageView
+            android:id="@+id/cover"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@mipmap/ic_app" />
+    </LinearLayout>
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="60dp"
@@ -33,30 +36,42 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginTop="2dp"
-            android:paddingHorizontal="40dp"
             android:gravity="center_horizontal"
             android:orientation="horizontal">
-
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"/>
             <ImageView
                 android:id="@+id/prev"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
-                android:layout_weight="1"
-                android:src="@drawable/ic_previous" />
-
+                android:padding="4dp"
+                android:src="@drawable/exo_notification_previous" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"/>
             <ImageView
                 android:id="@+id/play"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
-                android:layout_weight="1"
-                android:src="@drawable/iv_play" />
-
+                android:padding="4dp"
+                android:src="@drawable/exo_notification_play" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"/>
             <ImageView
                 android:id="@+id/next"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
-                android:layout_weight="1"
-                android:src="@drawable/ic_next" />
+                android:padding="4dp"
+                android:src="@drawable/exo_notification_next" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"/>
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

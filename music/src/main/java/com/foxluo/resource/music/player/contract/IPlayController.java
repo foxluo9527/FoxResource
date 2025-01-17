@@ -16,9 +16,11 @@
 
 package com.foxluo.resource.music.player.contract;
 
+import android.app.PendingIntent;
 import android.content.Context;
 
 import androidx.lifecycle.LiveData;
+import androidx.media3.exoplayer.ExoPlayer;
 
 import com.foxluo.resource.music.player.bean.base.BaseAlbumItem;
 import com.foxluo.resource.music.player.bean.base.BaseArtistItem;
@@ -34,7 +36,7 @@ public interface IPlayController<
         A extends BaseArtistItem>
         extends IPlayInfoManager<B, M, A> {
 
-  void init(Context context, IServiceNotifier iServiceNotifier, ICacheProxy iCacheProxy);
+  void init(ExoPlayer player, ICacheProxy iCacheProxy);
 
   void loadAlbum(B musicAlbum);
 
@@ -55,8 +57,6 @@ public interface IPlayController<
   void pauseAudio();
 
   void resumeAudio();
-
-  void clear();
 
   void changeMode();
 

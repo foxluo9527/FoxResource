@@ -2,12 +2,15 @@ package com.foxluo.resource.activity
 
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
+import android.app.PendingIntent
 import android.content.ComponentName
-import android.content.Intent
+import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.LinearInterpolator
-import androidx.lifecycle.MutableLiveData
+import androidx.annotation.OptIn
+import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -22,11 +25,12 @@ import com.foxluo.mine.ui.MineFragment
 import com.foxluo.resource.R
 import com.foxluo.resource.community.ui.CommunityFragment
 import com.foxluo.resource.databinding.ActivityMainBinding
-import com.foxluo.resource.music.data.bean.MusicData
 import com.foxluo.resource.music.data.domain.viewmodel.MainMusicViewModel
 import com.foxluo.resource.music.player.PlayerManager
+import com.foxluo.resource.music.player.domain.PlayerController
 import com.foxluo.resource.music.ui.activity.PlayActivity
 import com.foxluo.resource.service.MusicService
+import com.foxluo.resource.service.PlaybackNotification
 import com.google.common.util.concurrent.MoreExecutors
 import com.hjq.permissions.OnPermissionCallback
 import com.hjq.permissions.Permission
@@ -40,9 +44,7 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
         listOf(HomeFragment(), ChatFragment(), CommunityFragment(), MineFragment())
     }
 
-    private val currentMusic by lazy {
-        MutableLiveData<MusicData?>()
-    }
+    private var controller: MediaController? = null
 
     private val musicViewModel by lazy {
         getAppViewModel<MainMusicViewModel>()
@@ -59,7 +61,7 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
 
 
     override fun initView() {
-        startForegroundService(Intent(this, MusicService::class.java))
+//        startForegroundService(Intent(this, MusicService::class.java))
         val adapter = object : FragmentStateAdapter(this) {
             override fun createFragment(position: Int) = fragments[position]
 
@@ -89,19 +91,33 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
             })
     }
 
-    override fun onStart() {
-        super.onStart()
+    val sessionActivityPendingIntent: PendingIntent?
+        get() = packageManager?.getLaunchIntentForPackage(packageName)
+            ?.let { sessionIntent ->
+                PendingIntent.getActivity(
+                    this,
+                    887,
+                    sessionIntent,
+                    PendingIntent.FLAG_IMMUTABLE
+                )
+            }
+
+    @OptIn(UnstableApi::class)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         val sessionToken = SessionToken(this, ComponentName(this, MusicService::class.java))
         val controllerFuture = MediaController.Builder(this, sessionToken).buildAsync()
         controllerFuture.addListener(
             {
-                // Call controllerFuture.get() to retrieve the MediaController.
-                // MediaController implements the Player interface, so it can be
-                // attached to the PlayerView UI component.
-                val controller =controllerFuture.get()
+                controller = controllerFuture.get()
             },
             MoreExecutors.directExecutor()
         )
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        controller?.release()
     }
 
     override fun initListener() {
@@ -148,14 +164,17 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
     }
 
     override fun initObserver() {
+        musicViewModel.playingAlbum.observeForever {
+            PlayerManager.getInstance().loadAlbum(it.first, it.second)
+        }
         PlayerManager.getInstance().uiStates.observe(this) {
             val isPlaying = it != null && it.isPaused == false
             setPlaying(isPlaying)
-            if (it != null && it.musicId != currentMusic.value?.musicId) {
-                currentMusic.value = PlayerManager.getInstance().currentPlayingMusic
+            if (it != null && it.musicId != musicViewModel.currentMusic.value?.musicId) {
+                musicViewModel.currentMusic.value = PlayerManager.getInstance().currentPlayingMusic
             }
         }
-        currentMusic.observe(this) { currentMusic ->
+        musicViewModel.currentMusic.observe(this) { currentMusic ->
             currentMusic ?: return@observe
             binding.playCover.loadUrlWithCircle(currentMusic.coverImg)
             if (musicViewModel.isCurrentMusicByUser) {

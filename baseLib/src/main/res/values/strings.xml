@@ -15,4 +15,5 @@
     <string name="singer">歌手</string>
     <string name="playlist">歌单</string>
     <string name="song">歌曲</string>
+    <string name="music_service">播放服务</string>
 </resources>

@@ -113,7 +113,7 @@ class PlayActivity : BaseBindingActivity<ActivityPlayBinding>() {
             ) {
                 return@setOnClickListener
             }
-            playManager.reloadAudio()
+            playManager.playAgain()
         }
         binding.togglePlay.setOnClickListener {
             if (playManager.currentPlayingMusic == null) return@setOnClickListener

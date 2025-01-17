@@ -29,17 +29,17 @@ class MusicListFragment : BaseBindingFragment<FragmentMusicListBinding>() {
     }
     private val onClickItem: (Boolean, Int) -> Unit = { _: Boolean, position: Int ->
         musicViewModel.isCurrentMusicByUser = true
-            PlayerManager.getInstance().loadAlbum(
-                AlbumData(
-                    null,
-                    PLAY_LIST_ALBUM_TITLE,
-                    null,
-                    null,
-                    null,
-                    adapter.getPlayList()
-                ), position
-            )
-        }
+        musicViewModel.playingAlbum.value =
+            AlbumData(
+                null,
+                PLAY_LIST_ALBUM_TITLE,
+                null,
+                null,
+                null,
+                adapter.getPlayList()
+            ) to position
+
+    }
 
     override fun initObserver() {
         vm.isLoading.observe(this) {

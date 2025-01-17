@@ -46,6 +46,8 @@ dependencies {
     implementation(libs.androidx.core.animation)
     implementation(libs.androidx.media3.common.ktx)
     implementation(libs.androidx.media3.session)
+    implementation(libs.media3.exoplayer)
+    implementation(libs.androidx.media3.ui)
     testImplementation(libs.junit.junit)
     androidTestImplementation(libs.androidx.monitor)
     androidTestImplementation(libs.junit.junit)

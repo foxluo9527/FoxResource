@@ -16,24 +16,16 @@
 
 package com.foxluo.resource.music.player;
 
-import static android.media.MediaMetadata.METADATA_KEY_ARTIST;
-import static android.media.MediaMetadata.METADATA_KEY_DURATION;
-import static android.media.MediaMetadata.METADATA_KEY_TITLE;
-
 import android.annotation.SuppressLint;
-import android.content.Context;
-import android.media.MediaMetadata;
-import android.media.session.PlaybackState;
 
 import androidx.lifecycle.LiveData;
-import androidx.media3.session.MediaSession;
+import androidx.media3.exoplayer.ExoPlayer;
 
 import com.foxluo.resource.music.data.bean.AlbumData;
 import com.foxluo.resource.music.data.bean.ArtistData;
 import com.foxluo.resource.music.data.bean.MusicData;
 import com.foxluo.resource.music.player.contract.ICacheProxy;
 import com.foxluo.resource.music.player.contract.IPlayController;
-import com.foxluo.resource.music.player.contract.IServiceNotifier;
 import com.foxluo.resource.music.player.domain.MusicDTO;
 import com.foxluo.resource.music.player.domain.PlayerController;
 import com.foxluo.resource.music.player.domain.PlayingInfoManager;
@@ -59,8 +51,8 @@ public class PlayerManager implements IPlayController<AlbumData, MusicData, Arti
   }
 
   @Override
-  public void init(Context context, IServiceNotifier iServiceNotifier, ICacheProxy iCacheProxy) {
-    mController.init(context, iServiceNotifier, iCacheProxy);
+  public void init(ExoPlayer player, ICacheProxy iCacheProxy) {
+    mController.init(player, iCacheProxy);
   }
 
   @Override
@@ -76,10 +68,6 @@ public class PlayerManager implements IPlayController<AlbumData, MusicData, Arti
   @Override
   public void playAudio() {
     mController.playAudio();
-  }
-
-  public void reloadAudio() {
-    mController.reloadAudio();
   }
 
   @Override
@@ -110,11 +98,6 @@ public class PlayerManager implements IPlayController<AlbumData, MusicData, Arti
   @Override
   public void resumeAudio() {
     mController.resumeAudio();
-  }
-
-  @Override
-  public void clear() {
-    mController.clear();
   }
 
   @Override
@@ -187,15 +170,13 @@ public class PlayerManager implements IPlayController<AlbumData, MusicData, Arti
     return mController.getCurrentPlayingMusic();
   }
 
+  @Override
   public void removeAlbumIndex(int index) {
       mController.removeAlbumIndex(index);
   }
 
+  @Override
   public void appendPlayList(List<MusicData> list) {
     mController.appendPlayingList(list);
-  }
-
-  public MediaSession getMediaSession() {
-    return mController.getMediaSession();
   }
 }
