@@ -26,7 +26,7 @@ class PlayListDialog : BaseBottomSheetDialogFragment<DialogPlayingListBinding>()
             playManager.removeAlbumIndex(position)
             initData()
         } else {
-            playManager.currentAlbumIndex(position)
+            playManager.playAudio(position)
         }
     }
 

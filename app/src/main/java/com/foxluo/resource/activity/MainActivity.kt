@@ -2,11 +2,14 @@ package com.foxluo.resource.activity
 
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
+import android.content.ComponentName
 import android.content.Intent
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.LinearInterpolator
 import androidx.lifecycle.MutableLiveData
+import androidx.media3.session.MediaController
+import androidx.media3.session.SessionToken
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.blankj.utilcode.util.ConvertUtils.px2dp
 import com.foxluo.baselib.domain.viewmodel.getAppViewModel
@@ -24,6 +27,7 @@ import com.foxluo.resource.music.data.domain.viewmodel.MainMusicViewModel
 import com.foxluo.resource.music.player.PlayerManager
 import com.foxluo.resource.music.ui.activity.PlayActivity
 import com.foxluo.resource.service.MusicService
+import com.google.common.util.concurrent.MoreExecutors
 import com.hjq.permissions.OnPermissionCallback
 import com.hjq.permissions.Permission
 import com.hjq.permissions.XXPermissions
@@ -85,6 +89,20 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
             })
     }
 
+    override fun onStart() {
+        super.onStart()
+        val sessionToken = SessionToken(this, ComponentName(this, MusicService::class.java))
+        val controllerFuture = MediaController.Builder(this, sessionToken).buildAsync()
+        controllerFuture.addListener(
+            {
+                // Call controllerFuture.get() to retrieve the MediaController.
+                // MediaController implements the Player interface, so it can be
+                // attached to the PlayerView UI component.
+                val controller =controllerFuture.get()
+            },
+            MoreExecutors.directExecutor()
+        )
+    }
 
     override fun initListener() {
         binding.navBottom.setOnItemSelectedListener { item ->

@@ -44,6 +44,8 @@ dependencies {
     implementation(project(":notification"))
     implementation(project(":mine"))
     implementation(libs.androidx.core.animation)
+    implementation(libs.androidx.media3.common.ktx)
+    implementation(libs.androidx.media3.session)
     testImplementation(libs.junit.junit)
     androidTestImplementation(libs.androidx.monitor)
     androidTestImplementation(libs.junit.junit)
