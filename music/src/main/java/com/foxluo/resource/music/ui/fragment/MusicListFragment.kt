@@ -54,6 +54,7 @@ class MusicListFragment : BaseBindingFragment<FragmentMusicListBinding>() {
             if (vm.page == 1) {
                 adapter.setDataList(dataList)
             } else {
+                binding.refresh.setNoMoreData(dataList.isNullOrEmpty())
                 adapter.insertDataList(dataList)
                 if (playerManager.albumMusics.isNotEmpty() && playerManager.album.title == PLAY_LIST_ALBUM_TITLE) {
                     playerManager.appendPlayList(dataList)
@@ -61,14 +62,13 @@ class MusicListFragment : BaseBindingFragment<FragmentMusicListBinding>() {
             }
         }
         PlayerManager.getInstance().uiStates.observe(this) {
-            if (it != null && it.musicId != vm.currentMusic.value?.musicId) {
-                vm.currentMusic.value = PlayerManager.getInstance().currentPlayingMusic
+            if (it != null && it.musicId != musicViewModel.currentMusic.value?.musicId) {
+                musicViewModel.currentMusic.value = PlayerManager.getInstance().currentPlayingMusic
             }
         }
-        vm.currentMusic.observe(this) { currentMusic ->
-            currentMusic ?: return@observe
+        musicViewModel.currentMusic.observe(this) { currentMusic ->
             val musicList = adapter.getPlayList()
-            adapter.currentIndex = musicList.indexOf(musicList.find { it.musicId == currentMusic.musicId })
+            adapter.currentIndex = musicList.indexOf(musicList.find { it.musicId == currentMusic?.musicId })
         }
     }
 

@@ -8,7 +8,7 @@ class DetailSongFragment : BaseBindingFragment<FragmentDetailSongBinding>() {
     private var currentMusic: MusicData? = null
     var targetPage :(()->Unit)?=null
 
-    fun initMusicData(data: MusicData) {
+    fun initMusicData(data: MusicData?) {
         this.currentMusic = data
         initView()
     }
@@ -24,6 +24,11 @@ class DetailSongFragment : BaseBindingFragment<FragmentDetailSongBinding>() {
             binding.songName.text = data.title
             binding.singer.text = data.artist.name
             binding.like.isSelected = data.isCollection
+        }?: kotlin.run {
+            binding.cover.setAlbumPic(null)
+            binding.songName.text = ""
+            binding.singer.text = ""
+            binding.like.isSelected = false
         }
         binding.coverContainer.post {
             binding.coverContainer.radius = (binding.coverContainer.width / 2).toFloat()

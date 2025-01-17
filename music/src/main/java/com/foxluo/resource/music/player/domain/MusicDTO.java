@@ -22,6 +22,8 @@ import com.foxluo.resource.music.player.bean.base.BaseAlbumItem;
 import com.foxluo.resource.music.player.bean.base.BaseArtistItem;
 import com.foxluo.resource.music.player.bean.base.BaseMusicItem;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.io.Serializable;
 
 /**
@@ -100,13 +102,26 @@ public class MusicDTO<
     return repeatMode;
   }
 
-  void setBaseInfo(B musicAlbum, M music) {
-    this.title = music.title;
-    this.summary = musicAlbum.summary;
-    this.albumId = musicAlbum.albumId;
-    this.musicId = music.musicId;
-    this.img = music.coverImg;
-    this.artist = (A) music.artist;
+  void setBaseInfo(@Nullable B musicAlbum, M music) {
+    if (musicAlbum != null) {
+      this.summary = musicAlbum.summary;
+      this.albumId = musicAlbum.albumId;
+
+    } else {
+      this.summary = "";
+      this.albumId = "";
+    }
+    if (music!=null){
+      this.title = music.title;
+      this.musicId = music.musicId;
+      this.img = music.coverImg;
+      this.artist = (A) music.artist;
+    }else{
+      this.title = "";
+      this.musicId = "";
+      this.img = "";
+      this.artist = null;
+    }
   }
   void setTitle(String title) {
     this.title = title;

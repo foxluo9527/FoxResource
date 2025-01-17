@@ -32,17 +32,24 @@ class PlayListDialog : BaseBottomSheetDialogFragment<DialogPlayingListBinding>()
 
     override fun initView() {
         binding.rvList.adapter = adapter
-        binding.listTitle.text = playManager.album?.title ?: ""
     }
 
-    override fun initHeightPercent(): Int? {
+    override fun initHeightPercent(): Int {
         return 70
+    }
+
+    override fun initListener() {
+        binding.clear.setOnClickListener {
+            playManager.clearPlayList()
+            initData()
+        }
     }
 
     override fun initData() {
         super.initData()
         adapter.setDataList(playManager.albumMusics)
         currentMusic.value = playManager.currentPlayingMusic
+        binding.listTitle.text = playManager.album?.title?.plus("(共${playManager.albumMusics?.size}首)") ?: ""
     }
 
     override fun initObserver() {

@@ -44,4 +44,6 @@ public interface IPlayInfoManager<B extends BaseAlbumItem<M, A>, M extends BaseM
   void removeAlbumIndex(int index);
 
   void appendPlayList(List<M> list);
+
+  void clearPlayList();
 }

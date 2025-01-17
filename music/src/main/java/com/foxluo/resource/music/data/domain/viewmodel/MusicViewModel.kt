@@ -9,8 +9,8 @@ import com.foxluo.resource.music.data.repo.MusicRepository
 import kotlinx.coroutines.launch
 
 class MusicViewModel : BaseViewModel() {
-    val currentMusic by lazy {
-        MutableLiveData<MusicData?>()
+    init {
+        size = 30
     }
 
     private val repo by lazy {

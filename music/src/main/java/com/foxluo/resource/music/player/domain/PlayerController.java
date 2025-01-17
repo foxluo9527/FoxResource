@@ -119,7 +119,7 @@ public class PlayerController<
   }
 
   private void updateProgress() {
-    if (isInit()) {
+    if (isInit() && getCurrentPlayingMusic()!=null) {
       if (mCurrentPlay.getMusicId() != getCurrentPlayingMusic().musicId) {
         mCurrentPlay.setBaseInfo(currentAlbum, getCurrentPlayingMusic());
       }
@@ -128,15 +128,16 @@ public class PlayerController<
       mCurrentPlay.setDuration((int) mPlayer.getDuration());
       mCurrentPlay.setCacheBufferProgress(mPlayer.getBufferedPercentage());
       mCurrentPlay.setProgress((int) mPlayer.getCurrentPosition());
+      mUiStates.setValue(mCurrentPlay);
+      mHandler.postDelayed(mProgressAction, 1000);
     } else {
       mCurrentPlay.setNowTime(calculateTime(0));
       mCurrentPlay.setAllTime(calculateTime(0));
       mCurrentPlay.setDuration(0);
       mCurrentPlay.setCacheBufferProgress(0);
       mCurrentPlay.setProgress(0);
+      mUiStates.setValue(mCurrentPlay);
     }
-    mUiStates.setValue(mCurrentPlay);
-    mHandler.postDelayed(mProgressAction, 1000);
   }
 
   private void setAlbum(B musicAlbum, int albumIndex) {
@@ -314,6 +315,9 @@ public class PlayerController<
   }
 
   public void clear() {
+    if (!isInit()) return;
+    mPlayer.clearMediaItems();
+    playingList.clear();
     mCurrentPlay.setPaused(true);
     mUiStates.setValue(mCurrentPlay);
     resetIsChangingPlayingChapter();

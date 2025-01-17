@@ -84,6 +84,8 @@ class PlayActivity : BaseBindingActivity<ActivityPlayBinding>() {
         }
     }
 
+    private var onTouchSeekBar = false
+
     override fun initView() {
         val adapter = object : FragmentStateAdapter(this) {
             override fun createFragment(position: Int) = fragments[position]
@@ -101,6 +103,7 @@ class PlayActivity : BaseBindingActivity<ActivityPlayBinding>() {
         }.apply {
             this.attach()
         }
+        binding.blur.loadUrlWithBlur(null)
     }
 
     override fun initListener() {
@@ -136,7 +139,9 @@ class PlayActivity : BaseBindingActivity<ActivityPlayBinding>() {
         }
         binding.playProgress.setOnSeekBarChangeListener(object :
             SeekBar.OnSeekBarChangeListener {
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                onTouchSeekBar = true
+            }
             override fun onProgressChanged(
                 seekBar: SeekBar?,
                 progress: Int,
@@ -146,6 +151,7 @@ class PlayActivity : BaseBindingActivity<ActivityPlayBinding>() {
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 seekBar?.progress?.let { playManager.setSeek(it) }
+                onTouchSeekBar = false
             }
         })
     }
@@ -163,7 +169,9 @@ class PlayActivity : BaseBindingActivity<ActivityPlayBinding>() {
                     (fragments[0] as DetailSongFragment).initPlayState(playManager.isPlaying)
                 }
                 binding.togglePlay.isSelected = playManager.isPlaying
-                binding.playProgress.progress = it.progress
+                if (!onTouchSeekBar) {
+                    binding.playProgress.progress = it.progress
+                }
                 binding.playProgress.secondaryProgress = it.duration / 100 * it.cacheBufferProgress//这里的进度是百分比进度，转换对应秒数
                 binding.playProgress.max = it.duration
                 setBuffering(it.isBuffering)
@@ -182,7 +190,7 @@ class PlayActivity : BaseBindingActivity<ActivityPlayBinding>() {
     private fun initCurrentMusicDetail() {
         playManager.currentPlayingMusic.let { music ->
             mCurrentMusic = music
-            binding.blur.loadUrlWithBlur(music.coverImg)
+            binding.blur.loadUrlWithBlur(music?.coverImg)
             (fragments[0] as DetailSongFragment).initMusicData(music)
             (fragments[1] as DetailLyricsFragment).setLyrics(
                 music?.lyrics,

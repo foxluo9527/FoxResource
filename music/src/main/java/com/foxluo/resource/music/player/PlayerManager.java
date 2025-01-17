@@ -179,4 +179,9 @@ public class PlayerManager implements IPlayController<AlbumData, MusicData, Arti
   public void appendPlayList(List<MusicData> list) {
     mController.appendPlayingList(list);
   }
+
+  @Override
+  public void clearPlayList() {
+    mController.clear();
+  }
 }
