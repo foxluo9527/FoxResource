@@ -4,16 +4,12 @@ import android.app.Application
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
-import com.danikula.videocache.HttpProxyCacheServer
 import com.foxluo.baselib.domain.viewmodel.setApplicationContext
 
 //BaseApplication实现ViewModelStoreOwner接口
 open class BaseApplication : Application(), ViewModelStoreOwner {
     private lateinit var mAppViewModelStore: ViewModelStore
     private var mFactory: ViewModelProvider.Factory? = null
-    companion object{
-        lateinit var proxy :HttpProxyCacheServer
-    }
 
     override fun onCreate() {
         super.onCreate()

@@ -18,15 +18,12 @@ import android.os.Build
 import android.os.IBinder
 import android.view.KeyEvent
 import android.widget.RemoteViews
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.app.NotificationCompat
-import androidx.core.graphics.drawable.toBitmap
 import com.blankj.utilcode.util.LogUtils
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.AppWidgetTarget
 import com.danikula.videocache.HttpProxyCacheServer
-import com.foxluo.baselib.ui.BaseApplication.Companion.proxy
 import com.foxluo.baselib.util.ImageExt.processUrl
 import com.foxluo.resource.activity.MainActivity
 import com.foxluo.resource.music.R
@@ -36,9 +33,8 @@ import com.foxluo.resource.music.player.contract.IServiceNotifier
 import com.foxluo.resource.music.ui.activity.PlayActivity
 
 class MusicService : Service(), IServiceNotifier, ICacheProxy {
-
     companion object {
-        const val NOTIFICATION_ID = 11123
+        private var NOTIFICATION_ID = 11123
         const val MUSIC_ACTION_INTENT_FILTER = "MUSIC_ACTION_INTENT_FILTER"
         const val ACTION_PREV = "ACTION_PREV"
         const val ACTION_NEXT = "ACTION_NEXT"
@@ -54,6 +50,14 @@ class MusicService : Service(), IServiceNotifier, ICacheProxy {
                 var NEXT_ACTION: Int = 87
             }
         }
+    }
+
+    private val proxy by lazy {
+        HttpProxyCacheServer
+            .Builder(this)
+            .maxCacheSize(1024 * 1024 * 1024)
+            .maxCacheFilesCount(200)
+            .build()
     }
 
 
@@ -78,27 +82,8 @@ class MusicService : Service(), IServiceNotifier, ICacheProxy {
         }
     }
 
-    override fun onCreate() {
-        super.onCreate()
-        proxy = HttpProxyCacheServer
-            .Builder(this)
-            .maxCacheSize(1024 * 1024 * 1024)
-            .maxCacheFilesCount(200)
-            .build()
-        PlayerManager.getInstance().init(this, this, this)
-        // 在 Android 13（Tiramisu）及以上版本，需要显式声明 RECEIVER_EXPORTED
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(
-                musicActionReceiver,
-                IntentFilter().apply {
-                    addAction(MUSIC_ACTION_INTENT_FILTER)
-                },
-                RECEIVER_NOT_EXPORTED
-            )
-        } else {
-            registerReceiver(musicActionReceiver, IntentFilter(MUSIC_ACTION_INTENT_FILTER))
-        }
-        mMediaSession.setCallback(object : MediaSession.Callback() {
+    private val mediaSessionCallBack by lazy {
+        object : MediaSession.Callback() {
             override fun onMediaButtonEvent(mediaButtonIntent: Intent): Boolean {
                 val keyEvent: KeyEvent =
                     mediaButtonIntent.getParcelableExtra(Intent.EXTRA_KEY_EVENT)
@@ -112,8 +97,25 @@ class MusicService : Service(), IServiceNotifier, ICacheProxy {
                 //返回值的作用跟事件分发的原理是一样的,返回true代表事件被消费,其他应用也就收不到了
                 return true
             }
-        })
-        mMediaSession.setFlags(MediaSession.FLAG_HANDLES_MEDIA_BUTTONS or MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS)
+        }
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        PlayerManager.getInstance().init(this, this, this)
+        // 在 Android 13（Tiramisu）及以上版本，需要显式声明 RECEIVER_EXPORTED
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(
+                musicActionReceiver,
+                IntentFilter().apply {
+                    addAction(MUSIC_ACTION_INTENT_FILTER)
+                },
+                RECEIVER_EXPORTED
+            )
+        } else {
+            registerReceiver(musicActionReceiver, IntentFilter(MUSIC_ACTION_INTENT_FILTER))
+        }
+        mMediaSession.setCallback(mediaSessionCallBack)
         mMediaSession.isActive = true
     }
 
@@ -159,6 +161,7 @@ class MusicService : Service(), IServiceNotifier, ICacheProxy {
             R.layout.layout_music_notification
         ).apply {
             val currentMusic = playManager.currentPlayingMusic
+            playManager.setMediaSessionData(mMediaSession, this@MusicService)
             setImageViewResource(
                 R.id.play,
                 if (playManager.isPlaying)
@@ -201,13 +204,7 @@ class MusicService : Service(), IServiceNotifier, ICacheProxy {
             .setOngoing(false)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setSmallIcon(com.foxluo.baselib.R.mipmap.ic_app)
-            .setCategory(NotificationCompat.CATEGORY_REMINDER)
-            .setLargeIcon(
-                AppCompatResources.getDrawable(
-                    context,
-                    com.foxluo.baselib.R.mipmap.ic_app
-                )?.toBitmap()
-            )
+            .setCategory(NotificationCompat.CATEGORY_SERVICE)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .build()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -215,11 +212,12 @@ class MusicService : Service(), IServiceNotifier, ICacheProxy {
             startForeground(
                 NOTIFICATION_ID,
                 notification,
-                ServiceInfo.FOREGROUND_SERVICE_TYPE_MANIFEST
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
             )
         } else {
             startForeground(NOTIFICATION_ID, notification)
         }
+//        NOTIFICATION_ID++
     }
 
     private fun getJumpPendingIntent(): PendingIntent {
@@ -227,11 +225,11 @@ class MusicService : Service(), IServiceNotifier, ICacheProxy {
             ActivityOptions.makeCustomAnimation(this, com.foxluo.baselib.R.anim.activity_open, 0)
         return PendingIntent.getActivities(
             this,
-            105,
+            System.currentTimeMillis().toInt(),
             arrayOf(Intent(this, MainActivity::class.java).apply {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }, Intent(this, PlayActivity::class.java).apply {
-                addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }),
             PendingIntent.FLAG_CANCEL_CURRENT or
                     PendingIntent.FLAG_UPDATE_CURRENT or
@@ -251,10 +249,8 @@ class MusicService : Service(), IServiceNotifier, ICacheProxy {
             this,
             requestCode,
             Intent(MUSIC_ACTION_INTENT_FILTER).apply {
-                setPackage(packageName)
-            putExtra("action", action)
-            }, PendingIntent.FLAG_CANCEL_CURRENT or
-                    PendingIntent.FLAG_UPDATE_CURRENT or
+                putExtra("action", action)
+            }, PendingIntent.FLAG_ONE_SHOT or
                     PendingIntent.FLAG_IMMUTABLE
         )
     }
@@ -265,6 +261,7 @@ class MusicService : Service(), IServiceNotifier, ICacheProxy {
 
     override fun onDestroy() {
         super.onDestroy()
+        mMediaSession.release()
         unregisterReceiver(musicActionReceiver)
     }
 

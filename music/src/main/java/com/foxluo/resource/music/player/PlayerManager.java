@@ -16,11 +16,15 @@
 
 package com.foxluo.resource.music.player;
 
+import static android.media.MediaMetadata.METADATA_KEY_ARTIST;
+import static android.media.MediaMetadata.METADATA_KEY_DURATION;
+import static android.media.MediaMetadata.METADATA_KEY_TITLE;
+
 import android.annotation.SuppressLint;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
+import android.media.MediaMetadata;
+import android.media.session.MediaSession;
+import android.media.session.PlaybackState;
 
 import androidx.lifecycle.LiveData;
 
@@ -182,6 +186,48 @@ public class PlayerManager implements IPlayController<AlbumData, MusicData, Arti
   @Override
   public MusicData getCurrentPlayingMusic() {
     return mController.getCurrentPlayingMusic();
+  }
+
+  /**
+   * 向媒体会话设置播放歌曲信息
+   *
+   * @param mediaSession
+   * @param context
+   */
+  public void setMediaSessionData(MediaSession mediaSession, Context context) {
+    if (getCurrentPlayingMusic() == null) {
+      return;
+    }
+    int playbackState;
+    if (getUiStates().getValue().isBuffering())
+      playbackState = PlaybackState.STATE_BUFFERING;
+    else if (isPlaying())
+      playbackState = PlaybackState.STATE_PLAYING;
+    else
+      playbackState = PlaybackState.STATE_PAUSED;
+    float speed = 0f;
+    if (isPlaying()) {
+      speed = 1f;
+    }
+    long duration = getUiStates().getValue().getDuration();
+    long cached = duration / 100 * getUiStates().getValue().getCacheBufferProgress();
+    long progress = getUiStates().getValue().getProgress();
+    mediaSession.setPlaybackState(
+            new PlaybackState
+                    .Builder()
+                    .setBufferedPosition(cached)
+                    .setState(playbackState, duration, speed, progress)
+                    .build()
+    );
+    String artist = "未知艺术家";
+    if (getCurrentPlayingMusic().artist != null) {
+      artist = getCurrentPlayingMusic().artist.name;
+    }
+    mediaSession.setMetadata(new MediaMetadata.Builder()
+            .putText(METADATA_KEY_TITLE, getCurrentPlayingMusic().title)
+            .putText(METADATA_KEY_ARTIST, artist)
+            .putLong(METADATA_KEY_DURATION, duration)
+            .build());
   }
 
   public boolean removeAlbumIndex(int index) {

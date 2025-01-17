@@ -16,6 +16,10 @@
 
 package com.foxluo.resource.music.player.domain;
 
+import static com.google.android.exoplayer2.PlaybackException.ERROR_CODE_IO_BAD_HTTP_STATUS;
+import static com.google.android.exoplayer2.PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND;
+import static com.google.android.exoplayer2.PlaybackException.ERROR_CODE_IO_INVALID_HTTP_CONTENT_TYPE;
+import static com.google.android.exoplayer2.PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT;
 import static com.xuexiang.xui.utils.XToastUtils.toast;
 
 import android.content.Context;
@@ -25,6 +29,7 @@ import android.text.TextUtils;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.media3.session.MediaSession;
 
 import com.blankj.utilcode.util.SPUtils;
 import com.danikula.videocache.CacheListener;
@@ -64,7 +69,6 @@ public class PlayerController<
   private final static Handler mHandler = new Handler();
   private final Runnable mProgressAction = this::updateProgress;
   private CacheListener lastCacheListener = null;
-
   public void init(Context context, IServiceNotifier iServiceNotifier, ICacheProxy iCacheProxy) {
     mIServiceNotifier = iServiceNotifier;
     mICacheProxy = iCacheProxy;
@@ -207,10 +211,16 @@ public class PlayerController<
           @Override
           public void onPlayerError(PlaybackException error) {
             Player.Listener.super.onPlayerError(error);
-            System.out.println("播放错误=>" + mCurrentPlay.getTitle());
+            System.out.println("播放错误=>" + mCurrentPlay.getTitle() + ",errorCode:" + error.errorCode);
             toast("播放错误:" + mCurrentPlay.getTitle());
-            if (getRepeatMode() == PlayingInfoManager.RepeatMode.SINGLE_CYCLE) playAgain();
-            else playNext();
+            if (error.errorCode == ERROR_CODE_IO_BAD_HTTP_STATUS
+                    || error.errorCode == ERROR_CODE_IO_INVALID_HTTP_CONTENT_TYPE
+                    || error.errorCode == ERROR_CODE_IO_FILE_NOT_FOUND
+                    || error.errorCode == ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT
+            ) {
+              if (getRepeatMode() == PlayingInfoManager.RepeatMode.SINGLE_CYCLE) playAgain();
+              else playNext();
+            }
           }
         });
         mPlayer.setPlayWhenReady(true);

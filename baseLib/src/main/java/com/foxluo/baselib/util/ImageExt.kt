@@ -48,7 +48,7 @@ object ImageExt {
 
     fun processUrl(url: String?): String? {
         return if (!(url.isNullOrEmpty()) && url.startsWith("http") == false) {
-            BaseApplication.proxy.getProxyUrl(BASE_URL + url)
+            BASE_URL + url
         } else {
             if (url.isNullOrEmpty()) {
                 null

@@ -5,7 +5,6 @@ import com.android.tony.defenselib.DefenseCrash
 import com.android.tony.defenselib.handler.IExceptionHandler
 import com.blankj.utilcode.util.ActivityUtils
 import com.blankj.utilcode.util.SPUtils
-import com.danikula.videocache.HttpProxyCacheServer
 import com.foxluo.baselib.ui.BaseApplication
 import com.foxluo.baselib.util.StringUtil.getUrlName
 import com.foxluo.resource.activity.CrashActivity
