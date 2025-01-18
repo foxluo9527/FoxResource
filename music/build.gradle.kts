@@ -1,11 +1,12 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
+    kotlin("kapt")
 }
 
 android {
     namespace = "com.foxluo.resource.music"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 26
@@ -34,7 +35,16 @@ android {
     }
 }
 
+kapt {
+    arguments {
+        arg("AROUTER_MODULE_NAME", project.name)
+    }
+}
 dependencies {
+    implementation(libs.arouter.api)
+    implementation(libs.androidx.junit.ktx)
+    testImplementation(libs.junit.junit)
+    kapt(libs.arouter.compiler)
     implementation(libs.androidx.media3.exoplayer)
     implementation(project(":baseLib"))
     implementation(libs.lyricviewx)

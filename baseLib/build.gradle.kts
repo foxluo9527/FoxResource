@@ -1,15 +1,15 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
+    kotlin("kapt")
 }
 
 android {
     namespace = "com.foxluo.baselib"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 26
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
@@ -35,7 +35,15 @@ android {
     }
 }
 
+kapt {
+    arguments {
+        arg("AROUTER_MODULE_NAME", project.name)
+    }
+}
 dependencies {
+    implementation(libs.arouter.api)
+    api("com.airbnb.android:lottie:6.6.2")
+    kapt(libs.arouter.compiler)
     api(libs.xui)
     api(libs.github.glide)
     api(libs.retrofit2.retrofit)

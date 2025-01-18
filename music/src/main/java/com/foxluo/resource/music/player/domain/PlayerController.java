@@ -22,6 +22,8 @@ import static androidx.media3.common.PlaybackException.ERROR_CODE_IO_INVALID_HTT
 import static androidx.media3.common.PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT;
 import static com.xuexiang.xui.utils.XToastUtils.toast;
 
+import android.content.ContentResolver;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Handler;
 
@@ -36,6 +38,7 @@ import androidx.media3.common.Player;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.ExoPlayer;
 
+import com.blankj.utilcode.util.Utils;
 import com.foxluo.baselib.util.ImageExt;
 import com.foxluo.baselib.util.StringUtil;
 import com.foxluo.resource.music.player.bean.base.BaseAlbumItem;
@@ -197,6 +200,14 @@ public class PlayerController<
     }
   }
 
+  private Uri convertResource2Uri(int resId) {
+    Resources resources = Utils.getApp().getResources();
+    return Uri.parse(
+            ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + resources.getResourcePackageName(resId) + '/' + resources.getResourceTypeName(
+                    resId
+            ) + '/' + resources.getResourceEntryName(resId)
+    );
+  }
   private @Nullable MediaItem getMusicMediaItem(M currentMusic) {
     String url;
     url = currentMusic.url;
@@ -212,6 +223,8 @@ public class PlayerController<
                 .setMediaType(MediaMetadata.MEDIA_TYPE_MUSIC);
         if (currentMusic.coverImg != null && !currentMusic.coverImg.isEmpty()) {
           builder.setArtworkUri(Uri.parse(ImageExt.INSTANCE.processUrl(currentMusic.coverImg)));
+        } else {
+          builder.setArtworkUri(convertResource2Uri(com.foxluo.baselib.R.mipmap.ic_app));
         }
         MediaMetadata metadata = builder.build();
         mediaItem = new MediaItem.Builder()
@@ -308,6 +321,7 @@ public class PlayerController<
 
   public void resumeAudio() {
     if (!isInit()) return;
+    mPlayer.prepare();
     mPlayer.play();
     mHandler.post(mProgressAction);
     mCurrentPlay.setPaused(false);

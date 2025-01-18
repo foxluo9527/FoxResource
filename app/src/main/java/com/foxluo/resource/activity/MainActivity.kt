@@ -5,15 +5,17 @@ import android.animation.ValueAnimator
 import android.app.PendingIntent
 import android.content.ComponentName
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.LinearInterpolator
 import androidx.annotation.OptIn
-import androidx.media3.common.Player
+import androidx.fragment.app.Fragment
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.alibaba.android.arouter.launcher.ARouter
 import com.blankj.utilcode.util.ConvertUtils.px2dp
 import com.foxluo.baselib.domain.viewmodel.getAppViewModel
 import com.foxluo.baselib.ui.BaseBindingActivity
@@ -21,16 +23,14 @@ import com.foxluo.baselib.ui.MainPageFragment
 import com.foxluo.baselib.util.ImageExt.loadUrlWithCircle
 import com.foxluo.chat.ui.ChatFragment
 import com.foxluo.home.ui.HomeFragment
-import com.foxluo.mine.ui.MineFragment
+import com.foxluo.mine.ui.fragment.MineFragment
 import com.foxluo.resource.R
 import com.foxluo.resource.community.ui.CommunityFragment
 import com.foxluo.resource.databinding.ActivityMainBinding
 import com.foxluo.resource.music.data.domain.viewmodel.MainMusicViewModel
 import com.foxluo.resource.music.player.PlayerManager
-import com.foxluo.resource.music.player.domain.PlayerController
 import com.foxluo.resource.music.ui.activity.PlayActivity
 import com.foxluo.resource.service.MusicService
-import com.foxluo.resource.service.PlaybackNotification
 import com.google.common.util.concurrent.MoreExecutors
 import com.hjq.permissions.OnPermissionCallback
 import com.hjq.permissions.Permission
@@ -61,7 +61,26 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
 
 
     override fun initView() {
-//        startForegroundService(Intent(this, MusicService::class.java))
+        try {
+            val navigation = ARouter.getInstance()
+                .build("/resource/music/mine")
+                .navigation(this)
+
+            when (navigation) {
+                is Fragment -> {
+                    // 成功获取 Fragment
+                    Log.d("FragmentNavigation", "Fragment found: $navigation")
+                }
+                null -> {
+                    Log.e("FragmentNavigation", "Navigation returned null")
+                }
+                else -> {
+                    Log.e("FragmentNavigation", "Navigation result is not a Fragment: ${navigation.javaClass}")
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("FragmentNavigation", "Error navigating to fragment", e)
+        }
         val adapter = object : FragmentStateAdapter(this) {
             override fun createFragment(position: Int) = fragments[position]
 
@@ -130,7 +149,7 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
             }
             val currentFragment = fragments[binding.fragmentContainer.currentItem]
             (currentFragment as? MainPageFragment<*>)?.let {
-                if (!(currentFragment.showPlaView())) {
+                if (!(currentFragment.showPlayView())) {
                     binding.playView.visibility = View.INVISIBLE
                     return@let
                 }

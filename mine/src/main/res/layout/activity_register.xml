@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="true"
+        android:focusable="true"
+        android:scaleType="centerCrop"
+        android:elevation="-1dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:lottie_autoPlay="true"
+        app:lottie_fileName="register_bg.json"
+        app:lottie_loop="true" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:id="@+id/back"
+            android:layout_width="wrap_content"
+            android:layout_height="60dp">
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginStart="15dp"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/ic_arrow_left"
+                android:tint="@color/white"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/register_account"
+                android:layout_marginStart="5dp"
+                android:layout_gravity="center_vertical"
+                android:textColor="@color/white"
+                android:textSize="18sp" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/welcome"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="30dp"
+            android:lineHeight="24sp"
+            android:text="@string/register_welcome"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/back" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            android:background="@drawable/shape_white_trans_30_r8"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/welcome"
+            app:layout_constraintVertical_bias="0.3"
+            android:paddingBottom="10dp">
+
+            <com.xuexiang.xui.widget.edittext.ClearEditText
+                android:id="@+id/user_name"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginHorizontal="10dp"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/shape_white_trans_30_r8"
+                android:gravity="center_vertical"
+                android:hint="@string/input_user_name"
+                android:paddingHorizontal="10dp"
+                android:textColorHint="@color/white"
+                app:layout_constraintTop_toTopOf="parent" />
+            <com.xuexiang.xui.widget.edittext.ClearEditText
+                android:id="@+id/email"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginHorizontal="10dp"
+                android:layout_marginTop="20dp"
+                android:inputType="textEmailAddress"
+                android:background="@drawable/shape_white_trans_30_r8"
+                android:gravity="center_vertical"
+                android:hint="@string/input_email"
+                android:paddingHorizontal="10dp"
+                android:textColorHint="@color/white"
+                app:layout_constraintTop_toBottomOf="@id/user_name"  />
+
+            <com.xuexiang.xui.widget.edittext.PasswordEditText
+                android:id="@+id/password"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginHorizontal="10dp"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/shape_white_trans_30_r8"
+                android:gravity="center_vertical"
+                android:hint="@string/input_password"
+                android:paddingHorizontal="10dp"
+                android:textColorHint="@color/white"
+                app:layout_constraintTop_toBottomOf="@id/email" />
+
+            <Button
+                android:id="@+id/login"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginHorizontal="10dp"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/selector_login_btn"
+                android:text="@string/register"
+                android:textColor="@drawable/selector_text_login_btn"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                app:layout_constraintTop_toBottomOf="@id/password" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

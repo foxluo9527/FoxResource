@@ -49,5 +49,5 @@ class HomeFragment : MainPageFragment<FragmentHomeBinding>() {
         return binding.main
     }
 
-    override fun showPlaView() = true
+    override fun showPlayView() = true
 }

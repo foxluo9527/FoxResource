@@ -30,6 +30,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name="com.foxluo.mine.ui.activity.LoginActivity" />
+        <activity android:name="com.foxluo.mine.ui.activity.RegisterActivity" />
+        <activity android:name="com.foxluo.mine.ui.activity.ForgetActivity" />
         <service
             android:name=".service.MusicService"
             android:foregroundServiceType="mediaPlayback"

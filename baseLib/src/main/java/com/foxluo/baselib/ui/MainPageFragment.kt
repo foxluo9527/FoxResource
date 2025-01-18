@@ -22,5 +22,5 @@ abstract class MainPageFragment<Binding:ViewBinding>: BaseBindingFragment<Bindin
 
     open fun initPlayDragPadding():IntArray?{ return null}
 
-    abstract fun showPlaView(): Boolean
+    abstract fun showPlayView(): Boolean
 }

@@ -21,7 +21,9 @@ abstract class BaseBindingFragment<Binding:ViewBinding>:Fragment() {
     }
 
     private val loadingDialog by lazy {
-        LoadingDialog(requireContext())
+        LoadingDialog(requireContext()).apply {
+            setLoadingIcon(null)
+        }
     }
 
     override fun onCreateView(

@@ -2,11 +2,18 @@ package com.foxluo.baselib.data.manager
 
 import com.blankj.utilcode.util.GsonUtils
 import com.blankj.utilcode.util.SPUtils
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.launch
 
 object AuthManager {
     val userInfoStateFlow by lazy {
-        MutableSharedFlow<UserInfo?>(0)
+        MutableSharedFlow<UserInfo?>(0).apply {
+            CoroutineScope(Dispatchers.IO).launch {
+                emit(authInfo?.user)
+            }
+        }
     }
 
     private val sp by lazy {
@@ -22,14 +29,16 @@ object AuthManager {
             return GsonUtils.fromJson(authInfoStr, AuthInfo::class.java)
         }
         set(value) {
-            val userChanged = value?.user?.id != field?.user?.id
+            val userChanged = value == null || value.user.id != field?.user?.id
             value?.let {
                 sp.put("KEY_SP_AUTH_INFO", GsonUtils.toJson(value))
             } ?: run {
                 sp.remove("KEY_SP_AUTH_INFO")
             }
             if (userChanged) {
-                userInfoStateFlow.tryEmit(authInfo?.user)
+                CoroutineScope(Dispatchers.IO).launch {
+                    userInfoStateFlow.emit(authInfo?.user)
+                }
             }
         }
 
@@ -58,4 +67,12 @@ object AuthManager {
  */
 data class AuthInfo(val token: String, val user: UserInfo)
 
-data class UserInfo(val id: Long, val username: String, val email: String, val status: String, val created_at: String, val last_login: String)
+data class UserInfo(
+    val id: Long,
+    val username: String,
+    val signature: String?,
+    val email: String,
+    val status: String,
+    val created_at: String,
+    val last_login: String
+)

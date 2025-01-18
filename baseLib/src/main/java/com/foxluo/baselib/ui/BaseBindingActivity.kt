@@ -9,6 +9,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.viewbinding.ViewBinding
 import com.blankj.utilcode.util.BarUtils
+import com.xuexiang.xui.widget.dialog.LoadingDialog
 
 abstract class BaseBindingActivity<Binding: ViewBinding>: AppCompatActivity() {
     val statusBarHeight by lazy {
@@ -17,6 +18,20 @@ abstract class BaseBindingActivity<Binding: ViewBinding>: AppCompatActivity() {
 
     val binding by lazy {
         initBinding()
+    }
+
+    private val loadingDialog by lazy {
+        LoadingDialog(this).apply {
+            setLoadingIcon(null)
+        }
+    }
+
+    fun setLoading(loading: Boolean) {
+        if (loading) {
+            loadingDialog.performShow()
+        } else {
+            loadingDialog.dismiss()
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

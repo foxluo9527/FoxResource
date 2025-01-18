@@ -6,5 +6,5 @@ import com.foxluo.chat.databinding.FragmentChatBinding
 class ChatFragment : MainPageFragment<FragmentChatBinding>() {
     override fun initBinding() = FragmentChatBinding.inflate(layoutInflater)
 
-    override fun showPlaView() = false
+    override fun showPlayView() = false
 }

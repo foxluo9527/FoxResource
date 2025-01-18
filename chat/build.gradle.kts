@@ -1,11 +1,12 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
+    kotlin("kapt")
 }
 
 android {
     namespace = "com.foxluo.chat"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 26
@@ -35,7 +36,14 @@ android {
     }
 }
 
+kapt {
+    arguments {
+        arg("AROUTER_MODULE_NAME", project.name)
+    }
+}
 dependencies {
+    implementation(libs.arouter.api)
+    kapt(libs.arouter.compiler)
     implementation(project(":baseLib"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

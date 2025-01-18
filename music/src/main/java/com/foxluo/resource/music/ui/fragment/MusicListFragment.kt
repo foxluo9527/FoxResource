@@ -1,16 +1,17 @@
 package com.foxluo.resource.music.ui.fragment
 
 import androidx.fragment.app.viewModels
-import com.blankj.utilcode.util.ToastUtils
 import com.foxluo.baselib.R
 import com.foxluo.baselib.domain.viewmodel.getAppViewModel
 import com.foxluo.baselib.ui.BaseBindingFragment
+import com.foxluo.baselib.util.ViewExt.visible
 import com.foxluo.resource.music.data.bean.AlbumData
 import com.foxluo.resource.music.data.domain.viewmodel.MainMusicViewModel
 import com.foxluo.resource.music.data.domain.viewmodel.MusicViewModel
 import com.foxluo.resource.music.databinding.FragmentMusicListBinding
 import com.foxluo.resource.music.player.PlayerManager
 import com.foxluo.resource.music.ui.adapter.MusicListAdapter
+import com.xuexiang.xui.utils.XToastUtils.toast
 
 class MusicListFragment : BaseBindingFragment<FragmentMusicListBinding>() {
     companion object {
@@ -48,9 +49,11 @@ class MusicListFragment : BaseBindingFragment<FragmentMusicListBinding>() {
             binding.refresh.finishLoadMore()
         }
         vm.toast.observe(this) {
-            ToastUtils.showShort(it.second)
+            toast(it.second)
         }
         vm.dataList.observe(this) { dataList ->
+            binding.emptyView.visible(dataList.isNullOrEmpty() && vm.page == 1)
+            binding.refresh.setEnableLoadMore(!dataList.isNullOrEmpty() && dataList.size == vm.size)
             if (vm.page == 1) {
                 adapter.setDataList(dataList)
             } else {

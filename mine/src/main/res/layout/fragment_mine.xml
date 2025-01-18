@@ -1,11 +1,93 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/F7F7F7">
-    <TextView
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mine_group"
+    android:background="@color/white"
+    android:orientation="vertical">
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:text="我的"/>
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:layout_height="40dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_centerHorizontal="true"
+            android:gravity="center"
+            android:text="@string/mine"
+            android:textAlignment="gravity"
+            android:textColor="@color/black"
+            android:textSize="15sp" />
+
+        <ImageView
+            android:layout_width="60dp"
+            android:layout_height="40dp"
+            android:layout_alignParentEnd="true"
+            android:paddingHorizontal="18dp"
+            android:src="@drawable/ic_setting" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/user_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="15dp">
+
+        <ImageView
+            android:id="@+id/ic_head"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="15dp"
+            android:src="@mipmap/ic_app_round" />
+
+        <TextView
+            android:id="@+id/user_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@id/ic_head"
+            android:layout_marginTop="5dp"
+            android:layout_toEndOf="@id/ic_head"
+            android:text="@string/click_login"
+            android:textColor="@color/black"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/sign"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/user_name"
+            android:layout_alignStart="@id/user_name"
+            android:layout_marginTop="3dp"
+            android:text="@string/login_sync_info"
+            android:textColor="@color/xui_btn_gray_normal_color"
+            android:textSize="13sp" />
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="15dp"
+            android:rotation="180"
+            android:src="@drawable/ic_arrow_left" />
+    </RelativeLayout>
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/mine_tab"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginTop="10dp"
+        app:tabBackground="@android:color/transparent"
+        app:tabGravity="fill"
+        app:tabIndicatorHeight="0dp"
+        app:tabMode="fixed"
+        app:tabRippleColor="@android:color/transparent" />
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/mine_viewpager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+</LinearLayout>

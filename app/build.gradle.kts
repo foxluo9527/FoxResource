@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    kotlin("kapt")
 }
 
 android {
@@ -10,7 +11,7 @@ android {
     defaultConfig {
         applicationId = "com.foxluo.resource"
         minSdk = 26
-        targetSdk = 34
+
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -36,8 +37,14 @@ android {
         viewBinding = true
     }
 }
-
+kapt {
+    arguments {
+        arg("AROUTER_MODULE_NAME", project.name)
+    }
+}
 dependencies {
+    implementation(libs.arouter.api)
+    kapt(libs.arouter.compiler)
     implementation(project(":home"))
     implementation(project(":community"))
     implementation(project(":chat"))

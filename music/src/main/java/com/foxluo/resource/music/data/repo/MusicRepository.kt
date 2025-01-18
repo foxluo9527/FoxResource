@@ -37,7 +37,7 @@ class MusicRepository : BaseRepository() {
             }
         }
         return if (dataList != null) {
-            RequestResult.Success<List<MusicData>?>(dataList)
+            RequestResult.Success<List<MusicData>?>(dataList,result.message)
         } else {
             RequestResult.Error(result?.message?:"网络连接错误")
         }

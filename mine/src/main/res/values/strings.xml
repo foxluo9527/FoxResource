@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="login_hint">用户名/邮箱</string>
+    <string name="password">密码</string>
+    <string name="register_account">注册账户</string>
+    <string name="welcome">你好，\n欢迎使用Fox Resource</string>
+    <string name="register_welcome">你好，\n欢迎注册Fox Resource</string>
+    <string name="forget_welcome">忘记密码不必慌，\n使用注册邮箱验证即可修改</string>
+    <string name="forget_pass">忘记密码</string>
+    <string name="register">注册</string>
+    <string name="input_user_name">请输入用户名</string>
+    <string name="input_email">请输入邮箱</string>
+    <string name="input_password">请输入密码</string>
+    <string name="verify_code">邮箱验证码</string>
+    <string name="send">发送</string>
+    <string name="change_pass">修改密码</string>
+</resources>
