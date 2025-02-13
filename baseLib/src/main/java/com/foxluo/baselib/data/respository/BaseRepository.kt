@@ -26,23 +26,17 @@ open class BaseRepository{
     private val authErrorInterceptor: Interceptor = object : Interceptor {
         @Throws(IOException::class)
         public override fun intercept(chain: Interceptor.Chain): Response {
-            val request: Request = chain.request()
             val response: Response = chain.proceed(chain.request())
             val code: Int = response.code()
-            if (401 == code) {
+            if (200 != code) {
                 val authErrorResponse = BaseResponse<Unit>().apply {
                     success = false
-                    message = if (request.url().url().path == "/api/auth/login")
-                        "登录失败，请检查用户名或密码"
-                    else
-                        "获取登录信息失败".also {
-                            AuthManager.logout()
-                        }
+                    message = response.message()
                 }
                 return response.newBuilder()
                     .body(
                         ResponseBody.create(
-                            MediaType.get("application/json"),
+                            response.body()?.contentType(),
                             authErrorResponse.toJsonString()
                         )
                     )
