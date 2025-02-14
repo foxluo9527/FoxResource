@@ -3,8 +3,8 @@ package com.foxluo.mine.ui.data.repo
 import com.foxluo.baselib.data.manager.AuthInfo
 import com.foxluo.baselib.data.respository.BaseRepository
 import com.foxluo.baselib.data.result.RequestResult
+import com.foxluo.baselib.util.GsonUtil.toJsonString
 import com.foxluo.mine.ui.data.api.AuthApi
-import retrofit2.HttpException
 
 class AuthRepository : BaseRepository() {
     private val api by lazy {
@@ -32,7 +32,8 @@ class AuthRepository : BaseRepository() {
     }
 
     suspend fun sendForgetEmailCode(email: String): RequestResult {
-        val result = api?.sendForgetEmail(email)
+        val body = mapOf("email" to email)
+        val result = api?.sendForgetEmail(body)
         val isSuccess = result?.success
         return if (isSuccess == true) {
             RequestResult.Success<Unit>(Unit,result.message)
@@ -46,7 +47,8 @@ class AuthRepository : BaseRepository() {
         code: String,
         newPassword: String
     ): RequestResult {
-        val result = api?.resetPassword(email, code, newPassword)
+        val body = mapOf("email" to email, "code" to code, "newPassword" to newPassword)
+        val result = api?.resetPassword(body)
         val isSuccess = result?.success
         return if (isSuccess == true) {
             RequestResult.Success<Unit>(Unit,result.message)
