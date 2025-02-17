@@ -2,13 +2,10 @@ package com.foxluo.baselib.data.respository
 
 import LogInterceptor
 import com.foxluo.baselib.data.api.BaseApi
-import com.foxluo.baselib.data.manager.AuthManager
 import com.foxluo.baselib.data.result.BaseResponse
 import com.foxluo.baselib.util.GsonUtil.toJsonString
 import okhttp3.Interceptor
-import okhttp3.MediaType
 import okhttp3.OkHttpClient
-import okhttp3.Request
 import okhttp3.Response
 import okhttp3.ResponseBody
 import retrofit2.Retrofit
@@ -29,17 +26,7 @@ open class BaseRepository{
             val response: Response = chain.proceed(chain.request())
             val code: Int = response.code()
             if (200 != code) {
-                val authErrorResponse = BaseResponse<Unit>().apply {
-                    success = false
-                    message = response.message()
-                }
                 return response.newBuilder()
-                    .body(
-                        ResponseBody.create(
-                            response.body()?.contentType(),
-                            authErrorResponse.toJsonString()
-                        )
-                    )
                     .code(200)
                     .build()
             } else {
