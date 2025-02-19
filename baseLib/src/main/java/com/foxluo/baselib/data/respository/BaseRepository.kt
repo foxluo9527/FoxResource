@@ -1,13 +1,13 @@
 package com.foxluo.baselib.data.respository
 
 import LogInterceptor
+import com.alibaba.android.arouter.launcher.ARouter
+import com.blankj.utilcode.util.ActivityUtils
 import com.foxluo.baselib.data.api.BaseApi
-import com.foxluo.baselib.data.result.BaseResponse
-import com.foxluo.baselib.util.GsonUtil.toJsonString
+import com.xuexiang.xui.utils.XToastUtils.toast
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
-import okhttp3.ResponseBody
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
@@ -26,6 +26,13 @@ open class BaseRepository{
             val response: Response = chain.proceed(chain.request())
             val code: Int = response.code()
             if (200 != code) {
+                if (code == 401) {
+                    toast("请登录")
+                    ActivityUtils.getTopActivity()?.let {
+                        ARouter.getInstance().build("/mine/login")
+                            .navigation(it)
+                    }
+                }
                 return response.newBuilder()
                     .code(200)
                     .build()

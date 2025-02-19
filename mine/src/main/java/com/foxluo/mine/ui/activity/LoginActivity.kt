@@ -4,16 +4,18 @@ import android.content.Intent
 import android.view.View
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
+import com.alibaba.android.arouter.facade.annotation.Route
 import com.foxluo.baselib.data.manager.AuthManager
 import com.foxluo.baselib.ui.BaseBindingActivity
 import com.foxluo.mine.databinding.ActivityLoginBinding
 import com.foxluo.mine.ui.data.viewmodel.LoginViewModel
-import com.xuexiang.xui.utils.XToastUtils.success
 import com.xuexiang.xui.utils.XToastUtils.error
+import com.xuexiang.xui.utils.XToastUtils.success
 import com.xuexiang.xui.utils.XToastUtils.toast
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
+@Route(path = "/mine/login")
 class LoginActivity : BaseBindingActivity<ActivityLoginBinding>() {
     private val viewModel by viewModels<LoginViewModel>()
     override fun initListener() {

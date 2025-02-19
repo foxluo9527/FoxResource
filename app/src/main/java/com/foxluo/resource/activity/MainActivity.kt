@@ -64,26 +64,6 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
 
 
     override fun initView() {
-        try {
-            val navigation = ARouter.getInstance()
-                .build("/resource/music/mine")
-                .navigation(this)
-
-            when (navigation) {
-                is Fragment -> {
-                    // 成功获取 Fragment
-                    Log.d("FragmentNavigation", "Fragment found: $navigation")
-                }
-                null -> {
-                    Log.e("FragmentNavigation", "Navigation returned null")
-                }
-                else -> {
-                    Log.e("FragmentNavigation", "Navigation result is not a Fragment: ${navigation.javaClass}")
-                }
-            }
-        } catch (e: Exception) {
-            Log.e("FragmentNavigation", "Error navigating to fragment", e)
-        }
         val adapter = object : FragmentStateAdapter(this) {
             override fun createFragment(position: Int) = fragments[position]
 
