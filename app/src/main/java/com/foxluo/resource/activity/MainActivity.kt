@@ -38,6 +38,7 @@ import com.hjq.permissions.OnPermissionCallback
 import com.hjq.permissions.Permission
 import com.hjq.permissions.XXPermissions
 import com.xuexiang.xui.utils.XToastUtils.toast
+import java.time.DayOfWeek
 
 
 const val PERMISSIONS_REQUEST_FOREGROUND_SERVICE = 2333

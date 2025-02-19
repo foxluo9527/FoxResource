@@ -11,6 +11,16 @@ class MusicRepository : BaseRepository() {
     private val api by lazy {
         getApi<MusicApi>()
     }
+
+    suspend fun favoriteMusic(id: String): RequestResult {
+        val result = kotlin.runCatching { api?.favoriteMusic(id) }.getOrNull()
+        return if (result?.success == true) {
+            RequestResult.Success<Unit>(Unit, result.message)
+        } else {
+            RequestResult.Error(result?.message ?: "网络连接错误")
+        }
+    }
+
     suspend fun recordPlay(id: String): RequestResult {
         val result = kotlin.runCatching { api?.recordMusicPlay(id) }.getOrNull()
         return if (result?.success == true) {
@@ -40,6 +50,8 @@ class MusicRepository : BaseRepository() {
                     lyrics = it.lyrics
                     albumId = it.album?.id
                     lyricsTrans = it.lyrics_trans
+                }.apply {
+                    isCollection = it.isFavorite == true
                 }
             }
         }

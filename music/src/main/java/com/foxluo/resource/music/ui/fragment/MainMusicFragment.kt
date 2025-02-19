@@ -14,7 +14,7 @@ class MainMusicFragment : BaseBindingFragment<FragmentMainMusicBinding>() {
     private val fragments by lazy {
         arrayOf(TempFragment().apply {
             arguments = bundleOf("type" to "最近播放")
-        }, MusicListFragment(), TempFragment().apply {
+        }, RecommendMusicFragment(), TempFragment().apply {
             arguments = bundleOf("type" to "歌单")
         }, TempFragment().apply {
             arguments = bundleOf("type" to "歌手")

@@ -4,7 +4,7 @@ data class MusicResult(
     val id: Long,
     val title: String,
     val description: String?,
-    val isCollection: Boolean?,
+    val isFavorite: Boolean?,
     val url: String,
     val cover_image: String?,
     val lyrics: String = "",

@@ -7,17 +7,17 @@ import com.foxluo.baselib.ui.BaseBindingFragment
 import com.foxluo.baselib.util.ViewExt.visible
 import com.foxluo.resource.music.data.bean.AlbumData
 import com.foxluo.resource.music.data.domain.viewmodel.MainMusicViewModel
-import com.foxluo.resource.music.data.domain.viewmodel.MusicViewModel
+import com.foxluo.resource.music.data.domain.viewmodel.RecommendMusicViewModel
 import com.foxluo.resource.music.databinding.FragmentMusicListBinding
 import com.foxluo.resource.music.player.PlayerManager
 import com.foxluo.resource.music.ui.adapter.MusicListAdapter
 import com.xuexiang.xui.utils.XToastUtils.toast
 
-class MusicListFragment : BaseBindingFragment<FragmentMusicListBinding>() {
+class RecommendMusicFragment : BaseBindingFragment<FragmentMusicListBinding>() {
     companion object {
         const val PLAY_LIST_ALBUM_TITLE = "播放列表"
     }
-    private val vm: MusicViewModel by viewModels()
+    private val vm: RecommendMusicViewModel by viewModels()
 
     private val adapter by lazy {
         MusicListAdapter(false, onClickItem)

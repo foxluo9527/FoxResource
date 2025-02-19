@@ -8,7 +8,7 @@ import com.foxluo.resource.music.data.bean.MusicData
 import com.foxluo.resource.music.data.repo.MusicRepository
 import kotlinx.coroutines.launch
 
-class MusicViewModel : BaseViewModel() {
+class RecommendMusicViewModel : BaseViewModel() {
     init {
         size = 30
     }
