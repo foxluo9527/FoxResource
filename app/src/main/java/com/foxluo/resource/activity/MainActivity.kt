@@ -11,12 +11,14 @@ import android.view.ViewGroup
 import android.view.animation.LinearInterpolator
 import androidx.annotation.OptIn
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.alibaba.android.arouter.launcher.ARouter
 import com.blankj.utilcode.util.ConvertUtils.px2dp
+import com.foxluo.baselib.data.manager.AuthManager
 import com.foxluo.baselib.domain.viewmodel.getAppViewModel
 import com.foxluo.baselib.ui.BaseBindingActivity
 import com.foxluo.baselib.ui.MainPageFragment
@@ -186,11 +188,19 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
         musicViewModel.playingAlbum.observeForever {
             PlayerManager.getInstance().loadAlbum(it.first, it.second)
         }
-        PlayerManager.getInstance().uiStates.observe(this) {
-            val isPlaying = it != null && it.isPaused == false
-            setPlaying(isPlaying)
-            if (it != null && it.musicId != musicViewModel.currentMusic.value?.musicId) {
-                musicViewModel.currentMusic.value = PlayerManager.getInstance().currentPlayingMusic
+        PlayerManager.getInstance().uiStates.observeForever {
+            val isPlaying = it != null && it.isPaused == false && it.isBuffering == false
+            val isMusicChanged =
+                it != null && it.musicId != musicViewModel.currentMusic.value?.musicId
+            if (isMusicChanged && AuthManager.isLogin()) {
+                musicViewModel.recordPlayMusicChanged(it.musicId)
+            }
+            if (isMusicChanged) {
+                musicViewModel.currentMusic.value =
+                    PlayerManager.getInstance().currentPlayingMusic
+            }
+            lifecycleScope.launchWhenResumed {
+                setPlaying(isPlaying)
             }
         }
         musicViewModel.currentMusic.observe(this) { currentMusic ->

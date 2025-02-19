@@ -28,7 +28,9 @@ class MineMusicFragment : BaseBindingFragment<FragmentMineMusicBinding>() {
         }
     }
     private val fragments by lazy {
-        arrayOf(MusicListFragment(), TempFragment().apply {
+        arrayOf(TempFragment().apply {
+            arguments = bundleOf("type" to "收藏")
+        }, TempFragment().apply {
             arguments = bundleOf("type" to "关注")
         })
     }

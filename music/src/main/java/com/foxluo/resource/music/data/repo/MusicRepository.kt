@@ -11,7 +11,14 @@ class MusicRepository : BaseRepository() {
     private val api by lazy {
         getApi<MusicApi>()
     }
-
+    suspend fun recordPlay(id: String): RequestResult {
+        val result = kotlin.runCatching { api?.recordMusicPlay(id) }.getOrNull()
+        return if (result?.success == true) {
+            RequestResult.Success<Unit>(Unit, result.message)
+        } else {
+            RequestResult.Error(result?.message ?: "网络连接错误")
+        }
+    }
     suspend fun getMusicList(page: Int, size: Int, keyword: String = ""): RequestResult {
         val result = kotlin.runCatching { api?.getMusicList(page, size, keyword) }.getOrNull()
         val dataList = result?.data?.let { data ->
