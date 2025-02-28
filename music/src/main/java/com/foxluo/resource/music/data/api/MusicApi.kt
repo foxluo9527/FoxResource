@@ -18,7 +18,8 @@ interface MusicApi : BaseApi {
     suspend fun getMusicList(
         @Query("page") page: Int,
         @Query("limit") limit: Int,
-        @Query("keyword") keyword: String = ""
+        @Query("keyword") keyword: String = "",
+        @Query("recommend") recommend: Boolean = true
     ): BaseListResponse<MusicResult>
 
     @POST("/api/music/{id}/play")
@@ -61,6 +62,9 @@ interface MusicApi : BaseApi {
         @Path("id") commentId: String
     ): BaseResponse<Unit>
 
+    /**
+     * music_id,content,parent_id
+     */
     @POST("/api/music-comments")
     suspend fun postMusicComment(
         @Body map: Map<String, Any>

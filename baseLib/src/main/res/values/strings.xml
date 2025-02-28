@@ -24,4 +24,7 @@
     <string name="sign_empty">介绍一下自己吧</string>
     <string name="login">登录</string>
     <string name="music_service">播放服务</string>
+    <string name="comment">评论</string>
+    <string name="expand_more">展开更多评论</string>
+    <string name="replay_">回复</string>
 </resources>

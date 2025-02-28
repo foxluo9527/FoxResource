@@ -4,5 +4,6 @@
         <activity
             android:name=".ui.activity.PlayActivity"
             android:launchMode="singleTop" />
+        <activity android:name=".ui.activity.MusicCommentActivity" />
     </application>
 </manifest>

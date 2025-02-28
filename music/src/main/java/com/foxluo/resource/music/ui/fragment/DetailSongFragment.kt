@@ -1,11 +1,13 @@
 package com.foxluo.resource.music.ui.fragment
 
+import android.content.Intent
 import com.foxluo.baselib.domain.viewmodel.getAppViewModel
 import com.foxluo.baselib.ui.BaseBindingFragment
 import com.foxluo.baselib.util.ViewExt.fastClick
 import com.foxluo.resource.music.data.bean.MusicData
 import com.foxluo.resource.music.data.domain.viewmodel.MainMusicViewModel
 import com.foxluo.resource.music.databinding.FragmentDetailSongBinding
+import com.foxluo.resource.music.ui.activity.MusicCommentActivity
 
 class DetailSongFragment : BaseBindingFragment<FragmentDetailSongBinding>() {
     private var currentMusic: MusicData? = null
@@ -55,6 +57,18 @@ class DetailSongFragment : BaseBindingFragment<FragmentDetailSongBinding>() {
         }
         binding.like.fastClick{
             currentMusic?.musicId?.let { musicId -> musicViewModel.favoriteMusic(musicId) }
+        }
+        binding.comment.fastClick {
+            currentMusic?.musicId?.let { musicId ->
+                startActivity(
+                    Intent(
+                        requireContext(),
+                        MusicCommentActivity::class.java
+                    ).apply {
+                        putExtra("music_id", musicId)
+                    }
+                )
+            }
         }
     }
 
