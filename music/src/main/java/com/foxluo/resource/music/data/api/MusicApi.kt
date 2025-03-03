@@ -67,6 +67,6 @@ interface MusicApi : BaseApi {
      */
     @POST("/api/music-comments")
     suspend fun postMusicComment(
-        @Body map: Map<String, Any>
+        @Body map: Map<String, @JvmSuppressWildcards Any>
     ): BaseListResponse<MusicComment>
 }

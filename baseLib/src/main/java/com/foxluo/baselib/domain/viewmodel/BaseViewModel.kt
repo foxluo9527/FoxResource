@@ -15,4 +15,8 @@ open class BaseViewModel : ViewModel() {
     val toast by lazy {
         MutableLiveData<Pair<Boolean?, String>>()
     }
+
+    val hadMore by lazy {
+        MutableLiveData<Boolean>()
+    }
 }

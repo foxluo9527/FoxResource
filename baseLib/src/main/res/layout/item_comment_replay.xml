@@ -81,6 +81,14 @@
             android:layout_height="wrap_content"
             android:text="："
             android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/replay_to_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#999999"
+            android:textSize="12sp"
+            tools:text="回复内容" />
     </LinearLayout>
 
     <com.xuexiang.xui.widget.textview.ExpandableTextView
@@ -124,7 +132,7 @@
             android:layout_width="30dp"
             android:layout_height="0.6dp"
             android:layout_marginTop="1dp"
-            android:background="#999999" />
+            android:background="@color/color_ED6C40" />
 
         <TextView
             android:layout_width="wrap_content"

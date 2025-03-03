@@ -14,10 +14,10 @@ data class MusicComment(
     val created_at: String,
     val user_nickname: String?,
     val user_avatar: String,
-    val replay_count: Int,
+    val reply_count: Int,
     val replies: List<MusicCommentReplay>
 ) {
-    fun hadMore() = replay_count - replies.size > 0
+    fun hadMore() = reply_count - replies.size > 0
 }
 
 fun MusicComment.toCommentBean() = CommentAdapter.CommentBean(
@@ -32,13 +32,17 @@ fun MusicComment.toCommentBean() = CommentAdapter.CommentBean(
     hadMore(),
     false,
     null,
-    null
+    null,
+    null,
+    null,
+    replyCount = reply_count,
+    displayReplyCount = replies.size
 )
 
 fun MusicComment.toCommentList(): List<CommentAdapter.CommentBean> {
     val list = mutableListOf(toCommentBean())
     replies.mapIndexed { index, replay ->
-        replay.toCommentReplay(index == replies.size - 1 && hadMore())
+        replay.toCommentReplay(id.toString(), index == replies.size - 1 && hadMore())
     }.let {
         list.addAll(it)
     }
@@ -64,10 +68,14 @@ data class MusicCommentReplayUser(
     val username: String,
     val nickname: String,
     val avatar: String,
+    val content: String,
     val user_id: Int
 )
 
-fun MusicCommentReplay.toCommentReplay(hadMore: Boolean): CommentAdapter.CommentBean {
+fun MusicCommentReplay.toCommentReplay(
+    parentId: String,
+    hadMore: Boolean
+): CommentAdapter.CommentBean {
     return CommentAdapter.CommentBean(
         id.toString(),
         user_id.toString(),
@@ -79,8 +87,11 @@ fun MusicCommentReplay.toCommentReplay(hadMore: Boolean): CommentAdapter.Comment
         content,
         hadMore,
         true,
+        parentId,
         reply_to?.user_id?.toString(),
-        reply_to?.nickname
+        reply_to?.nickname,
+        reply_to?.content,
+        replyCount = 0
     )
 }
 

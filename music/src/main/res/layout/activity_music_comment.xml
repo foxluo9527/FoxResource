@@ -37,8 +37,9 @@
         android:id="@+id/refresh"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginBottom="10dp"
         app:layout_constraintTop_toBottomOf="@id/back"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:layout_constraintBottom_toTopOf="@id/comment_content">
         <com.scwang.smart.refresh.header.ClassicsHeader
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -68,4 +69,35 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <com.xuexiang.xui.widget.edittext.ClearEditText
+        android:id="@+id/comment_content"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="15dp"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/shape_black_trans_30_r8"
+        android:hint="评论一下吧"
+        android:lineHeight="22dp"
+        android:minHeight="34dp"
+        android:paddingStart="8dp"
+        android:textColorHint="#99ffffff"
+        android:textSize="11sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/comment_send"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:hint="回复 xxx：" />
+
+    <TextView
+        android:id="@+id/comment_send"
+        android:layout_width="60dp"
+        android:layout_height="34dp"
+        android:layout_marginEnd="15dp"
+        android:background="@drawable/selector_comment_send_btn"
+        android:gravity="center"
+        android:text="@string/send"
+        android:textColor="@drawable/selector_color_comment_send_text"
+        android:textSize="11sp"
+        app:layout_constraintTop_toTopOf="@id/comment_content"
+        app:layout_constraintEnd_toEndOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

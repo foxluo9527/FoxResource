@@ -2,6 +2,7 @@ package com.foxluo.resource.music.data.repo
 
 import com.foxluo.baselib.data.respository.BASE_URL
 import com.foxluo.baselib.data.respository.BaseRepository
+import com.foxluo.baselib.data.result.ListData
 import com.foxluo.baselib.data.result.RequestResult
 import com.foxluo.baselib.ui.adapter.CommentAdapter
 import com.foxluo.resource.music.data.api.MusicApi
@@ -34,6 +35,7 @@ class MusicRepository : BaseRepository() {
     }
     suspend fun getMusicList(page: Int, size: Int, keyword: String = ""): RequestResult {
         val result = kotlin.runCatching { api?.getMusicList(page, size, keyword) }.getOrNull()
+        val dataResult = ListData<MusicData>()
         val dataList = result?.data?.let { data ->
             data.list?.map {
                 MusicData(
@@ -56,10 +58,17 @@ class MusicRepository : BaseRepository() {
                 }.apply {
                     isCollection = it.isFavorite == true
                 }
+            }.also {
+                dataResult.apply {
+                    list = it
+                    total = data.total
+                    current = data.current
+                    pageSize = data.pageSize
+                }
             }
         }
         return if (dataList != null) {
-            RequestResult.Success<List<MusicData>?>(dataList,result.message)
+            RequestResult.Success<ListData<MusicData>?>(dataResult, result.message)
         } else {
             RequestResult.Error(result?.message?:"网络连接错误")
         }
@@ -67,11 +76,21 @@ class MusicRepository : BaseRepository() {
 
     suspend fun getMusicComment(musicId: String, page: Int, size: Int): RequestResult {
         val result = kotlin.runCatching { api?.getMusicComments(musicId, page, size) }.getOrNull()
-        val dataList = result?.data?.list?.map {
-            it.toCommentList()
-        }?.flatten()
+        val dataResult = ListData<CommentAdapter.CommentBean>()
+        val dataList = result?.data?.let { data ->
+            data.list?.map {
+                it.toCommentList()
+            }?.flatten().also {
+                dataResult.apply {
+                    list = it
+                    total = data.total
+                    current = data.current
+                    pageSize = data.pageSize
+                }
+            }
+        }
         return if (dataList != null) {
-            RequestResult.Success<List<CommentAdapter.CommentBean>?>(dataList, result.message)
+            RequestResult.Success<ListData<CommentAdapter.CommentBean>?>(dataResult, result.message)
         } else {
             RequestResult.Error(result?.message ?: "网络连接错误")
         }
@@ -79,13 +98,24 @@ class MusicRepository : BaseRepository() {
 
     suspend fun getMusicCommentReply(commentId: String, page: Int, size: Int): RequestResult {
         val result = kotlin.runCatching { api?.getMusicReplies(commentId, page, size) }.getOrNull()
+        val dataResult = ListData<CommentAdapter.CommentBean>()
         val dataList = result?.data?.let { data ->
             data.list?.map {
-                it.toCommentReplay(data.current * data.pageSize >= data.total)
+                it.toCommentReplay(
+                    commentId,
+                    data.current * data.pageSize < data.total && data.list?.lastOrNull() == it
+                )
+            }.also {
+                dataResult.apply {
+                    list = it
+                    total = data.total
+                    current = data.current
+                    pageSize = data.pageSize
+                }
             }
         }
         return if (dataList != null) {
-            RequestResult.Success<List<CommentAdapter.CommentBean>?>(dataList, result.message)
+            RequestResult.Success<ListData<CommentAdapter.CommentBean>?>(dataResult, result.message)
         } else {
             RequestResult.Error(result?.message ?: "网络连接错误")
         }
@@ -93,11 +123,23 @@ class MusicRepository : BaseRepository() {
 
     suspend fun postMusicComment(
         musicId: String,
-        commentId: String,
-        content: String
+        content: String,
+        commentId: String?
     ): RequestResult {
-        val map = mapOf("music_id" to musicId, "content" to content, "parent_id" to commentId)
+        val map = mutableMapOf("music_id" to musicId, "content" to content)
+        if (commentId != null) {
+            map["parent_id"] = commentId
+        }
         val result = kotlin.runCatching { api?.postMusicComment(map) }.getOrNull()
+        return if (result?.success == true) {
+            RequestResult.Success<Unit>(Unit, result.message)
+        } else {
+            RequestResult.Error(result?.message ?: "网络连接错误")
+        }
+    }
+
+    suspend fun likeMusicComment(commentId: String): RequestResult {
+        val result = kotlin.runCatching { api?.likeMusicComment(commentId) }.getOrNull()
         return if (result?.success == true) {
             RequestResult.Success<Unit>(Unit, result.message)
         } else {

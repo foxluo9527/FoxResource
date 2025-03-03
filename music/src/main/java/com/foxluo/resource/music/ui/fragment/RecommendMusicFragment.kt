@@ -51,6 +51,9 @@ class RecommendMusicFragment : BaseBindingFragment<FragmentMusicListBinding>() {
         vm.toast.observe(this) {
             toast(it.second)
         }
+        vm.hadMore.observe(this) {
+            binding.refresh.setEnableLoadMore(it)
+        }
         vm.dataList.observe(this) { dataList ->
             binding.emptyView.visible(dataList.isNullOrEmpty() && vm.page == 1)
             binding.refresh.setEnableLoadMore(!dataList.isNullOrEmpty() && dataList.size == vm.size)

@@ -9,5 +9,5 @@ class ListData<D> {
     var total: Int = 0
     var current: Int = 1
     var pageSize: Int = 1
-    var totalPages: Int = 1
+    fun hadMore() = current * pageSize < total
 }

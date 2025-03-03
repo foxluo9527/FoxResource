@@ -4,6 +4,7 @@
         <activity
             android:name=".ui.activity.PlayActivity"
             android:launchMode="singleTop" />
-        <activity android:name=".ui.activity.MusicCommentActivity" />
+        <activity android:name=".ui.activity.MusicCommentActivity"
+            android:windowSoftInputMode="adjustResize"/>
     </application>
 </manifest>

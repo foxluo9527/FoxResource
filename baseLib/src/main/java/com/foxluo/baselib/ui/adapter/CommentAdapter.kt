@@ -17,7 +17,7 @@ class CommentAdapter : RecyclerView.Adapter<CommentAdapter.CommentHolder>() {
 
     interface CommentClickListener {
         fun userClick(userId: String)
-        fun contentClick(id: String)
+        fun contentClick(comment: CommentBean)
         fun expandMore(id: String)
         fun likeClick(id: String)
     }
@@ -28,13 +28,18 @@ class CommentAdapter : RecyclerView.Adapter<CommentAdapter.CommentHolder>() {
         val name: String,
         val head: String?,
         val time: String,
-        val likeCount: Int,
-        val isLike: Boolean,
+        var likeCount: Int,
+        var isLike: Boolean,
         val content: String,
-        val hadMore: Boolean,
+        var hadMore: Boolean,
         val isReplay: Boolean,
+        val parentId: String?,
         val replayToUserId: String?,
-        val replayToName: String?
+        val replayToName: String?,
+        val replayToContent: String?,
+        var page: Int = 0,
+        var replyCount: Int,
+        var displayReplyCount: Int = 0
     )
 
     open inner class CommentHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -51,7 +56,7 @@ class CommentAdapter : RecyclerView.Adapter<CommentAdapter.CommentHolder>() {
             likeCount.isSelected = data.isLike
             content.text = data.content
             itemView.setOnClickListener {
-                listener?.contentClick(data.id)
+                listener?.contentClick(data)
             }
             head.setOnClickListener {
                 listener?.userClick(data.userId)
@@ -64,18 +69,20 @@ class CommentAdapter : RecyclerView.Adapter<CommentAdapter.CommentHolder>() {
 
     inner class ReplayCommentHolder(itemView: View) : CommentHolder(itemView) {
         private val replayToName: TextView = itemView.findViewById(R.id.replay_to_name)
+        private val replayToContent: TextView = itemView.findViewById(R.id.replay_to_content)
         private val replayToView: View = itemView.findViewById(R.id.replay_to_view)
         private val moreView: View = itemView.findViewById(R.id.more_view)
         override fun setData(data: CommentBean) {
             super.setData(data)
             replayToView.visible(data.replayToName != null)
             data.replayToName?.let { replayToName.text = it }
+            data.replayToContent?.let { replayToContent.text = it }
             replayToName.setOnClickListener {
                 data.replayToUserId?.let { id -> listener?.userClick(id) }
             }
             moreView.visible(data.hadMore)
             moreView.setOnClickListener {
-                listener?.expandMore(data.id)
+                data.parentId?.let { commentId -> listener?.expandMore(commentId) }
             }
         }
     }
@@ -127,17 +134,39 @@ class CommentAdapter : RecyclerView.Adapter<CommentAdapter.CommentHolder>() {
         notifyItemRangeInserted(oldSize, list.size)
     }
 
-    fun insertReplayListData(insetCommentId: String, list: List<CommentBean>) {
-        val insertCommentBean = dataList.find { it.id == insetCommentId } ?: return
+    fun insertReplayListData(insertCommentId: String, list: List<CommentBean>) {
+        val insertCommentBean = dataList.find { it.id == insertCommentId } ?: return
         val insertCommentPosition = dataList.indexOf(insertCommentBean) + 1
         var insertPosition = insertCommentPosition
         for (i in insertCommentPosition..dataList.size) {
             insertPosition = i
-            if (!dataList[i].isReplay) {
+            if (dataList.getOrNull(i)?.isReplay == false) {
                 break
             }
         }
-        dataList.addAll(insertPosition, list)
-        notifyItemRangeInserted(insertPosition, list.size)
+        var startPosition = -1
+        for (i in insertPosition - 1 downTo 0) {
+            if (dataList.getOrNull(i)?.isReplay == false) break
+            startPosition = i
+        }
+        dataList[insertPosition - 1] = dataList[insertPosition - 1].apply {
+            hadMore = false
+        }
+        notifyItemChanged(insertPosition - 1)
+        val insertList = list.toMutableList()
+            .apply { removeIf { dataList.find { data -> data.id == it.id } != null } }
+        dataList.addAll(insertPosition, insertList)
+        notifyItemRangeInserted(insertPosition, insertList.size)
+        insertCommentBean.displayReplyCount = startPosition + insertList.size + 1
+    }
+
+    fun likeStateChanged(commentId: String) {
+        val comment = dataList.find { it.id == commentId } ?: return
+        val commentIndex = dataList.indexOf(comment)
+        dataList[commentIndex] = comment.apply {
+            comment.isLike = comment.isLike.not()
+            comment.likeCount += if (comment.isLike) 1 else -1
+        }
+        notifyItemChanged(commentIndex)
     }
 }
