@@ -66,7 +66,7 @@ data class MusicCommentReplay(
 
 data class MusicCommentReplayUser(
     val username: String,
-    val nickname: String,
+    val nickname: String?,
     val avatar: String,
     val content: String,
     val user_id: Int
@@ -89,7 +89,7 @@ fun MusicCommentReplay.toCommentReplay(
         true,
         parentId,
         reply_to?.user_id?.toString(),
-        reply_to?.nickname,
+        reply_to?.nickname ?: reply_to?.username ?: "未知用户",
         reply_to?.content,
         replyCount = 0
     )

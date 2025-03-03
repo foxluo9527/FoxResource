@@ -74,7 +74,7 @@ class CommentAdapter : RecyclerView.Adapter<CommentAdapter.CommentHolder>() {
         private val moreView: View = itemView.findViewById(R.id.more_view)
         override fun setData(data: CommentBean) {
             super.setData(data)
-            replayToView.visible(data.replayToName != null)
+            replayToView.visible(data.replayToUserId != null)
             data.replayToName?.let { replayToName.text = it }
             data.replayToContent?.let { replayToContent.text = it }
             replayToName.setOnClickListener {
