@@ -2,6 +2,7 @@ package com.foxluo.resource.music.data.repo
 
 import com.foxluo.baselib.data.respository.BASE_URL
 import com.foxluo.baselib.data.respository.BaseRepository
+import com.foxluo.baselib.data.result.BaseResponse.Companion.toRequestResult
 import com.foxluo.baselib.data.result.ListData
 import com.foxluo.baselib.data.result.RequestResult
 import com.foxluo.baselib.ui.adapter.CommentAdapter
@@ -13,26 +14,19 @@ import com.foxluo.resource.music.data.result.toCommentReplay
 
 class MusicRepository : BaseRepository() {
     private val api by lazy {
-        getApi<MusicApi>()
+        createApi<MusicApi>()
     }
 
     suspend fun favoriteMusic(id: String): RequestResult {
         val result = kotlin.runCatching { api?.favoriteMusic(id) }.getOrNull()
-        return if (result?.success == true) {
-            RequestResult.Success<Unit>(Unit, result.message)
-        } else {
-            RequestResult.Error(result?.message ?: "网络连接错误")
-        }
+        return result.toRequestResult()
     }
 
     suspend fun recordPlay(id: String): RequestResult {
         val result = kotlin.runCatching { api?.recordMusicPlay(id) }.getOrNull()
-        return if (result?.success == true) {
-            RequestResult.Success<Unit>(Unit, result.message)
-        } else {
-            RequestResult.Error(result?.message ?: "网络连接错误")
-        }
+        return result.toRequestResult()
     }
+
     suspend fun getMusicList(page: Int, size: Int, keyword: String = ""): RequestResult {
         val result = kotlin.runCatching { api?.getMusicList(page, size, keyword) }.getOrNull()
         val dataResult = ListData<MusicData>()
@@ -131,19 +125,11 @@ class MusicRepository : BaseRepository() {
             map["parent_id"] = commentId
         }
         val result = kotlin.runCatching { api?.postMusicComment(map) }.getOrNull()
-        return if (result?.success == true) {
-            RequestResult.Success<Unit>(Unit, result.message)
-        } else {
-            RequestResult.Error(result?.message ?: "网络连接错误")
-        }
+        return result.toRequestResult()
     }
 
     suspend fun likeMusicComment(commentId: String): RequestResult {
         val result = kotlin.runCatching { api?.likeMusicComment(commentId) }.getOrNull()
-        return if (result?.success == true) {
-            RequestResult.Success<Unit>(Unit, result.message)
-        } else {
-            RequestResult.Error(result?.message ?: "网络连接错误")
-        }
+        return result.toRequestResult()
     }
 }

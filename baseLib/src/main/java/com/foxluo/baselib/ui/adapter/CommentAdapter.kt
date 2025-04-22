@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.foxluo.baselib.R
 import com.foxluo.baselib.util.ImageExt.loadUrlWithCircle
+import com.foxluo.baselib.util.StringUtil.formatServerTime
 import com.foxluo.baselib.util.ViewExt.visible
 import com.xuexiang.xui.widget.textview.ExpandableTextView
 
@@ -51,7 +52,7 @@ class CommentAdapter : RecyclerView.Adapter<CommentAdapter.CommentHolder>() {
         open fun setData(data: CommentBean) {
             head.loadUrlWithCircle(data.head)
             name.text = data.name
-            time.text = data.time
+            time.text = data.time.formatServerTime()
             likeCount.text = if (data.likeCount > 0) data.likeCount.toString() else ""
             likeCount.isSelected = data.isLike
             content.text = data.content

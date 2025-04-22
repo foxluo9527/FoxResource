@@ -41,6 +41,8 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_margin="15dp"
+            android:adjustViewBounds="true"
+            android:scaleType="centerCrop"
             android:src="@mipmap/ic_app_round" />
 
         <TextView

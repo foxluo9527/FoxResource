@@ -15,4 +15,11 @@
     <string name="verify_code">邮箱验证码</string>
     <string name="send">发送</string>
     <string name="change_pass">修改密码</string>
+    <string name="head">头像</string>
+    <string name="u_name">用户名</string>
+    <string name="nick_name">用户昵称</string>
+    <string name="nick_name_hint">编辑用户昵称</string>
+    <string name="sign">个性签名</string>
+    <string name="email">邮箱</string>
+    <string name="log_out">退出登录</string>
 </resources>

@@ -6,6 +6,7 @@ import com.foxluo.baselib.data.manager.AuthManager
 import com.foxluo.baselib.data.result.RequestResult
 import com.foxluo.baselib.domain.viewmodel.BaseViewModel
 import com.foxluo.mine.ui.data.repo.AuthRepository
+import com.foxluo.mine.ui.data.repo.PersonalRepository
 import kotlinx.coroutines.launch
 
 class LoginViewModel : BaseViewModel() {
@@ -22,6 +23,7 @@ class LoginViewModel : BaseViewModel() {
                 (result.data as AuthInfo).let {
                     toast.postValue(true to result.message)
                     AuthManager.login(it)
+                    PersonalRepository().getProfile()
                 }
             } else if (result is RequestResult.Error) {
                 toast.postValue(false to result.message)

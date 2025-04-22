@@ -23,22 +23,19 @@ object AuthManager {
     val token: String?
         get() = authInfo?.token
 
-    private var authInfo: AuthInfo? = null
+    var authInfo: AuthInfo?
         get() {
             val authInfoStr = sp.getString("KEY_SP_AUTH_INFO")
             return GsonUtils.fromJson(authInfoStr, AuthInfo::class.java)
         }
         set(value) {
-            val userChanged = value == null || value.user.id != field?.user?.id
             value?.let {
                 sp.put("KEY_SP_AUTH_INFO", GsonUtils.toJson(value))
             } ?: run {
                 sp.remove("KEY_SP_AUTH_INFO")
             }
-            if (userChanged) {
-                CoroutineScope(Dispatchers.IO).launch {
-                    userInfoStateFlow.emit(authInfo?.user)
-                }
+            CoroutineScope(Dispatchers.IO).launch {
+                userInfoStateFlow.emit(authInfo?.user)
             }
         }
 
@@ -50,6 +47,20 @@ object AuthManager {
 
     fun login(authInfo: AuthInfo) {
         this.authInfo = authInfo
+    }
+
+    fun updatePersonalInfo(
+        username: String,
+        nickname: String?,
+        avatar: String?,
+        signature: String?
+    ) {
+        authInfo = authInfo?.apply {
+            user.username = username
+            user.avatar = avatar
+            user.signature = signature
+            user.nickname = nickname
+        }
     }
 }
 
@@ -69,10 +80,12 @@ data class AuthInfo(val token: String, val user: UserInfo)
 
 data class UserInfo(
     val id: Long,
-    val username: String,
-    val signature: String?,
+    var username: String,
+    var signature: String?,
+    var nickname: String?,
     val email: String,
     val status: String,
+    var avatar: String?,
     val created_at: String,
     val last_login: String
 )
