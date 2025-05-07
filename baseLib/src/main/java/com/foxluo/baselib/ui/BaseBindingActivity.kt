@@ -9,9 +9,11 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.viewbinding.ViewBinding
 import com.blankj.utilcode.util.BarUtils
+import com.foxluo.baselib.R
+import com.xuexiang.xui.utils.WidgetUtils
 import com.xuexiang.xui.widget.dialog.LoadingDialog
 
-abstract class BaseBindingActivity<Binding: ViewBinding>: AppCompatActivity() {
+abstract class BaseBindingActivity<Binding : ViewBinding> : AppCompatActivity() {
     val statusBarHeight by lazy {
         BarUtils.getStatusBarHeight()
     }
@@ -21,9 +23,7 @@ abstract class BaseBindingActivity<Binding: ViewBinding>: AppCompatActivity() {
     }
 
     private val loadingDialog by lazy {
-        LoadingDialog(this).apply {
-            setLoadingIcon(null)
-        }
+        WidgetUtils.getLoadingDialog(this).setLoadingIcon(R.mipmap.ic_app_round)
     }
 
     fun setLoading(loading: Boolean) {
@@ -42,7 +42,7 @@ abstract class BaseBindingActivity<Binding: ViewBinding>: AppCompatActivity() {
         initListener()
         initObserver()
         initData()
-        initStatusBarView()?.let { view->
+        initStatusBarView()?.let { view ->
             ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
                 val stateBars = insets.getInsets(WindowInsetsCompat.Type.statusBars())
                 v.setPadding(stateBars.left, stateBars.top, stateBars.right, stateBars.bottom)
@@ -50,25 +50,26 @@ abstract class BaseBindingActivity<Binding: ViewBinding>: AppCompatActivity() {
             }
         }
     }
-    open fun initView(){
+
+    open fun initView() {
 
     }
 
-    open fun initListener(){
+    open fun initListener() {
 
     }
 
-    open fun initObserver(){
+    open fun initObserver() {
 
     }
 
-    open fun initData(){
+    open fun initData() {
 
     }
 
-    open fun initStatusBarView():View?{
+    open fun initStatusBarView(): View? {
         return null
     }
 
-    abstract fun initBinding():Binding
+    abstract fun initBinding(): Binding
 }

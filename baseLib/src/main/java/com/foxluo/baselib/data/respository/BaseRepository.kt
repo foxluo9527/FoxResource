@@ -77,4 +77,9 @@ open class BaseRepository {
     inline fun <reified API : BaseApi> createApi(): API? {
         return kotlin.runCatching { retrofit.build().create(API::class.java) }.getOrNull()
     }
+
+    interface ResultCallback<T> {
+        fun onSuccess(data: T, msg: String)
+        fun onError(msg: String)
+    }
 }

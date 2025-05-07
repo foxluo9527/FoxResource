@@ -6,6 +6,7 @@ import com.foxluo.baselib.data.result.BaseResponse.Companion.toRequestResult
 import com.foxluo.baselib.data.result.ListData
 import com.foxluo.baselib.data.result.RequestResult
 import com.foxluo.baselib.ui.adapter.CommentAdapter
+import com.foxluo.baselib.util.ImageExt
 import com.foxluo.resource.music.data.api.MusicApi
 import com.foxluo.resource.music.data.bean.ArtistData
 import com.foxluo.resource.music.data.bean.MusicData
@@ -35,7 +36,7 @@ class MusicRepository : BaseRepository() {
                 MusicData(
                     it.id.toString(),
                     it.cover_image,
-                    BASE_URL + it.url,
+                    ImageExt.processUrl(it.url),
                     it.title,
                     it.artists?.firstOrNull()?.let { artist ->
                         ArtistData(artist.name).apply {
