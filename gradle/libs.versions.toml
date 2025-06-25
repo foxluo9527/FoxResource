@@ -14,11 +14,14 @@ junitVersion = "1.1.5"
 espressoCore = "3.5.1"
 appcompat = "1.6.1"
 lifecycleRuntimeKtxVersion = "2.7.0"
+lottie = "6.6.2"
 lyricviewx = "1.3.2"
 material = "1.10.0"
 appcompatVersion = "1.7.0"
 constraintlayoutVersion = "2.2.0"
 media3Exoplayer = "1.5.0"
+openimageGlide = "2.4.5"
+paletteKtx = "1.0.0"
 pandora = "v2.0.0"
 refreshHeaderClassics = "2.1.0"
 refreshLayoutKernel = "2.1.0"
@@ -43,6 +46,7 @@ androidx-activity-activity-ktx = { module = "androidx.activity:activity-ktx", ve
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-fragment-ktx = { module = "androidx.fragment:fragment-ktx", version.ref = "fragmentKtx" }
 androidx-media3-exoplayer = { module = "androidx.media3:media3-exoplayer", version.ref = "media3Exoplayer" }
+androidx-palette-ktx = { module = "androidx.palette:palette-ktx", version.ref = "paletteKtx" }
 arouter-compiler = { module = "com.alibaba:arouter-compiler", version.ref = "arouterCompiler" }
 arouter-api = { module = "com.alibaba:arouter-api", version.ref = "arouterApi" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofitVersion" }
@@ -54,10 +58,12 @@ androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-co
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtxVersion" }
 lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleRuntimeKtxVersion" }
+lottie = { module = "com.airbnb.android:lottie", version.ref = "lottie" }
 lyricviewx = { module = "com.github.Moriafly:LyricViewX", version.ref = "lyricviewx" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompatVersion" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayoutVersion" }
+openimage-glide = { module = "io.github.flyjingfish:openimage-glide", version.ref = "openimageGlide" }
 pandora = { module = "com.github.whataa:pandora", version.ref = "pandora" }
 refresh-header-classics = { module = "io.github.scwang90:refresh-header-classics", version.ref = "refreshHeaderClassics" }
 refresh-layout-kernel = { module = "io.github.scwang90:refresh-layout-kernel", version.ref = "refreshLayoutKernel" }

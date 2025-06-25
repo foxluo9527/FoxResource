@@ -8,7 +8,7 @@ import com.foxluo.baselib.R
 import com.foxluo.baselib.util.ViewExt.visible
 
 class DetailLyricsFragment : BaseBindingFragment<FragmentDetailLrcBinding>() {
-    var targetPage :(()->Unit)?=null
+    var targetPage: (() -> Unit)? = null
 
     private var showTansLrc = false
 
@@ -20,6 +20,13 @@ class DetailLyricsFragment : BaseBindingFragment<FragmentDetailLrcBinding>() {
 
     override fun initBinding(): FragmentDetailLrcBinding {
         return FragmentDetailLrcBinding.inflate(layoutInflater)
+    }
+
+    fun setLyricTextColor(primaryColor: Int, secondaryColor: Int) {
+        binding.lyricView.setNormalColor(secondaryColor)
+        binding.lyricView.setCurrentColor(primaryColor)
+        binding.lyricView.setTimelineColor(primaryColor)
+        binding.lyricView.setTimeTextColor(primaryColor)
     }
 
     fun setLyrics(lyrics: String?, lyricTrans: String?) {
@@ -53,7 +60,7 @@ class DetailLyricsFragment : BaseBindingFragment<FragmentDetailLrcBinding>() {
                 return true
             }
         })
-        binding.lyricView.setOnSingerClickListener(object :OnSingleClickListener{
+        binding.lyricView.setOnSingerClickListener(object : OnSingleClickListener {
             override fun onClick() {
                 targetPage?.invoke()
             }

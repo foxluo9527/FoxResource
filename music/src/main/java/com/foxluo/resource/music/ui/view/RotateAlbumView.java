@@ -45,7 +45,7 @@ public class RotateAlbumView extends FrameLayout {
     // 设置旋转动画(属性动画)
     private void init(Context context) {
         View.inflate(context, R.layout.view_rotate_album, this);
-        ivAlbumPic = (ImageView) findViewById(R.id.view_pic);
+        ivAlbumPic = findViewById(R.id.view_pic);
         animator = ObjectAnimator.ofFloat(ivAlbumPic, "rotation", 0.0F, 360.0F);
         animator.setDuration(5 * 1000);
         animator.setInterpolator(new LinearInterpolator());
@@ -54,8 +54,12 @@ public class RotateAlbumView extends FrameLayout {
         setPlaying(false);
     }
 
-    // 更新播放状态
     public void setPlaying(boolean isPlaying) {
+        setPlaying(isPlaying, true);
+    }
+
+    // 更新播放状态
+    public void setPlaying(boolean isPlaying, boolean actionByUser) {
         Log.d(TAG, "update RotateAlbumView: isPlaying = " + isPlaying);
         if (isPlaying) {
             if (!animator.isRunning()) {
@@ -68,6 +72,9 @@ public class RotateAlbumView extends FrameLayout {
                 animator.cancel();
             }
             animator.pause();
+            if (!actionByUser) {
+                ivAlbumPic.setRotation(0);
+            }
         }
     }
 
@@ -75,10 +82,8 @@ public class RotateAlbumView extends FrameLayout {
         ImageExt.INSTANCE.loadUrlWithCircle(ivAlbumPic, url);
     }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        return super.onTouchEvent(event);
-
+    public ImageView getAlbumView() {
+        return ivAlbumPic;
     }
 
     @Override

@@ -42,7 +42,8 @@ kapt {
 }
 dependencies {
     implementation(libs.arouter.api)
-    api("com.airbnb.android:lottie:6.6.2")
+    api(libs.androidx.palette.ktx)
+    api(libs.lottie)
     kapt(libs.arouter.compiler)
     api(libs.xui)
     api(libs.github.glide)
@@ -64,6 +65,7 @@ dependencies {
     api(libs.constraintlayout)
     api(libs.android.defensecrash)
     api(libs.utilcodex)
+    api(libs.openimage.glide)
     implementation(libs.androidx.core.animation)
     testApi(libs.junit)
     testApi(libs.junit.junit)

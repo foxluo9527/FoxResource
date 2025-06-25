@@ -58,365 +58,369 @@ public class PlayerController<
         M extends BaseMusicItem<A>,
         A extends BaseArtistItem> {
 
-  private boolean mIsChangingPlayingMusic;
+    private boolean mIsChangingPlayingMusic;
 
-  private ICacheProxy mICacheProxy;
-  private final MusicDTO<B, M, A> mCurrentPlay = new MusicDTO<>();
-  private final MutableLiveData<MusicDTO<B, M, A>> mUiStates = new MutableLiveData<>();
+    private ICacheProxy mICacheProxy;
+    private final MusicDTO<B, M, A> mCurrentPlay = new MusicDTO<>();
+    private final MutableLiveData<MusicDTO<B, M, A>> mUiStates = new MutableLiveData<>();
 
-  public static ExoPlayer mPlayer;
-  private final static Handler mHandler = new Handler();
-  private final Runnable mProgressAction = this::updateProgress;
-  private final List<MediaItem> playingList = new ArrayList<MediaItem>();
-  private B currentAlbum = null;
+    public static ExoPlayer mPlayer;
+    private final static Handler mHandler = new Handler();
+    private final Runnable mProgressAction = this::updateProgress;
+    private final List<MediaItem> playingList = new ArrayList<MediaItem>();
+    private B currentAlbum = null;
 
-  public void init(ExoPlayer player, ICacheProxy iCacheProxy) {
-    mICacheProxy = iCacheProxy;
-    mPlayer = player;
-    mPlayer.setRepeatMode(Player.REPEAT_MODE_ALL);
-    mPlayer.addListener(new Player.Listener() {
-      @Override
-      public void onPlaybackStateChanged(int playbackState) {
-        Player.Listener.super.onPlaybackStateChanged(playbackState);
-        mCurrentPlay.setBuffering(playbackState == Player.STATE_BUFFERING);
-      }
+    public void init(ExoPlayer player, ICacheProxy iCacheProxy) {
+        mICacheProxy = iCacheProxy;
+        mPlayer = player;
+        mPlayer.setRepeatMode(Player.REPEAT_MODE_ALL);
+        mPlayer.addListener(new Player.Listener() {
+            @Override
+            public void onPlaybackStateChanged(int playbackState) {
+                Player.Listener.super.onPlaybackStateChanged(playbackState);
+                mCurrentPlay.setBuffering(playbackState == Player.STATE_BUFFERING);
+            }
 
-      @Override
-      public void onIsPlayingChanged(boolean isPlaying) {
-        Player.Listener.super.onIsPlayingChanged(isPlaying);
-        if (isPlaying) {
-          if (mCurrentPlay.getMusicId() != getCurrentPlayingMusic().musicId) {
-            setChangingPlayingMusic(true);
-          }
-          afterPlay();
+            @Override
+            public void onIsPlayingChanged(boolean isPlaying) {
+                Player.Listener.super.onIsPlayingChanged(isPlaying);
+                if (isPlaying) {
+                    if (mCurrentPlay.getMusicId() != getCurrentPlayingMusic().musicId) {
+                        setChangingPlayingMusic(true);
+                    }
+                    afterPlay();
+                } else {
+                    mCurrentPlay.setPaused(true);
+                }
+            }
+
+            @Override
+            public void onPlayerError(PlaybackException error) {
+                Player.Listener.super.onPlayerError(error);
+                System.out.println("播放错误=>" + mCurrentPlay.getTitle() + ",errorCode:" + error.errorCode);
+                toast("播放错误:" + mCurrentPlay.getTitle());
+                if (error.errorCode == ERROR_CODE_IO_BAD_HTTP_STATUS
+                        || error.errorCode == ERROR_CODE_IO_INVALID_HTTP_CONTENT_TYPE
+                        || error.errorCode == ERROR_CODE_IO_FILE_NOT_FOUND
+                        || error.errorCode == ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT
+                ) {
+                    if (isInit()) {
+                        mPlayer.seekToNext();
+                    }
+                }
+            }
+        });
+    }
+
+    @OptIn(markerClass = UnstableApi.class)
+    public boolean isInit() {
+        return mPlayer != null && !mPlayer.isReleased();
+    }
+
+    public void loadAlbum(B musicAlbum) {
+        setAlbum(musicAlbum, 0);
+    }
+
+    private void updateProgress() {
+        if (isInit() && getCurrentPlayingMusic() != null) {
+            if (mCurrentPlay.getMusicId() != getCurrentPlayingMusic().musicId) {
+                mCurrentPlay.setBaseInfo(currentAlbum, getCurrentPlayingMusic());
+            }
+            mCurrentPlay.setNowTime(calculateTime(mPlayer.getCurrentPosition() / 1000));
+            mCurrentPlay.setAllTime(calculateTime(mPlayer.getDuration() / 1000));
+            mCurrentPlay.setDuration((int) mPlayer.getDuration());
+            mCurrentPlay.setCacheBufferProgress(mPlayer.getBufferedPercentage());
+            mCurrentPlay.setProgress((int) mPlayer.getCurrentPosition());
+            mUiStates.setValue(mCurrentPlay);
+            mHandler.postDelayed(mProgressAction, 1000);
         } else {
-          mCurrentPlay.setPaused(true);
+            mCurrentPlay.setNowTime(calculateTime(0));
+            mCurrentPlay.setAllTime(calculateTime(0));
+            mCurrentPlay.setDuration(0);
+            mCurrentPlay.setCacheBufferProgress(0);
+            mCurrentPlay.setProgress(0);
+            mUiStates.setValue(mCurrentPlay);
         }
-      }
+    }
 
-      @Override
-      public void onPlayerError(PlaybackException error) {
-        Player.Listener.super.onPlayerError(error);
-        System.out.println("播放错误=>" + mCurrentPlay.getTitle() + ",errorCode:" + error.errorCode);
-        toast("播放错误:" + mCurrentPlay.getTitle());
-        if (error.errorCode == ERROR_CODE_IO_BAD_HTTP_STATUS
-                || error.errorCode == ERROR_CODE_IO_INVALID_HTTP_CONTENT_TYPE
-                || error.errorCode == ERROR_CODE_IO_FILE_NOT_FOUND
-                || error.errorCode == ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT
-        ) {
-          if (isInit()) {
-            mPlayer.seekToNext();
-          }
+    private void setAlbum(B musicAlbum, int albumIndex) {
+        if (!isInit()) return;
+        currentAlbum = musicAlbum;
+        playingList.clear();
+        musicAlbum.musics.forEach(new Consumer<M>() {
+            @Override
+            public void accept(M m) {
+                MediaItem mediaItem = getMusicMediaItem(m);
+                if (mediaItem != null) {
+                    playingList.add(mediaItem);
+                }
+            }
+        });
+        mPlayer.clearMediaItems();
+        mPlayer.addMediaItems(playingList);
+        mPlayer.seekToDefaultPosition(albumIndex);
+        setChangingPlayingMusic(true);
+    }
+
+    public void loadAlbum(B musicAlbum, int albumIndex) {
+        setAlbum(musicAlbum, albumIndex);
+        playAudio();
+    }
+
+    public boolean isPlaying() {
+        if (!isInit()) return false;
+        return mPlayer.isPlaying();
+    }
+
+    public boolean isPaused() {
+        if (!isInit()) return true;
+        return !mPlayer.isPlaying();
+    }
+
+    public void playAudio(int albumIndex) {
+        if (!isInit()) return;
+        int currentIndex = mPlayer.getCurrentMediaItemIndex();
+        if (isPlaying() && albumIndex == mPlayer.getCurrentMediaItemIndex()) {
+            return;
         }
-      }
-    });
-  }
-
-  @OptIn(markerClass = UnstableApi.class)
-  public boolean isInit() {
-    return mPlayer != null && !mPlayer.isReleased();
-  }
-
-  public void loadAlbum(B musicAlbum) {
-    setAlbum(musicAlbum, 0);
-  }
-
-  private void updateProgress() {
-    if (isInit() && getCurrentPlayingMusic()!=null) {
-      if (mCurrentPlay.getMusicId() != getCurrentPlayingMusic().musicId) {
-        mCurrentPlay.setBaseInfo(currentAlbum, getCurrentPlayingMusic());
-      }
-      mCurrentPlay.setNowTime(calculateTime(mPlayer.getCurrentPosition() / 1000));
-      mCurrentPlay.setAllTime(calculateTime(mPlayer.getDuration() / 1000));
-      mCurrentPlay.setDuration((int) mPlayer.getDuration());
-      mCurrentPlay.setCacheBufferProgress(mPlayer.getBufferedPercentage());
-      mCurrentPlay.setProgress((int) mPlayer.getCurrentPosition());
-      mUiStates.setValue(mCurrentPlay);
-      mHandler.postDelayed(mProgressAction, 1000);
-    } else {
-      mCurrentPlay.setNowTime(calculateTime(0));
-      mCurrentPlay.setAllTime(calculateTime(0));
-      mCurrentPlay.setDuration(0);
-      mCurrentPlay.setCacheBufferProgress(0);
-      mCurrentPlay.setProgress(0);
-      mUiStates.setValue(mCurrentPlay);
+        mPlayer.seekTo(albumIndex, 0L);
+        setChangingPlayingMusic(true);
+        playAudio();
     }
-  }
 
-  private void setAlbum(B musicAlbum, int albumIndex) {
-    if (!isInit()) return;
-    currentAlbum = musicAlbum;
-    playingList.clear();
-    musicAlbum.musics.forEach(new Consumer<M>() {
-      @Override
-      public void accept(M m) {
-        MediaItem mediaItem = getMusicMediaItem(m);
-        if (mediaItem != null) {
-          playingList.add(mediaItem);
+    public void playAudio() {
+        if (getCurrentPlayingMusic() == null) {
+            return;
         }
-      }
-    });
-    mPlayer.clearMediaItems();
-    mPlayer.addMediaItems(playingList);
-    mPlayer.seekToDefaultPosition(albumIndex);
-    setChangingPlayingMusic(true);
-  }
-
-  public void loadAlbum(B musicAlbum, int albumIndex) {
-    setAlbum(musicAlbum, albumIndex);
-    playAudio();
-  }
-
-  public boolean isPlaying() {
-    if (!isInit()) return false;
-    return mPlayer.isPlaying();
-  }
-
-  public boolean isPaused() {
-    if (!isInit()) return true;
-    return !mPlayer.isPlaying();
-  }
-
-  public void playAudio(int albumIndex) {
-    if (!isInit()) return;
-    int currentIndex = mPlayer.getCurrentMediaItemIndex();
-    if (isPlaying() && albumIndex == mPlayer.getCurrentMediaItemIndex()) {
-      return;
+        if (mIsChangingPlayingMusic) {
+            mPlayer.prepare();
+            mPlayer.play();
+        } else if (isPaused() || mCurrentPlay.getProgress() > 0) {
+            resumeAudio();
+        }
     }
-    mPlayer.seekTo(albumIndex, 0L);
-    setChangingPlayingMusic(true);
-    playAudio();
-  }
 
-  public void playAudio() {
-    if (getCurrentPlayingMusic() == null) {
-      return;
+    private Uri convertResource2Uri(int resId) {
+        Resources resources = Utils.getApp().getResources();
+        return Uri.parse(
+                ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + resources.getResourcePackageName(resId) + '/' + resources.getResourceTypeName(
+                        resId
+                ) + '/' + resources.getResourceEntryName(resId)
+        );
     }
-    if (mIsChangingPlayingMusic) {
-      mPlayer.prepare();
-      mPlayer.play();
-    } else if (isPaused() || mCurrentPlay.getProgress() > 0) {
-      resumeAudio();
-    }
-  }
 
-  private Uri convertResource2Uri(int resId) {
-    Resources resources = Utils.getApp().getResources();
-    return Uri.parse(
-            ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + resources.getResourcePackageName(resId) + '/' + resources.getResourceTypeName(
-                    resId
-            ) + '/' + resources.getResourceEntryName(resId)
-    );
-  }
-  private @Nullable MediaItem getMusicMediaItem(M currentMusic) {
-    String url;
-    url = currentMusic.url;
-    MediaItem mediaItem = null;
-    try {
-      if ((url.contains("http:") || url.contains("ftp:") || url.contains("https:"))) {
-        String urlName = StringUtil.INSTANCE.getUrlName(url);
-        MediaMetadata.Builder builder = new MediaMetadata.Builder()
-                .setTitle(currentMusic.title)
-                .setArtist(currentMusic.artist.name)
-                .setIsBrowsable(false)
-                .setIsPlayable(true)
-                .setMediaType(MediaMetadata.MEDIA_TYPE_MUSIC);
-        if (currentMusic.coverImg != null && !currentMusic.coverImg.isEmpty()) {
-          builder.setArtworkUri(Uri.parse(ImageExt.INSTANCE.processUrl(currentMusic.coverImg)));
+    private @Nullable MediaItem getMusicMediaItem(M currentMusic) {
+        String url;
+        url = currentMusic.url;
+        MediaItem mediaItem = null;
+        try {
+            if ((url.contains("http:") || url.contains("ftp:") || url.contains("https:"))) {
+                String urlName = StringUtil.INSTANCE.getUrlName(url);
+                MediaMetadata.Builder builder = new MediaMetadata.Builder()
+                        .setTitle(currentMusic.title)
+                        .setArtist(currentMusic.artist.name)
+                        .setIsBrowsable(false)
+                        .setIsPlayable(true)
+                        .setMediaType(MediaMetadata.MEDIA_TYPE_MUSIC);
+                if (currentMusic.coverImg != null && !currentMusic.coverImg.isEmpty()) {
+                    builder.setArtworkUri(Uri.parse(ImageExt.INSTANCE.processUrl(currentMusic.coverImg)));
+                } else {
+                    builder.setArtworkUri(convertResource2Uri(com.foxluo.baselib.R.mipmap.ic_app));
+                }
+                MediaMetadata metadata = builder.build();
+                mediaItem = new MediaItem.Builder()
+                        .setUri(mICacheProxy.getCacheUrl(url))
+                        .setMediaMetadata(metadata)
+                        .setTag(currentMusic).build();
+            } else if (url.contains("storage")) {
+                mediaItem = new MediaItem.Builder().setUri(url).setTag(currentMusic).build();
+            } else {
+                mediaItem = new MediaItem.Builder().setUri(Uri.parse("file:///android_asset/" + url)).setTag(currentMusic).build();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return mediaItem;
+    }
+
+    private void afterPlay() {
+        setChangingPlayingMusic(false);
+        mHandler.post(mProgressAction);
+        mCurrentPlay.setPaused(false);
+        mUiStates.setValue(mCurrentPlay);
+    }
+
+    public void setSeek(int progress) {
+        mPlayer.seekTo(progress);
+    }
+
+    public String getTrackTime(int progress) {
+        return calculateTime(progress / 1000);
+    }
+
+    private String calculateTime(long _time) {
+        int time = (int) _time;
+        int minute;
+        int second;
+        if (time >= 60) {
+            minute = time / 60;
+            second = time % 60;
+            return (minute < 10 ? "0" + minute : "" + minute) + (second < 10 ? ":0" + second : ":" + second);
         } else {
-          builder.setArtworkUri(convertResource2Uri(com.foxluo.baselib.R.mipmap.ic_app));
+            second = time;
+            if (second < 10) return "00:0" + second;
+            return "00:" + second;
         }
-        MediaMetadata metadata = builder.build();
-        mediaItem = new MediaItem.Builder()
-                .setUri(mICacheProxy.getCacheUrl(url))
-                .setMediaMetadata(metadata)
-                .setTag(currentMusic).build();
-      } else if (url.contains("storage")) {
-        mediaItem = new MediaItem.Builder().setUri(url).setTag(currentMusic).build();
-      } else {
-        mediaItem = new MediaItem.Builder().setUri(Uri.parse("file:///android_asset/" + url)).setTag(currentMusic).build();
-      }
-    } catch (Exception e) {
-      throw new RuntimeException(e);
     }
-    return mediaItem;
-  }
 
-  private void afterPlay() {
-    setChangingPlayingMusic(false);
-    mHandler.post(mProgressAction);
-    mCurrentPlay.setPaused(false);
-    mUiStates.setValue(mCurrentPlay);
-  }
-
-  public void setSeek(int progress) {
-    mPlayer.seekTo(progress);
-  }
-
-  public String getTrackTime(int progress) {
-    return calculateTime(progress / 1000);
-  }
-
-  private String calculateTime(long _time) {
-    int time = (int) _time;
-    int minute;
-    int second;
-    if (time >= 60) {
-      minute = time / 60;
-      second = time % 60;
-      return (minute < 10 ? "0" + minute : "" + minute) + (second < 10 ? ":0" + second : ":" + second);
-    } else {
-      second = time;
-      if (second < 10) return "00:0" + second;
-      return "00:" + second;
+    public void removeAlbumIndex(int removeIndex) {
+        if (!isInit()) return;
+        mPlayer.removeMediaItem(removeIndex);
+        playingList.remove(removeIndex);
     }
-  }
 
-  public void removeAlbumIndex(int removeIndex) {
-    if (!isInit()) return;
-    mPlayer.removeMediaItem(removeIndex);
-    playingList.remove(removeIndex);
-  }
+    public void appendPlayingList(List<M> list) {
+        if (!isInit()) return;
+        list.forEach(new Consumer<M>() {
+            @Override
+            public void accept(M m) {
+                MediaItem mediaItem = getMusicMediaItem(m);
+                if (m != null) {
+                    playingList.add(mediaItem);
+                }
+            }
+        });
+        mPlayer.addMediaItems(playingList);
+    }
 
-  public void appendPlayingList(List<M> list) {
-    if (!isInit()) return;
-    list.forEach(new Consumer<M>() {
-      @Override
-      public void accept(M m) {
-        MediaItem mediaItem = getMusicMediaItem(m);
-        if (m != null) {
-          playingList.add(mediaItem);
+    public void playNext() {
+        if (!isInit()) return;
+        mPlayer.seekToNext();
+        setChangingPlayingMusic(true);
+        playAudio();
+    }
+
+    public void playPrevious() {
+        if (!isInit()) return;
+        if (mPlayer.getDuration() > 0) {
+            mPlayer.seekTo(0);
         }
-      }
-    });
-    mPlayer.addMediaItems(playingList);
-  }
-
-  public void playNext() {
-    if (!isInit()) return;
-    mPlayer.seekToNext();
-    setChangingPlayingMusic(true);
-    playAudio();
-  }
-
-  public void playPrevious() {
-    if (!isInit()) return;
-    mPlayer.seekToPrevious();
-    setChangingPlayingMusic(true);
-    playAudio();
-  }
-
-  public void playAgain() {
-    setChangingPlayingMusic(true);
-    playAudio();
-  }
-
-  public void pauseAudio() {
-    if (!isInit()) return;
-    mPlayer.pause();
-    mHandler.removeCallbacks(mProgressAction);
-    mCurrentPlay.setPaused(true);
-    mUiStates.setValue(mCurrentPlay);
-  }
-
-  public void resumeAudio() {
-    if (!isInit()) return;
-    mPlayer.prepare();
-    mPlayer.play();
-    mHandler.post(mProgressAction);
-    mCurrentPlay.setPaused(false);
-    mUiStates.setValue(mCurrentPlay);
-  }
-
-  public void clear() {
-    if (!isInit()) return;
-    mPlayer.clearMediaItems();
-    playingList.clear();
-    mCurrentPlay.setPaused(true);
-    mUiStates.setValue(mCurrentPlay);
-    resetIsChangingPlayingChapter();
-  }
-
-  public void resetIsChangingPlayingChapter() {
-    mIsChangingPlayingMusic = true;
-    setChangingPlayingMusic(true);
-  }
-
-  public void changeMode() {
-    if (!isInit()) return;
-    if (mPlayer.getShuffleModeEnabled()) {
-      mPlayer.setShuffleModeEnabled(false);
-      mPlayer.setRepeatMode(Player.REPEAT_MODE_ALL);
-      mCurrentPlay.setRepeatMode(PlayingInfoManager.RepeatMode.LIST_CYCLE);
-    } else if (mPlayer.getRepeatMode() == Player.REPEAT_MODE_ALL) {
-      mPlayer.setRepeatMode(Player.REPEAT_MODE_ONE);
-      mCurrentPlay.setRepeatMode(PlayingInfoManager.RepeatMode.SINGLE_CYCLE);
-    } else {
-      mPlayer.setShuffleModeEnabled(true);
-      mPlayer.setRepeatMode(Player.REPEAT_MODE_OFF);
-      mCurrentPlay.setRepeatMode(PlayingInfoManager.RepeatMode.RANDOM);
+        mPlayer.seekToPrevious();
+        setChangingPlayingMusic(true);
+        playAudio();
     }
-    mUiStates.setValue(mCurrentPlay);
-  }
 
-  public B getAlbum() {
-    return currentAlbum;
-  }
-
-  public List<M> getAlbumMusics() {
-    ArrayList<M> albumMusics = new ArrayList<>();
-    playingList.forEach(new Consumer<MediaItem>() {
-      @Override
-      public void accept(MediaItem mediaItem) {
-        albumMusics.add((M) mediaItem.localConfiguration.tag);
-      }
-    });
-    return albumMusics;
-  }
-
-  public void setChangingPlayingMusic(boolean changingPlayingMusic) {
-    mIsChangingPlayingMusic = changingPlayingMusic;
-    if (mIsChangingPlayingMusic) {
-      mCurrentPlay.setBaseInfo(currentAlbum, getCurrentPlayingMusic());
-      mCurrentPlay.setNowTime("00:00");
-      mCurrentPlay.setAllTime("00:00");
-      mCurrentPlay.setProgress(0);
-      mCurrentPlay.setDuration(0);
-      mUiStates.setValue(mCurrentPlay);
+    public void playAgain() {
+        setChangingPlayingMusic(true);
+        playAudio();
     }
-  }
 
-  public int getAlbumIndex() {
-    if (!isInit()) return 0;
-    return mPlayer.getCurrentMediaItemIndex();
-  }
-
-  public Enum<PlayingInfoManager.RepeatMode> getRepeatMode() {
-    if (!isInit()) return PlayingInfoManager.RepeatMode.LIST_CYCLE;
-    if (mPlayer.getShuffleModeEnabled()) {
-      return PlayingInfoManager.RepeatMode.RANDOM;
-    } else if (mPlayer.getRepeatMode() == Player.REPEAT_MODE_ONE) {
-      return PlayingInfoManager.RepeatMode.SINGLE_CYCLE;
-    } else {
-      return PlayingInfoManager.RepeatMode.LIST_CYCLE;
+    public void pauseAudio() {
+        if (!isInit()) return;
+        mPlayer.pause();
+        mHandler.removeCallbacks(mProgressAction);
+        mCurrentPlay.setPaused(true);
+        mUiStates.setValue(mCurrentPlay);
     }
-  }
 
-  public void togglePlay() {
-    if (!isInit()) return;
-    if (isPlaying() || mCurrentPlay.isPaused() == false) pauseAudio();
-    else playAudio();
-  }
-
-  public M getCurrentPlayingMusic() {
-    if (!isInit()) return null;
-    if (mPlayer.getCurrentMediaItem() == null) {
-      return null;
+    public void resumeAudio() {
+        if (!isInit()) return;
+        mPlayer.prepare();
+        mPlayer.play();
+        mHandler.post(mProgressAction);
+        mCurrentPlay.setPaused(false);
+        mUiStates.setValue(mCurrentPlay);
     }
-    return (M) mPlayer.getCurrentMediaItem().localConfiguration.tag;
-  }
 
-  public LiveData<MusicDTO<B, M, A>> getUiStates() {
-    return mUiStates;
-  }
+    public void clear() {
+        if (!isInit()) return;
+        mPlayer.clearMediaItems();
+        playingList.clear();
+        mCurrentPlay.setPaused(true);
+        mUiStates.setValue(mCurrentPlay);
+        resetIsChangingPlayingChapter();
+    }
+
+    public void resetIsChangingPlayingChapter() {
+        mIsChangingPlayingMusic = true;
+        setChangingPlayingMusic(true);
+    }
+
+    public void changeMode() {
+        if (!isInit()) return;
+        if (mPlayer.getShuffleModeEnabled()) {
+            mPlayer.setShuffleModeEnabled(false);
+            mPlayer.setRepeatMode(Player.REPEAT_MODE_ALL);
+            mCurrentPlay.setRepeatMode(PlayingInfoManager.RepeatMode.LIST_CYCLE);
+        } else if (mPlayer.getRepeatMode() == Player.REPEAT_MODE_ALL) {
+            mPlayer.setRepeatMode(Player.REPEAT_MODE_ONE);
+            mCurrentPlay.setRepeatMode(PlayingInfoManager.RepeatMode.SINGLE_CYCLE);
+        } else {
+            mPlayer.setShuffleModeEnabled(true);
+            mPlayer.setRepeatMode(Player.REPEAT_MODE_OFF);
+            mCurrentPlay.setRepeatMode(PlayingInfoManager.RepeatMode.RANDOM);
+        }
+        mUiStates.setValue(mCurrentPlay);
+    }
+
+    public B getAlbum() {
+        return currentAlbum;
+    }
+
+    public List<M> getAlbumMusics() {
+        ArrayList<M> albumMusics = new ArrayList<>();
+        playingList.forEach(new Consumer<MediaItem>() {
+            @Override
+            public void accept(MediaItem mediaItem) {
+                albumMusics.add((M) mediaItem.localConfiguration.tag);
+            }
+        });
+        return albumMusics;
+    }
+
+    public void setChangingPlayingMusic(boolean changingPlayingMusic) {
+        mIsChangingPlayingMusic = changingPlayingMusic;
+        if (mIsChangingPlayingMusic) {
+            mCurrentPlay.setBaseInfo(currentAlbum, getCurrentPlayingMusic());
+            mCurrentPlay.setNowTime("00:00");
+            mCurrentPlay.setAllTime("00:00");
+            mCurrentPlay.setProgress(0);
+            mCurrentPlay.setDuration(0);
+            mUiStates.setValue(mCurrentPlay);
+        }
+    }
+
+    public int getAlbumIndex() {
+        if (!isInit()) return 0;
+        return mPlayer.getCurrentMediaItemIndex();
+    }
+
+    public Enum<PlayingInfoManager.RepeatMode> getRepeatMode() {
+        if (!isInit()) return PlayingInfoManager.RepeatMode.LIST_CYCLE;
+        if (mPlayer.getShuffleModeEnabled()) {
+            return PlayingInfoManager.RepeatMode.RANDOM;
+        } else if (mPlayer.getRepeatMode() == Player.REPEAT_MODE_ONE) {
+            return PlayingInfoManager.RepeatMode.SINGLE_CYCLE;
+        } else {
+            return PlayingInfoManager.RepeatMode.LIST_CYCLE;
+        }
+    }
+
+    public void togglePlay() {
+        if (!isInit()) return;
+        if (isPlaying() || mCurrentPlay.isPaused() == false) pauseAudio();
+        else playAudio();
+    }
+
+    public M getCurrentPlayingMusic() {
+        if (!isInit()) return null;
+        if (mPlayer.getCurrentMediaItem() == null) {
+            return null;
+        }
+        return (M) mPlayer.getCurrentMediaItem().localConfiguration.tag;
+    }
+
+    public LiveData<MusicDTO<B, M, A>> getUiStates() {
+        return mUiStates;
+    }
 }

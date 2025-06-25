@@ -1,8 +1,11 @@
 package com.foxluo.resource.music.ui.fragment
 
 import android.content.Intent
+import com.flyjingfish.openimagelib.OpenImage
+import com.flyjingfish.openimagelib.enums.MediaType
 import com.foxluo.baselib.domain.viewmodel.getAppViewModel
 import com.foxluo.baselib.ui.BaseBindingFragment
+import com.foxluo.baselib.util.ImageExt.processUrl
 import com.foxluo.baselib.util.ViewExt.fastClick
 import com.foxluo.resource.music.data.bean.MusicData
 import com.foxluo.resource.music.data.domain.viewmodel.MainMusicViewModel
@@ -11,8 +14,8 @@ import com.foxluo.resource.music.ui.activity.MusicCommentActivity
 
 class DetailSongFragment : BaseBindingFragment<FragmentDetailSongBinding>() {
     private var currentMusic: MusicData? = null
-
-    var targetPage :(()->Unit)?=null
+    private var onPlaying = false
+    var targetPage: (() -> Unit)? = null
 
     private val musicViewModel by lazy {
         getAppViewModel<MainMusicViewModel>()
@@ -23,7 +26,17 @@ class DetailSongFragment : BaseBindingFragment<FragmentDetailSongBinding>() {
         initView()
     }
 
+    fun setPrimaryColor(primaryColor: Int){
+        binding.comment.setColorFilter(primaryColor)
+        binding.like.setColorFilter(primaryColor)
+        binding.downloaded.setColorFilter(primaryColor)
+        binding.more.setColorFilter(primaryColor)
+        binding.songName.setTextColor(primaryColor)
+        binding.singer.setTextColor(primaryColor)
+    }
+
     fun initPlayState(playing: Boolean) {
+        onPlaying = playing
         binding.cover.setPlaying(playing)
     }
 
@@ -46,16 +59,29 @@ class DetailSongFragment : BaseBindingFragment<FragmentDetailSongBinding>() {
     }
 
     override fun initObserver() {
-        musicViewModel.musicFavoriteState.observe(this){
+        musicViewModel.musicFavoriteState.observe(this) {
             binding.like.isSelected = it
         }
     }
 
     override fun initListener() {
+        binding.cover.albumView.setOnClickListener {
+            currentMusic?.coverImg?.let {
+                binding.cover.setPlaying(false, false)
+                OpenImage
+                    .with(this)
+                    .setImageUrl(processUrl(it), MediaType.IMAGE)
+                    .setClickImageView(binding.cover.albumView)
+                    .setOnExitListener {
+                        binding.cover.setPlaying(onPlaying, false)
+                    }
+                    .show()
+            }
+        }
         binding.root.setOnClickListener {
             targetPage?.invoke()
         }
-        binding.like.fastClick{
+        binding.like.fastClick {
             currentMusic?.musicId?.let { musicId -> musicViewModel.favoriteMusic(musicId) }
         }
         binding.comment.fastClick {
