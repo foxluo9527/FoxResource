@@ -1,6 +1,7 @@
 package com.foxluo.resource.music.ui.fragment
 
 import android.content.Intent
+import androidx.lifecycle.lifecycleScope
 import com.flyjingfish.openimagelib.OpenImage
 import com.flyjingfish.openimagelib.enums.MediaType
 import com.foxluo.baselib.domain.viewmodel.getAppViewModel
@@ -23,21 +24,24 @@ class DetailSongFragment : BaseBindingFragment<FragmentDetailSongBinding>() {
 
     fun initMusicData(data: MusicData?) {
         this.currentMusic = data
-        initView()
+        lifecycleScope.launchWhenStarted {
+            initView()
+        }
     }
 
     fun setPrimaryColor(primaryColor: Int){
         binding.comment.setColorFilter(primaryColor)
         binding.like.setColorFilter(primaryColor)
         binding.downloaded.setColorFilter(primaryColor)
-        binding.more.setColorFilter(primaryColor)
         binding.songName.setTextColor(primaryColor)
         binding.singer.setTextColor(primaryColor)
     }
 
     fun initPlayState(playing: Boolean) {
         onPlaying = playing
-        binding.cover.setPlaying(playing)
+        lifecycleScope.launchWhenStarted {
+            binding.cover.setPlaying(playing)
+        }
     }
 
     override fun initView() {
@@ -67,14 +71,10 @@ class DetailSongFragment : BaseBindingFragment<FragmentDetailSongBinding>() {
     override fun initListener() {
         binding.cover.albumView.setOnClickListener {
             currentMusic?.coverImg?.let {
-                binding.cover.setPlaying(false, false)
                 OpenImage
                     .with(this)
                     .setImageUrl(processUrl(it), MediaType.IMAGE)
-                    .setClickImageView(binding.cover.albumView)
-                    .setOnExitListener {
-                        binding.cover.setPlaying(onPlaying, false)
-                    }
+                    .setNoneClickView()
                     .show()
             }
         }

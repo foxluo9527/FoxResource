@@ -14,13 +14,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 object BitmapUtil {
+    interface ColorFilterCallback {
+        suspend fun onColorFilterChanged(primaryColor: Int, primaryTextColor: Int, secondaryTextColor: Int)
+    }
+
     suspend fun Context.getImageColors(
         url: String?,
-        block: (
-            primaryColor: Int,
-            primaryTextColor: Int,
-            secondaryTextColor: Int
-        ) -> Unit
+        playCallback:ColorFilterCallback
     ) {
         withContext(Dispatchers.IO) {
             val bitmap =
@@ -38,7 +38,7 @@ object BitmapUtil {
             val palette = Palette.from(bitmap).generate()
             val swatch = palette.swatches.first { it != null }
             swatch?.let {
-                block.invoke(it.rgb, it.bodyTextColor, it.titleTextColor)
+                playCallback.onColorFilterChanged(it.rgb, it.bodyTextColor, it.titleTextColor)
             }
         }
     }

@@ -21,7 +21,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="15dp"
         android:layout_marginTop="3dp"
-        android:textColor="#999999"
+        android:textColor="#000"
         android:textSize="12sp"
         app:layout_constraintStart_toEndOf="@id/head"
         app:layout_constraintTop_toTopOf="@id/head"
@@ -32,7 +32,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
-        android:textColor="#cccccc"
+        android:textColor="#999999"
         android:textSize="9sp"
         app:layout_constraintStart_toStartOf="@id/name"
         app:layout_constraintTop_toBottomOf="@id/name"
@@ -56,8 +56,9 @@
         android:id="@+id/replay_to_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="5dp"
         android:orientation="horizontal"
+        android:visibility="gone"
         app:layout_constraintStart_toStartOf="@id/name"
         app:layout_constraintTop_toBottomOf="@+id/head">
 
@@ -86,7 +87,7 @@
             android:id="@+id/replay_to_content"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#999999"
+            android:textColor="#d1d1d1"
             android:textSize="12sp"
             tools:text="回复内容" />
     </LinearLayout>
@@ -94,6 +95,7 @@
     <com.xuexiang.xui.widget.textview.ExpandableTextView
         android:id="@+id/content"
         android:layout_width="0dp"
+        android:layout_marginTop="3dp"
         android:layout_height="wrap_content"
         app:etv_maxCollapsedLines="5"
         app:layout_constraintEnd_toEndOf="parent"

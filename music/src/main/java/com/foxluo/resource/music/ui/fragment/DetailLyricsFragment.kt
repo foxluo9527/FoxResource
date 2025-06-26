@@ -1,10 +1,13 @@
 package com.foxluo.resource.music.ui.fragment
 
+import android.annotation.SuppressLint
+import androidx.lifecycle.lifecycleScope
 import com.dirror.lyricviewx.OnPlayClickListener
 import com.dirror.lyricviewx.OnSingleClickListener
 import com.foxluo.baselib.ui.BaseBindingFragment
 import com.foxluo.resource.music.databinding.FragmentDetailLrcBinding
 import com.foxluo.baselib.R
+import com.foxluo.baselib.util.ViewExt.getLyricViewTouchEventListener
 import com.foxluo.baselib.util.ViewExt.visible
 
 class DetailLyricsFragment : BaseBindingFragment<FragmentDetailLrcBinding>() {
@@ -27,29 +30,34 @@ class DetailLyricsFragment : BaseBindingFragment<FragmentDetailLrcBinding>() {
         binding.lyricView.setCurrentColor(primaryColor)
         binding.lyricView.setTimelineColor(primaryColor)
         binding.lyricView.setTimeTextColor(primaryColor)
+        binding.lyricView.setTimelineTextColor(primaryColor)
     }
 
     fun setLyrics(lyrics: String?, lyricTrans: String?) {
         this.lyrics = lyrics
         this.lyricTrans = lyricTrans
         showTansLrc = lyricTrans.isNullOrEmpty().not()
-        if (isAdded.not()) return
-        if (showTansLrc && lyricTrans.isNullOrEmpty().not()) {
-            binding.lyricView.loadLyric(lyrics, lyricTrans)
-        } else {
-            binding.lyricView.loadLyric(lyrics ?: "")
+        lifecycleScope.launchWhenStarted {
+            if (showTansLrc && lyricTrans.isNullOrEmpty().not()) {
+                binding.lyricView.loadLyric(lyrics, lyricTrans)
+            } else {
+                binding.lyricView.loadLyric(lyrics ?: "")
+            }
+            binding.trans.visible(lyricTrans.isNullOrEmpty().not())
         }
-        binding.trans.visible(lyricTrans.isNullOrEmpty().not())
     }
 
     fun setLyricsDuration(duration: Long) {
-        binding.lyricView.updateTime(duration, true)
+        lifecycleScope.launchWhenStarted {
+            binding.lyricView.updateTime(duration, true)
+        }
     }
 
     fun setDragClickCallback(currentPlay: (duration: Long) -> Unit) {
         this.currentPlay = currentPlay
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun initListener() {
         binding.root.setOnClickListener {
             targetPage?.invoke()
@@ -65,6 +73,7 @@ class DetailLyricsFragment : BaseBindingFragment<FragmentDetailLrcBinding>() {
                 targetPage?.invoke()
             }
         })
+        binding.lyricView.setOnTouchListener(getLyricViewTouchEventListener())
         binding.trans.setOnClickListener {
             showTansLrc = !showTansLrc
             binding.transText.setText(

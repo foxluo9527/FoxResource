@@ -73,13 +73,5 @@
             android:layout_weight="1"
             android:paddingVertical="10dp"
             android:src="@drawable/ic_download" />
-
-        <ImageView
-            android:id="@+id/more"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:layout_weight="1"
-            android:paddingVertical="10dp"
-            android:src="@drawable/ic_more_hor" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

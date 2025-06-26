@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:id="@+id/main"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:background="@color/DBDBDB"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
     <LinearLayout
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
         android:id="@+id/back"
         android:layout_width="wrap_content"
-        android:layout_height="60dp">
+        android:layout_height="60dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:id="@+id/iv_back"
@@ -33,31 +35,34 @@
             android:textSize="18sp" />
 
     </LinearLayout>
+
     <com.scwang.smart.refresh.layout.SmartRefreshLayout
         android:id="@+id/refresh"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginBottom="10dp"
-        app:layout_constraintTop_toBottomOf="@id/back"
-        app:layout_constraintBottom_toTopOf="@id/comment_content">
+        app:layout_constraintBottom_toTopOf="@id/inputLayout"
+        app:layout_constraintTop_toBottomOf="@id/back">
+
         <com.scwang.smart.refresh.header.ClassicsHeader
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:srlEnableLastTime="false"
-            app:srlTextPulling="下拉刷新"/>
+            app:srlTextPulling="下拉刷新" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycle_view"
-            tools:listitem="@layout/item_comment_replay"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/item_comment_replay" />
 
         <com.scwang.smart.refresh.footer.ClassicsFooter
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:srlTextPulling="加载更多"/>
+            app:srlTextPulling="加载更多" />
     </com.scwang.smart.refresh.layout.SmartRefreshLayout>
+
     <TextView
         android:id="@+id/empty_view"
         android:layout_width="wrap_content"
@@ -65,39 +70,49 @@
         android:text="@string/xui_tip_empty_message"
         android:textColor="@color/black"
         android:visibility="gone"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
-
-    <com.xuexiang.xui.widget.edittext.ClearEditText
-        android:id="@+id/comment_content"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="15dp"
-        android:layout_marginBottom="10dp"
-        android:background="@drawable/shape_black_trans_30_r8"
-        android:hint="评论一下吧"
-        android:lineHeight="22dp"
-        android:minHeight="34dp"
-        android:paddingStart="8dp"
-        android:textColorHint="#99ffffff"
-        android:textSize="11sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/comment_send"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        tools:hint="回复 xxx：" />
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/comment_send"
-        android:layout_width="60dp"
-        android:layout_height="34dp"
-        android:layout_marginEnd="15dp"
-        android:background="@drawable/selector_comment_send_btn"
-        android:gravity="center"
-        android:text="@string/send"
-        android:textColor="@drawable/selector_color_comment_send_text"
-        android:textSize="11sp"
-        app:layout_constraintTop_toTopOf="@id/comment_content"
-        app:layout_constraintEnd_toEndOf="parent" />
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/inputLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <com.xuexiang.xui.widget.edittext.ClearEditText
+            android:id="@+id/comment_content"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="15dp"
+            android:background="@drawable/shape_white_trans_r8"
+            android:hint="评论一下吧"
+            android:lineHeight="22dp"
+            android:minHeight="40dp"
+            android:paddingStart="8dp"
+            android:textColorHint="#c1c1c1"
+            android:textColor="@color/black"
+            android:textSize="13sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/comment_send"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:hint="回复 xxx：" />
+
+        <TextView
+            android:id="@+id/comment_send"
+            android:layout_width="78dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="15dp"
+            android:background="@drawable/selector_comment_send_btn"
+            android:gravity="center"
+            android:enabled="false"
+            android:text="@string/send"
+            android:textColor="@drawable/selector_color_comment_send_text"
+            android:textSize="13sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/comment_content" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
