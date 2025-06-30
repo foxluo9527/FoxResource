@@ -11,6 +11,8 @@ import okhttp3.Interceptor
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
+import okhttp3.Protocol
+import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.Response
 import okhttp3.ResponseBody
@@ -30,36 +32,53 @@ open class BaseRepository {
      */
     private val authErrorInterceptor: Interceptor = object : Interceptor {
         public override fun intercept(chain: Interceptor.Chain): Response {
-            return kotlin.runCatching {
-                val response: Response = chain.proceed(chain.request())
-                val code: Int = response.code()
-                if (200 != code) {
-                    val topActivity = ActivityUtils.getTopActivity()
-                    val inLoginPage = topActivity.javaClass.simpleName != "LoginActivity"
-                    if (code == 401) {
-                        if (inLoginPage) {
-                            ARouter.getInstance().build("/mine/login")
-                                .navigation(topActivity)
-                            return response.newBuilder()
-                                .code(200)
-                                .body(
-                                    ResponseBody.create(
-                                        null,
-                                        "{\"code\":500,\"message\":\"请登录\",\"data\":null,\"success\":false}"
-                                    )
-                                )
-                                .build()
-                        }
-                    }
-                    response.newBuilder()
-                        .code(200)
-                        .build()
-                } else {
-                    response
+            val request = chain.request()
+            return try {
+                val response = chain.proceed(request)
+                when (response.code()) {
+                    401 -> handleUnauthorized(response, request)
+                    else -> response
                 }
-            }.getOrNull() ?: Response.Builder().build()
+            } catch (e: Exception) {
+                Response.Builder()
+                    .request(request)
+                    .protocol(Protocol.HTTP_1_1)
+                    .code(500)
+                    .message("Network Error")
+                    .body("{ \"error\": \"${e.message}\" }".toResponseBody())
+                    .build()
+            }
         }
     }
+
+    private fun handleUnauthorized(originalResponse: Response, request: Request): Response {
+        val topActivity = ActivityUtils.getTopActivity()
+        if (topActivity.javaClass.simpleName != "LoginActivity") {
+            ARouter.getInstance().build("/mine/login").navigation(topActivity)
+        }
+
+        return originalResponse.newBuilder()
+            .code(200)
+            .body(
+                """
+                {
+                    "code": 401,
+                    "message": "请重新登录",
+                    "data": null,
+                    "success": false
+                }
+                """.trimIndent().toResponseBody("application/json")
+            )
+            .build()
+    }
+
+    private fun String.toResponseBody(contentType: String = "text/plain"): ResponseBody {
+        return ResponseBody.create(
+            MediaType.parse(contentType),
+            this
+        )
+    }
+
     private val client by lazy {
         OkHttpClient.Builder()
             .addInterceptor(LogInterceptor())

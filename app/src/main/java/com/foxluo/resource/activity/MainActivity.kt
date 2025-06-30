@@ -5,30 +5,30 @@ import android.animation.ValueAnimator
 import android.app.PendingIntent
 import android.content.ComponentName
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.LinearInterpolator
 import androidx.annotation.OptIn
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.alibaba.android.arouter.launcher.ARouter
 import com.blankj.utilcode.util.ConvertUtils.px2dp
 import com.foxluo.baselib.data.manager.AuthManager
 import com.foxluo.baselib.domain.viewmodel.getAppViewModel
 import com.foxluo.baselib.ui.BaseBindingActivity
 import com.foxluo.baselib.ui.MainPageFragment
+import com.foxluo.baselib.util.Constant
 import com.foxluo.baselib.util.ImageExt.loadUrlWithCircle
 import com.foxluo.chat.ui.ChatFragment
 import com.foxluo.home.ui.HomeFragment
 import com.foxluo.mine.ui.fragment.MineFragment
+import com.foxluo.resource.App
 import com.foxluo.resource.R
 import com.foxluo.resource.community.ui.CommunityFragment
 import com.foxluo.resource.databinding.ActivityMainBinding
+import com.foxluo.resource.music.data.bean.MusicData
 import com.foxluo.resource.music.data.domain.viewmodel.MainMusicViewModel
 import com.foxluo.resource.music.player.PlayerManager
 import com.foxluo.resource.music.ui.activity.PlayActivity
@@ -38,10 +38,13 @@ import com.hjq.permissions.OnPermissionCallback
 import com.hjq.permissions.Permission
 import com.hjq.permissions.XXPermissions
 import com.xuexiang.xui.utils.XToastUtils.toast
-import java.time.DayOfWeek
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 const val PERMISSIONS_REQUEST_FOREGROUND_SERVICE = 2333
+
 class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
     private val fragments by lazy {
         listOf(HomeFragment(), ChatFragment(), CommunityFragment(), MineFragment())
@@ -160,14 +163,25 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
         binding.playView.setOnClickListener {
             PlayActivity.startPlayDetail(this)
         }
-        binding.playState.setOnClickListener{
+        binding.playState.setOnClickListener {
             PlayerManager.getInstance().togglePlay()
         }
     }
 
     override fun initObserver() {
         musicViewModel.playingAlbum.observeForever {
-            PlayerManager.getInstance().loadAlbum(it.first, it.second)
+            val musicId: Int = it.curMusicId
+            var position = it.curMusicId
+            it.musics?.indexOfFirst { it.musicId == musicId.toString() }
+                ?.let { if (it >= 0) position = it }
+            PlayerManager.getInstance().loadAlbum(it, position)
+            if (!it.autoPlay) {
+                PlayerManager.getInstance().pauseAudio()
+            }
+            CoroutineScope(Dispatchers.IO).launch {
+                val dao = App.db.albumDao()
+                dao.updateAlbumWithMusics(it, App.db.musicDao())
+            }
         }
         PlayerManager.getInstance().uiStates.observeForever {
             val isPlaying = it != null && it.isPaused == false && it.isBuffering == false
@@ -191,6 +205,25 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
                 PlayActivity.startPlayDetail(this)
                 musicViewModel.isCurrentMusicByUser = false
             }
+            CoroutineScope(Dispatchers.IO).launch {
+                //更新数据库中正在播放的位置
+                val album = musicViewModel.playingAlbum.value ?: return@launch
+                album.curMusicId = currentMusic.musicId.toInt()
+                val dao = App.db.albumDao()
+                dao.updateAlbum(album)
+            }
+        }
+    }
+
+    override fun initData() {
+        CoroutineScope(Dispatchers.IO).launch {
+            val dao = App.db.albumDao()
+            val album =
+                dao.getAlbumWithMusics(Constant.TABLE_ALBUM_PLAYING_ID.toString())?.toAlbumData()
+                    ?: return@launch
+            album.musics = album.musics?.toMutableList()?.sortedBy { it.id }
+            album.autoPlay = false
+            musicViewModel.playingAlbum.postValue(album)
         }
     }
 

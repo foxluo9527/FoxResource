@@ -21,11 +21,13 @@ appcompatVersion = "1.7.0"
 constraintlayoutVersion = "2.2.0"
 media3Exoplayer = "1.5.0"
 openimageGlide = "2.4.5"
+pagingRuntimeKtx = "3.3.6"
 paletteKtx = "1.0.0"
 pandora = "v2.0.0"
 refreshHeaderClassics = "2.1.0"
 refreshLayoutKernel = "2.1.0"
 retrofitVersion = "2.9.0"
+roomCompiler = "2.7.2"
 utilcodex = "1.31.1"
 videocache = "2.7.1"
 junitJunit = "4.12"
@@ -46,7 +48,12 @@ androidx-activity-activity-ktx = { module = "androidx.activity:activity-ktx", ve
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-fragment-ktx = { module = "androidx.fragment:fragment-ktx", version.ref = "fragmentKtx" }
 androidx-media3-exoplayer = { module = "androidx.media3:media3-exoplayer", version.ref = "media3Exoplayer" }
+androidx-paging-runtime-ktx = { module = "androidx.paging:paging-runtime-ktx", version.ref = "pagingRuntimeKtx" }
 androidx-palette-ktx = { module = "androidx.palette:palette-ktx", version.ref = "paletteKtx" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCompiler" }
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomCompiler" }
+androidx-room-paging = { module = "androidx.room:room-paging", version.ref = "roomCompiler" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomCompiler" }
 arouter-compiler = { module = "com.alibaba:arouter-compiler", version.ref = "arouterCompiler" }
 arouter-api = { module = "com.alibaba:arouter-api", version.ref = "arouterApi" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofitVersion" }

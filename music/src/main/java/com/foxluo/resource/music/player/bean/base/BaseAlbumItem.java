@@ -30,9 +30,9 @@ public class BaseAlbumItem<
   public final String albumId;
   public final String title;
   public final String summary;
-  public final A artist;
+  public A artist;
   public final String coverImg;
-  public final List<M> musics;
+  public List<M> musics;
 
   public BaseAlbumItem(
           String albumId,

@@ -41,7 +41,7 @@ public interface IPlayInfoManager<B extends BaseAlbumItem<M, A>, M extends BaseM
 
   M getCurrentPlayingMusic();
 
-  void removeAlbumIndex(int index);
+  MusicData removeAlbumIndex(int index);
 
   void appendPlayList(List<M> list);
 

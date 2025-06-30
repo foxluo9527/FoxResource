@@ -6,4 +6,5 @@ plugins {
     alias(libs.plugins.android.library) apply false
     // 添加 kotlin-kapt 插件
     alias(libs.plugins.jetbrains.kotlin.kapt) apply false
+    id("com.google.devtools.ksp") version "2.0.21-1.0.27" apply false
 }

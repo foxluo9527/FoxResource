@@ -31,7 +31,7 @@ public class BaseMusicItem<A extends BaseArtistItem> implements Serializable {
   public final String coverImg;
   public final String url;
   public final String title;
-  public final A artist;
+  public A artist;
 
   public BaseMusicItem(
           String musicId,

@@ -37,151 +37,151 @@ import java.util.List;
  */
 public class PlayerManager implements IPlayController<AlbumData, MusicData, ArtistData> {
 
-  @SuppressLint("StaticFieldLeak")
-  private static final PlayerManager sManager = new PlayerManager();
+    @SuppressLint("StaticFieldLeak")
+    private static final PlayerManager sManager = new PlayerManager();
 
-  private final PlayerController<AlbumData, MusicData, ArtistData> mController;
+    private final PlayerController<AlbumData, MusicData, ArtistData> mController;
 
-  private PlayerManager() {
-    mController = new PlayerController<>();
-  }
+    private PlayerManager() {
+        mController = new PlayerController<>();
+    }
 
-  public static PlayerManager getInstance() {
-    return sManager;
-  }
+    public static PlayerManager getInstance() {
+        return sManager;
+    }
 
-  @Override
-  public void init(ExoPlayer player, ICacheProxy iCacheProxy) {
-    mController.init(player, iCacheProxy);
-  }
+    @Override
+    public void init(ExoPlayer player, ICacheProxy iCacheProxy) {
+        mController.init(player, iCacheProxy);
+    }
 
-  @Override
-  public void loadAlbum(AlbumData musicAlbum) {
-    mController.loadAlbum(musicAlbum);
-  }
+    @Override
+    public void loadAlbum(AlbumData musicAlbum) {
+        mController.loadAlbum(musicAlbum);
+    }
 
-  @Override
-  public void loadAlbum(AlbumData musicAlbum, int playIndex) {
-    mController.loadAlbum(musicAlbum, playIndex);
-  }
+    @Override
+    public void loadAlbum(AlbumData musicAlbum, int playIndex) {
+        mController.loadAlbum(musicAlbum, playIndex);
+    }
 
-  @Override
-  public void playAudio() {
-    mController.playAudio();
-  }
+    @Override
+    public void playAudio() {
+        mController.playAudio();
+    }
 
-  @Override
-  public void playAudio(int albumIndex) {
-    mController.playAudio(albumIndex);
-  }
+    @Override
+    public void playAudio(int albumIndex) {
+        mController.playAudio(albumIndex);
+    }
 
-  @Override
-  public void playNext() {
-    mController.playNext();
-  }
+    @Override
+    public void playNext() {
+        mController.playNext();
+    }
 
-  @Override
-  public void playPrevious() {
-    mController.playPrevious();
-  }
+    @Override
+    public void playPrevious() {
+        mController.playPrevious();
+    }
 
-  @Override
-  public void playAgain() {
-    mController.playAgain();
-  }
+    @Override
+    public void playAgain() {
+        mController.playAgain();
+    }
 
-  @Override
-  public void pauseAudio() {
-    mController.pauseAudio();
-  }
+    @Override
+    public void pauseAudio() {
+        mController.pauseAudio();
+    }
 
-  @Override
-  public void resumeAudio() {
-    mController.resumeAudio();
-  }
+    @Override
+    public void resumeAudio() {
+        mController.resumeAudio();
+    }
 
-  @Override
-  public void changeMode() {
-    mController.changeMode();
-  }
+    @Override
+    public void changeMode() {
+        mController.changeMode();
+    }
 
-  @Override
-  public boolean isPlaying() {
-    return mController.isPlaying();
-  }
+    @Override
+    public boolean isPlaying() {
+        return mController.isPlaying();
+    }
 
-  @Override
-  public boolean isPaused() {
-    return mController.isPaused();
-  }
+    @Override
+    public boolean isPaused() {
+        return mController.isPaused();
+    }
 
-  @Override
-  public boolean isInit() {
-    return mController.isInit();
-  }
+    @Override
+    public boolean isInit() {
+        return mController.isInit();
+    }
 
-  @Override
-  public void setSeek(int progress) {
-    mController.setSeek(progress);
-  }
+    @Override
+    public void setSeek(int progress) {
+        mController.setSeek(progress);
+    }
 
-  @Override
-  public String getTrackTime(int progress) {
-    return mController.getTrackTime(progress);
-  }
+    @Override
+    public String getTrackTime(int progress) {
+        return mController.getTrackTime(progress);
+    }
 
-  @Override
-  public LiveData<MusicDTO<AlbumData, MusicData, ArtistData>> getUiStates() {
-    return mController.getUiStates();
-  }
+    @Override
+    public LiveData<MusicDTO<AlbumData, MusicData, ArtistData>> getUiStates() {
+        return mController.getUiStates();
+    }
 
-  @Override
-  public AlbumData getAlbum() {
-    return mController.getAlbum();
-  }
+    @Override
+    public AlbumData getAlbum() {
+        return mController.getAlbum();
+    }
 
-  @Override
-  public List<MusicData> getAlbumMusics() {
-    return mController.getAlbumMusics();
-  }
+    @Override
+    public List<MusicData> getAlbumMusics() {
+        return mController.getAlbumMusics();
+    }
 
-  @Override
-  public void setChangingPlayingMusic(boolean changingPlayingMusic) {
-    mController.setChangingPlayingMusic(changingPlayingMusic);
-  }
+    @Override
+    public void setChangingPlayingMusic(boolean changingPlayingMusic) {
+        mController.setChangingPlayingMusic(changingPlayingMusic);
+    }
 
-  @Override
-  public int getAlbumIndex() {
-    return mController.getAlbumIndex();
-  }
+    @Override
+    public int getAlbumIndex() {
+        return mController.getAlbumIndex();
+    }
 
-  @Override
-  public Enum<PlayingInfoManager.RepeatMode> getRepeatMode() {
-    return mController.getRepeatMode();
-  }
+    @Override
+    public Enum<PlayingInfoManager.RepeatMode> getRepeatMode() {
+        return mController.getRepeatMode();
+    }
 
-  @Override
-  public void togglePlay() {
-    mController.togglePlay();
-  }
+    @Override
+    public void togglePlay() {
+        mController.togglePlay();
+    }
 
-  @Override
-  public MusicData getCurrentPlayingMusic() {
-    return mController.getCurrentPlayingMusic();
-  }
+    @Override
+    public MusicData getCurrentPlayingMusic() {
+        return mController.getCurrentPlayingMusic();
+    }
 
-  @Override
-  public void removeAlbumIndex(int index) {
-      mController.removeAlbumIndex(index);
-  }
+    @Override
+    public MusicData removeAlbumIndex(int index) {
+       return mController.removeAlbumIndex(index);
+    }
 
-  @Override
-  public void appendPlayList(List<MusicData> list) {
-    mController.appendPlayingList(list);
-  }
+    @Override
+    public void appendPlayList(List<MusicData> list) {
+        mController.appendPlayingList(list);
+    }
 
-  @Override
-  public void clearPlayList() {
-    mController.clear();
-  }
+    @Override
+    public void clearPlayList() {
+        mController.clear();
+    }
 }

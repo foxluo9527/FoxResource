@@ -273,10 +273,10 @@ public class PlayerController<
         }
     }
 
-    public void removeAlbumIndex(int removeIndex) {
-        if (!isInit()) return;
+    public M removeAlbumIndex(int removeIndex) {
+        if (!isInit()) return null;
         mPlayer.removeMediaItem(removeIndex);
-        playingList.remove(removeIndex);
+        return (M) playingList.remove(removeIndex).localConfiguration.tag;
     }
 
     public void appendPlayingList(List<M> list) {
@@ -285,7 +285,7 @@ public class PlayerController<
             @Override
             public void accept(M m) {
                 MediaItem mediaItem = getMusicMediaItem(m);
-                if (m != null) {
+                if (m != null && !playingList.contains(mediaItem)) {
                     playingList.add(mediaItem);
                 }
             }

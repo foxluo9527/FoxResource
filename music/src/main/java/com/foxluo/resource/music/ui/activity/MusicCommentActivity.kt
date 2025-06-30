@@ -156,6 +156,7 @@ class MusicCommentActivity : BaseBindingActivity<ActivityMusicCommentBinding>(),
             if (it != null) {
                 binding.commentContent.hint = "回复 ${it.name}：${it.content}"
                 binding.commentContent.requestFocus()
+                binding.commentSend.isEnabled = true
             } else {
                 binding.commentContent.hint = "评论一下吧"
                 binding.commentContent.clearFocus()

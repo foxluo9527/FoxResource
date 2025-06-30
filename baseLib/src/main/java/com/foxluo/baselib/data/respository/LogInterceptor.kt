@@ -64,6 +64,6 @@ class LogInterceptor : Interceptor {
             GsonUtils.toJson(reqBody),
             GsonUtils.toJson(respBody)
         )
-        LogUtils.i(log)
+        LogUtils.iTag("LogInterceptor", log)
     }
 }

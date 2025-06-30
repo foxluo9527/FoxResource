@@ -13,9 +13,9 @@ import com.foxluo.resource.music.databinding.FragmentMainMusicBinding
 class MainMusicFragment : BaseBindingFragment<FragmentMainMusicBinding>() {
     private val fragments by lazy {
         arrayOf(RecommendMusicFragment(), TempFragment().apply {
-            arguments = bundleOf("type" to "歌单")
-        }, TempFragment().apply {
             arguments = bundleOf("type" to "最近播放")
+        }, TempFragment().apply {
+            arguments = bundleOf("type" to "歌单")
         }, TempFragment().apply {
             arguments = bundleOf("type" to "歌手")
         })

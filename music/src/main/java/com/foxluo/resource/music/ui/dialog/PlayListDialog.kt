@@ -20,10 +20,14 @@ class PlayListDialog : BaseBottomSheetDialogFragment<DialogPlayingListBinding>()
         PlayerManager.getInstance()
     }
 
+    var clearBlock:(()-> Unit) ?= null
+
+    var removeBlock:((MusicData)-> Unit) ?= null
 
     private val onClickItem: (Boolean, Int) -> Unit = { isDelete: Boolean, position: Int ->
         if (isDelete) {
-            playManager.removeAlbumIndex(position)
+            val removed = playManager.removeAlbumIndex(position)
+            removeBlock?.invoke(removed)
             initData()
         } else {
             playManager.playAudio(position)
@@ -41,6 +45,7 @@ class PlayListDialog : BaseBottomSheetDialogFragment<DialogPlayingListBinding>()
     override fun initListener() {
         binding.clear.setOnClickListener {
             playManager.clearPlayList()
+            clearBlock?.invoke()
             initData()
         }
     }

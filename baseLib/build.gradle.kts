@@ -41,6 +41,9 @@ kapt {
     }
 }
 dependencies {
+    api(libs.androidx.paging.runtime.ktx)
+    api(libs.androidx.room.paging)
+    api(libs.androidx.room.runtime)
     implementation(libs.arouter.api)
     api(libs.androidx.palette.ktx)
     api(libs.lottie)

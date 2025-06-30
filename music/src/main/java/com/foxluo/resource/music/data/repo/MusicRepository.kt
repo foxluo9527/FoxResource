@@ -1,7 +1,12 @@
 package com.foxluo.resource.music.data.repo
 
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
 import com.foxluo.baselib.data.respository.BASE_URL
 import com.foxluo.baselib.data.respository.BaseRepository
+import com.foxluo.baselib.data.result.BaseListResponse
+import com.foxluo.baselib.data.result.BaseResponse
 import com.foxluo.baselib.data.result.BaseResponse.Companion.toRequestResult
 import com.foxluo.baselib.data.result.ListData
 import com.foxluo.baselib.data.result.RequestResult
@@ -10,10 +15,18 @@ import com.foxluo.baselib.util.ImageExt
 import com.foxluo.resource.music.data.api.MusicApi
 import com.foxluo.resource.music.data.bean.ArtistData
 import com.foxluo.resource.music.data.bean.MusicData
+import com.foxluo.resource.music.data.dao.ArtistDAO
+import com.foxluo.resource.music.data.dao.MusicDAO
+import com.foxluo.resource.music.data.result.MusicResult
 import com.foxluo.resource.music.data.result.toCommentList
 import com.foxluo.resource.music.data.result.toCommentReplay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
-class MusicRepository : BaseRepository() {
+class MusicRepository(
+    private val musicDao: MusicDAO,
+    private val artistDao: ArtistDAO
+) : BaseRepository() {
     private val api by lazy {
         createApi<MusicApi>()
     }
@@ -30,42 +43,42 @@ class MusicRepository : BaseRepository() {
 
     suspend fun getMusicList(page: Int, size: Int, keyword: String = ""): RequestResult {
         val result = kotlin.runCatching { api?.getMusicList(page, size, keyword) }.getOrNull()
+        return processNetworkResult(result)
+    }
+
+    // 本地查询方法
+    suspend fun getLocalMusicList(page: Int, size: Int, keyword: String = ""): List<MusicData> {
+        return musicDao.searchMusics(page, size, keyword).map { it.getMusicWithArtist() }
+    }
+
+    // 新增方法
+    fun getMusicPager(keyword: String = ""): Flow<PagingData<MusicData>> {
+        return Pager(
+            config = PagingConfig(
+                pageSize = 20,
+                enablePlaceholders = false,
+                initialLoadSize = 20
+            ),
+            pagingSourceFactory = { MusicPagingSource(this, keyword) }
+        ).flow
+    }
+
+    private suspend fun processNetworkResult(result: BaseListResponse<MusicResult>?): RequestResult {
         val dataResult = ListData<MusicData>()
-        val dataList = result?.data?.let { data ->
-            data.list?.map {
-                MusicData(
-                    it.id.toString(),
-                    it.cover_image,
-                    ImageExt.processUrl(it.url),
-                    it.title,
-                    it.artists?.firstOrNull()?.let { artist ->
-                        ArtistData(artist.name).apply {
-                            artistId = artist.id
-                            avatar = artist.avatar
-                            alias = artist.alias?.split(';')
-                            cover = artist.cover_image
-                            description = artist.description
-                        }
-                    }).apply {
-                    lyrics = it.lyrics
-                    albumId = it.album?.id
-                    lyricsTrans = it.lyrics_trans
-                }.apply {
-                    isCollection = it.isFavorite == true
-                }
-            }.also {
+        result?.data?.let { data ->
+            data.list?.map { it.toMusicData() }?.also { musics ->
                 dataResult.apply {
-                    list = it
+                    list = musics
                     total = data.total
                     current = data.current
                     pageSize = data.pageSize
                 }
             }
         }
-        return if (dataList != null) {
-            RequestResult.Success<ListData<MusicData>?>(dataResult, result.message)
+        return if (result?.success == true) {
+            RequestResult.Success(dataResult, result.message)
         } else {
-            RequestResult.Error(result?.message?:"网络连接错误")
+            RequestResult.Error(result?.message ?: "网络错误")
         }
     }
 

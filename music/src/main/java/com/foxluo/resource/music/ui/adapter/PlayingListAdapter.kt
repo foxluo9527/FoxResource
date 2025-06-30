@@ -34,7 +34,7 @@ class PlayingListAdapter(private val onItemClick: (Boolean, Int) -> Unit) :
         RecyclerView.ViewHolder(binding.root) {
         fun initData(position: Int, data: MusicData) {
             binding.title.text = data.title
-            binding.singer.text = data.artist.name
+            binding.singer.text = data.artist?.name
             binding.root.setBackgroundResource(if (currentIndex == position) R.color.F7F7F7 else R.color.white)
         }
     }

@@ -49,7 +49,7 @@ class DetailSongFragment : BaseBindingFragment<FragmentDetailSongBinding>() {
         currentMusic?.let { data ->
             binding.cover.setAlbumPic(data.coverImg)
             binding.songName.text = data.title
-            binding.singer.text = data.artist.name
+            binding.singer.text = data.artist?.name
             binding.like.isSelected = data.isCollection
         }?: kotlin.run {
             binding.cover.setAlbumPic(null)

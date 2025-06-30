@@ -3,7 +3,8 @@
     <application>
         <activity
             android:name=".ui.activity.PlayActivity"
-            android:launchMode="singleTop" />
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"/>
         <activity android:name=".ui.activity.MusicCommentActivity"
             android:windowSoftInputMode="adjustNothing"/>
     </application>

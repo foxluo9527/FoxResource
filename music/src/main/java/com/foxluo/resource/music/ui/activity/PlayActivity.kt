@@ -9,16 +9,19 @@ import android.view.animation.LinearInterpolator
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.room.Room
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import com.blankj.utilcode.util.Utils
 import com.foxluo.baselib.R
 import com.foxluo.baselib.domain.viewmodel.getAppViewModel
 import com.foxluo.baselib.ui.BaseBindingActivity
 import com.foxluo.baselib.util.BitmapUtil
 import com.foxluo.baselib.util.BitmapUtil.ColorFilterCallback
-import com.foxluo.baselib.util.BitmapUtil.getImageColors
+import com.foxluo.baselib.util.Constant
 import com.foxluo.baselib.util.ViewExt.visible
 import com.foxluo.resource.music.data.bean.MusicData
+import com.foxluo.resource.music.data.db.AppDatabase
 import com.foxluo.resource.music.data.domain.viewmodel.MainMusicViewModel
 import com.foxluo.resource.music.databinding.ActivityPlayBinding
 import com.foxluo.resource.music.player.PlayerManager
@@ -34,13 +37,20 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.abs
 
-class PlayActivity : BaseBindingActivity<ActivityPlayBinding>(), ColorFilterCallback{
+class PlayActivity : BaseBindingActivity<ActivityPlayBinding>(), ColorFilterCallback {
     companion object {
         fun startPlayDetail(activity: AppCompatActivity) {
             activity.startActivity(Intent(activity, PlayActivity::class.java))
             activity.overridePendingTransition(R.anim.activity_open, 0)
 
         }
+    }
+
+    private val db by lazy {
+        Room.databaseBuilder(
+            Utils.getApp(),
+            AppDatabase::class.java, "fox_resource_db"
+        ).build()
     }
 
     private val adapter by lazy {
@@ -95,7 +105,7 @@ class PlayActivity : BaseBindingActivity<ActivityPlayBinding>(), ColorFilterCall
         }
         binding.reload.setOnClickListener {
             if (playManager.currentPlayingMusic == null ||
-                playManager.currentPlayingMusic.url.contains("http").not()
+                playManager.currentPlayingMusic.url?.contains("http")?.not() ?: false
             ) {
                 return@setOnClickListener
             }
@@ -118,7 +128,22 @@ class PlayActivity : BaseBindingActivity<ActivityPlayBinding>(), ColorFilterCall
             playManager.changeMode()
         }
         binding.playList.setOnClickListener {
-            PlayListDialog().show(supportFragmentManager, "PlayListDialog")
+            PlayListDialog().apply {
+                clearBlock = {
+                    lifecycleScope.launch {
+                        db.albumDao().clearMusicsInAlbum(Constant.TABLE_ALBUM_PLAYING_ID.toString())
+                        finish()
+                    }
+                }
+                removeBlock = {
+                    lifecycleScope.launch {
+                        db.albumDao().removeMusicInAlbum(
+                            Constant.TABLE_ALBUM_PLAYING_ID.toString(),
+                            it.musicId
+                        )
+                    }
+                }
+            }.show(supportFragmentManager, "PlayListDialog")
         }
         binding.playProgress.setOnSeekBarChangeListener(object :
             SeekBar.OnSeekBarChangeListener {
