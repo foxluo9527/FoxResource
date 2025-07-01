@@ -12,6 +12,7 @@ import com.foxluo.resource.music.data.bean.AlbumData
 import com.foxluo.resource.music.data.bean.AlbumWithDetails
 import com.foxluo.resource.music.data.bean.MusicAlbumJoin
 import com.foxluo.resource.music.data.bean.MusicData
+import com.foxluo.resource.music.data.dao.AlbumWithMusics
 
 @Dao
 interface AlbumDAO {
@@ -21,10 +22,24 @@ interface AlbumDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun updateAlbum(album: AlbumData)
 
+    @Query("SELECT * FROM albums WHERE album_id = :albumId")
+    suspend fun getAlbum(albumId: String): AlbumData
+
+    @Transaction
+    @Query("SELECT * FROM music_album_join WHERE album_id = :albumId ORDER BY sort ASC")
+    suspend fun getMusicAlbumJoin(albumId: String): List<MAJoinWithMusicWithArtist>
+
     // 获取带音乐列表的专辑
     @Transaction
-    @Query("SELECT * FROM albums WHERE album_id = :albumId")
-    suspend fun getAlbumWithMusics(albumId: String): AlbumWithMusics?
+    suspend fun getAlbumWithMusics(albumId: String): AlbumData {
+        return getAlbum(albumId).apply {
+            musics = getMusicAlbumJoin(albumId).map {
+                it.music
+            }.map {
+                it.getMusicWithArtist()
+            }
+        }
+    }
 
     @Transaction
     suspend fun updateAlbumWithMusics(album: AlbumData, musicDao: MusicDAO) {
@@ -48,11 +63,12 @@ interface AlbumDAO {
 
         // 插入新关系（使用 ignore 策略防止重复）
         if (musicIds.isNotEmpty()) {
-            val joins = musicIds.map { musicId ->
+            val joins = musicIds.mapIndexed { index, musicId ->
                 MusicAlbumJoin(
                     musicId = musicId,
                     albumId = albumId,
-                    addTime = System.currentTimeMillis()
+                    addTime = System.currentTimeMillis(),
+                    sort = index
                 )
             }
             insertMusicAlbumJoins(joins)
@@ -68,9 +84,33 @@ interface AlbumDAO {
     suspend fun clearMusicsInAlbum(albumId: String)
 
     @Query("DELETE FROM music_album_join WHERE album_id = :albumId AND music_id=:musicId")
-    suspend fun removeMusicInAlbum(albumId: String,musicId: String)
+    suspend fun removeMusicInAlbum(albumId: String, musicId: String)
 }
 
+/**
+ * 需要中间表的字段时使用该关联查询
+ * 该查询仅通过查询出的music_album_join表信息关联查询对应的MusicData
+ * 通过music_album_join的music_id对应MusicData的music_id
+ * 查出的结果为MusicWithArtist，该结果会再次关联查询出对应的artist信息填充至MusicData的artist
+ */
+data class MAJoinWithMusicWithArtist(
+    @Embedded
+    val maJoin: MusicAlbumJoin,
+
+    @Relation(
+        entity = MusicData::class,
+        parentColumn = "music_id",
+        entityColumn = "music_id"
+    )
+    val music: MusicWithArtist
+)
+
+/**
+ * 若无需使用中间表的字段使用该关联查询
+ * 通过MusicAlbumJoin的album_id与AlbumData的album_id关联，
+ * 对应出MusicAlbumJoin的music_id与MusicData的music_id的对应关系，查出MusicWithArtist
+ * 而MusicWithArtist也是一个关联查询具体查看 MusicWithArtist类
+ */
 data class AlbumWithMusics(
     @Embedded
     val album: AlbumData,
@@ -85,8 +125,8 @@ data class AlbumWithMusics(
             entityColumn = "music_id"
         )
     )
-    val musics: List<MusicWithArtist> // 修改为包含艺人的类型
-){
+    val musics: List<MusicWithArtist>
+) {
     // 转换方法
     fun toAlbumData(): AlbumData = album.copy().apply {
         musics = this@AlbumWithMusics.musics.map { it.getMusicWithArtist() }

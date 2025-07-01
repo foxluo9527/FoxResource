@@ -30,5 +30,11 @@ data class MusicAlbumJoin(
     val albumId: String,
 
     @ColumnInfo(name = "add_time")
-    val addTime: Long = System.currentTimeMillis() // 加入时间（用于播放列表排序）
+    val addTime: Long = System.currentTimeMillis(),
+
+    /**
+     * 插入数据库时位于列表的位置
+     */
+    @ColumnInfo(name = "sort")
+    val sort: Int
 )

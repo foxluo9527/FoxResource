@@ -79,21 +79,26 @@ interface MusicDAO {
         """
         SELECT * FROM music 
         WHERE title LIKE '%' || :keyword || '%' 
-        ORDER BY id ASC 
+        ORDER BY music_id ASC 
         LIMIT :size OFFSET (:page - 1) * :size
     """
     )
     suspend fun searchMusics(page: Int, size: Int, keyword: String): List<MusicWithArtist>
 }
 
-// 定义关联结果类
+/**
+ * 关联查询出带艺人信息的音乐信息
+ * 将查询出的music表信息平铺填充到MusicWithArtist中，
+ * 通过MusicData的artist_id，与ArtistData表的artist_id关联
+ * 查询出ArtistData填充到artist属性
+ */
 data class MusicWithArtist(
     @Embedded val music: MusicData,
     @Relation(
         parentColumn = "artist_id",
         entityColumn = "artist_id"
     )
-    val artist: ArtistData
+    val artist: ArtistData?
 ) {
     fun getMusicWithArtist() = music.apply {
         artist = this@MusicWithArtist.artist

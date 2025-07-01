@@ -17,7 +17,6 @@ data class MusicResult(
     val artists: List<MusicArtist>? = null
 ){
     fun toMusicData() = MusicData(
-        id = 0,
         musicId = this.id.toString(),
         coverImg = this.cover_image,
         url = ImageExt.processUrl(this.url),

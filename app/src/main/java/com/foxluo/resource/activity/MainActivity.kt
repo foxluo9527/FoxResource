@@ -218,10 +218,7 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
     override fun initData() {
         CoroutineScope(Dispatchers.IO).launch {
             val dao = App.db.albumDao()
-            val album =
-                dao.getAlbumWithMusics(Constant.TABLE_ALBUM_PLAYING_ID.toString())?.toAlbumData()
-                    ?: return@launch
-            album.musics = album.musics?.toMutableList()?.sortedBy { it.id }
+            val album = dao.getAlbumWithMusics(Constant.TABLE_ALBUM_PLAYING_ID.toString())
             album.autoPlay = false
             musicViewModel.playingAlbum.postValue(album)
         }

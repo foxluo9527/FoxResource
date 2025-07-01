@@ -26,10 +26,7 @@ import com.foxluo.resource.music.data.result.MusicResult
     ]
 )
 data class MusicData(
-    @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "id")
-    val id: Long = 0,
-
+    @PrimaryKey
     @ColumnInfo(name = "music_id")
     val musicId: String,
 
