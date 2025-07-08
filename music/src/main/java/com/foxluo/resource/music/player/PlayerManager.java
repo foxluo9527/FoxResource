@@ -18,6 +18,7 @@ package com.foxluo.resource.music.player;
 
 import android.annotation.SuppressLint;
 
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.media3.exoplayer.ExoPlayer;
 
@@ -166,6 +167,7 @@ public class PlayerManager implements IPlayController<AlbumData, MusicData, Arti
     }
 
     @Override
+    @Nullable
     public MusicData getCurrentPlayingMusic() {
         return mController.getCurrentPlayingMusic();
     }

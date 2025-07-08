@@ -412,6 +412,7 @@ public class PlayerController<
         else playAudio();
     }
 
+    @Nullable
     public M getCurrentPlayingMusic() {
         if (!isInit()) return null;
         if (mPlayer.getCurrentMediaItem() == null) {

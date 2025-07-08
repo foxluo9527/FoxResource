@@ -56,7 +56,7 @@ class MusicRepository(
         return Pager(
             config = PagingConfig(
                 pageSize = 20,
-                enablePlaceholders = false,
+                prefetchDistance = 2,
                 initialLoadSize = 20
             ),
             pagingSourceFactory = { MusicPagingSource(this, keyword) }
@@ -67,6 +67,8 @@ class MusicRepository(
         val dataResult = ListData<MusicData>()
         result?.data?.let { data ->
             data.list?.map { it.toMusicData() }?.also { musics ->
+                // 插入数据库
+                musicDao.insertMusics(musics)
                 dataResult.apply {
                     list = musics
                     total = data.total

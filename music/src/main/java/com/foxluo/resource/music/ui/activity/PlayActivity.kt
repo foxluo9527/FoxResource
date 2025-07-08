@@ -105,7 +105,7 @@ class PlayActivity : BaseBindingActivity<ActivityPlayBinding>(), ColorFilterCall
         }
         binding.reload.setOnClickListener {
             if (playManager.currentPlayingMusic == null ||
-                playManager.currentPlayingMusic.url?.contains("http")?.not() ?: false
+                playManager.currentPlayingMusic?.url?.contains("http")?.not() ?: false
             ) {
                 return@setOnClickListener
             }

@@ -190,12 +190,19 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
             if (isMusicChanged && AuthManager.isLogin()) {
                 musicViewModel.recordPlayMusicChanged(it.musicId)
             }
-            if (isMusicChanged) {
-                musicViewModel.currentMusic.value =
-                    PlayerManager.getInstance().currentPlayingMusic
-            }
             lifecycleScope.launchWhenResumed {
                 setPlaying(isPlaying)
+            }
+            if (isMusicChanged) {
+                val currentMusic = PlayerManager.getInstance().currentPlayingMusic?:return@observeForever
+                CoroutineScope(Dispatchers.IO).launch {
+                    //更新数据库中正在播放的位置
+                    val album = musicViewModel.playingAlbum.value ?: return@launch
+                    album.curMusicId = currentMusic.musicId.toInt()
+                    val dao = App.db.albumDao()
+                    dao.updateAlbum(album)
+                }
+                musicViewModel.currentMusic.value = currentMusic
             }
         }
         musicViewModel.currentMusic.observe(this) { currentMusic ->
@@ -204,13 +211,6 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
             if (musicViewModel.isCurrentMusicByUser) {
                 PlayActivity.startPlayDetail(this)
                 musicViewModel.isCurrentMusicByUser = false
-            }
-            CoroutineScope(Dispatchers.IO).launch {
-                //更新数据库中正在播放的位置
-                val album = musicViewModel.playingAlbum.value ?: return@launch
-                album.curMusicId = currentMusic.musicId.toInt()
-                val dao = App.db.albumDao()
-                dao.updateAlbum(album)
             }
         }
     }

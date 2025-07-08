@@ -17,28 +17,29 @@ class MusicPagingSource(
             // 尝试网络请求
             val page = params.key ?: 1
             val result = repo.getMusicList(page, params.loadSize, keyword)
-
             when (result) {
                 is RequestResult.Success<*> -> {
                     // 网络成功，返回分页数据
-                    val data = (result as? RequestResult.Success<ListData<MusicData>>)?.data?.list
-                        ?: emptyList()
-                    LoadResult.Page(
-                        data = data,
-                        prevKey = if (page > 1) page - 1 else null,
-                        nextKey = if (data.isNotEmpty()) page + 1 else null
-                    )
+                    (result.data as? ListData<MusicData>)?.list ?: emptyList()
                 }
 
                 is RequestResult.Error -> {
-                    // 网络失败，回退本地数据
+                    // 网络失败，返回本地数据,若无本地数据则返回错误
                     val localData = repo.getLocalMusicList(page, params.loadSize, keyword)
-                    LoadResult.Page(
-                        data = localData,
-                        prevKey = if (page > 1) page - 1 else null,
-                        nextKey = if (localData.isNotEmpty()) page + 1 else null
-                    )
+                    if (localData.isNullOrEmpty()) {
+                        return LoadResult.Error(Throwable(result.message))
+                    } else {
+                        localData
+                    }
                 }
+            }.let { data ->
+                val prevKey = if (page > 1) page - 1 else null
+                val nextKey = if (data.isNotEmpty()) page + 1 else null
+                LoadResult.Page(
+                    data = data,
+                    prevKey = prevKey,
+                    nextKey = nextKey
+                )
             }
         } catch (e: Exception) {
             // 异常情况回退本地

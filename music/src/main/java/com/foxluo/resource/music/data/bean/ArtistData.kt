@@ -14,10 +14,7 @@ import com.foxluo.resource.music.player.bean.base.BaseArtistItem
     ]
 )
 data class ArtistData(
-    @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "id")
-    val id: Long = 0, // 使用自增主键
-
+    @PrimaryKey
     @ColumnInfo(name = "artist_id")
     val artistId: Long = 0,
 

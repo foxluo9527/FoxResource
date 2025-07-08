@@ -18,6 +18,7 @@ import com.xuexiang.xui.utils.XToastUtils.toast
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
+//todo ConcatAdapter添加header刷新与footer加载更多
 class RecommendMusicFragment : BaseBindingFragment<FragmentMusicListBinding>() {
 
     private val vm: RecommendMusicViewModel by viewModels()
@@ -25,12 +26,15 @@ class RecommendMusicFragment : BaseBindingFragment<FragmentMusicListBinding>() {
     private val adapter by lazy {
         MusicListAdapter(false, onClickItem)
     }
+
     private val musicViewModel by lazy {
         getAppViewModel<MainMusicViewModel>()
     }
+
     private val playerManager by lazy {
         PlayerManager.getInstance()
     }
+
     private val onClickItem: (Boolean, Int) -> Unit = { _: Boolean, position: Int ->
         musicViewModel.isCurrentMusicByUser = true
         musicViewModel.playingAlbum.value =
@@ -58,16 +62,16 @@ class RecommendMusicFragment : BaseBindingFragment<FragmentMusicListBinding>() {
         adapter.addLoadStateListener { loadState ->
             when (loadState.refresh) {
                 is LoadState.Error -> {
-                    binding.refresh.finishRefresh()
+
                 }
-                is LoadState.Loading -> binding.refresh.autoLoadMore()
+
+                is LoadState.Loading -> {
+
+                }
+
                 is LoadState.NotLoading -> {
-                    binding.refresh.finishRefresh()
-                    binding.refresh.finishLoadMore()
                     val dataList = adapter.getPlayList()
                     binding.emptyView.visible(dataList.isNullOrEmpty() && vm.page == 1)
-                    binding.refresh.setEnableLoadMore(!dataList.isNullOrEmpty() && dataList.size == vm.size)
-                    binding.refresh.setNoMoreData(dataList.isNullOrEmpty())
                 }
             }
         }
@@ -86,8 +90,6 @@ class RecommendMusicFragment : BaseBindingFragment<FragmentMusicListBinding>() {
 
     override fun initView() {
         binding.recycleView.adapter = adapter
-        binding.refresh.setPrimaryColorsId(R.color.color_F05019, R.color.white)
-        binding.refresh.setEnableLoadMore(false)
     }
 
     override fun initData() {

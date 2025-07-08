@@ -36,7 +36,7 @@ object BitmapUtil {
                         .get()
                 }.getOrNull() ?: BitmapFactory.decodeResource(resources, R.mipmap.ic_app)
             val palette = Palette.from(bitmap).generate()
-            val swatch = palette.swatches.first { it != null }
+            val swatch = palette.swatches.firstOrNull() { it != null }
             swatch?.let {
                 playCallback.onColorFilterChanged(it.rgb, it.bodyTextColor, it.titleTextColor)
             }

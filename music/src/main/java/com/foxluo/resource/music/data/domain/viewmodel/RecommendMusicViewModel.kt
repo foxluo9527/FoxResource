@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentHashMap
 import com.foxluo.resource.music.data.db.AppDatabase
+import kotlinx.coroutines.flow.collectLatest
 
 class RecommendMusicViewModel : BaseViewModel() {
     val db = Room.databaseBuilder(
@@ -31,13 +32,15 @@ class RecommendMusicViewModel : BaseViewModel() {
         MusicRepository(db.musicDao(), db.artistDao())
     }
 
-    val musicPager = MutableStateFlow<PagingData<MusicData>>(PagingData.empty())
+    val musicPager by lazy {
+        MutableStateFlow<PagingData<MusicData>>(PagingData.empty())
+    }
 
     fun loadMusic(keyword: String = "") {
         viewModelScope.launch {
             repo.getMusicPager(keyword)
                 .cachedIn(viewModelScope)
-                .collect { pagingData ->
+                .collectLatest { pagingData ->
                     musicPager.value = pagingData
                 }
         }

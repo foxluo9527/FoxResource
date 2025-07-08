@@ -18,10 +18,7 @@ import java.time.LocalDateTime
     ]
 )
 data class AlbumData(
-    @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "id")
-    val id: Long = 0,
-
+    @PrimaryKey
     @ColumnInfo(name = "album_id")
     val albumId: String,
 

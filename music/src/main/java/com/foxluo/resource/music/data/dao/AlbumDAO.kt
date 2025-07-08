@@ -8,18 +8,25 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Relation
 import androidx.room.Transaction
+import androidx.room.Update
+import com.blankj.utilcode.util.LogUtils
 import com.foxluo.resource.music.data.bean.AlbumData
 import com.foxluo.resource.music.data.bean.AlbumWithDetails
 import com.foxluo.resource.music.data.bean.MusicAlbumJoin
 import com.foxluo.resource.music.data.bean.MusicData
 import com.foxluo.resource.music.data.dao.AlbumWithMusics
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 
 @Dao
 interface AlbumDAO {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertOrIgnore(album: AlbumData)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Update
     suspend fun updateAlbum(album: AlbumData)
 
     @Query("SELECT * FROM albums WHERE album_id = :albumId")
@@ -75,13 +82,30 @@ interface AlbumDAO {
         }
     }
 
-    // 私有方法用于批量插入关联关系
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertMusicAlbumJoins(joins: List<MusicAlbumJoin>)
-
-    // 保留原有清空方法（改为私有）
     @Query("DELETE FROM music_album_join WHERE album_id = :albumId")
-    suspend fun clearMusicsInAlbum(albumId: String)
+    suspend fun clearMusicsInAlbum(albumId: String) {
+        LogUtils.d(
+            "DB_DEBUG",
+            "[${System.currentTimeMillis()}] 清空专辑关联: albumId=$albumId 调用栈: ${Thread.currentThread().stackTrace.joinToString { it.methodName }}"
+        )
+        // 实际删除操作
+        _clearMusicsInAlbum(albumId)
+    }
+
+    @Query("DELETE FROM music_album_join WHERE album_id = :albumId")
+    suspend fun _clearMusicsInAlbum(albumId: String) // 实际执行SQL的方法
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertMusicAlbumJoins(joins: List<MusicAlbumJoin>) {
+        LogUtils.d(
+            "DB_DEBUG",
+            "[${System.currentTimeMillis()}] 插入关联关系: ${joins.joinToString { "{album=${it.albumId}, music=${it.musicId}, sort=${it.sort}}" }}"
+        )
+        _insertMusicAlbumJoins(joins)
+    }
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun _insertMusicAlbumJoins(joins: List<MusicAlbumJoin>) // 实际执行SQL的方法
 
     @Query("DELETE FROM music_album_join WHERE album_id = :albumId AND music_id=:musicId")
     suspend fun removeMusicInAlbum(albumId: String, musicId: String)
