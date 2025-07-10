@@ -226,9 +226,15 @@ public class PlayerController<
         try {
             if ((url.contains("http:") || url.contains("ftp:") || url.contains("https:"))) {
                 String urlName = StringUtil.INSTANCE.getUrlName(url);
+                String name;
+                if (currentMusic.artist != null) {
+                    name = currentMusic.artist.name;
+                } else {
+                    name = null;
+                }
                 MediaMetadata.Builder builder = new MediaMetadata.Builder()
                         .setTitle(currentMusic.title)
-                        .setArtist(currentMusic.artist.name)
+                        .setArtist(name)
                         .setIsBrowsable(false)
                         .setIsPlayable(true)
                         .setMediaType(MediaMetadata.MEDIA_TYPE_MUSIC);

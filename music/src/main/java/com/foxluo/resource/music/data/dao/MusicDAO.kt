@@ -70,7 +70,7 @@ interface MusicDAO {
 
     @Query(
         """
-        SELECT * FROM music WHERE album_id = :albumId LIMIT :size OFFSET :page * :size
+        SELECT * FROM music WHERE album_id = :albumId LIMIT :size OFFSET (:page - 1) * :size
     """
     )
     suspend fun getMusics(albumId: Long, page: Int, size: Int): List<MusicWithArtist>

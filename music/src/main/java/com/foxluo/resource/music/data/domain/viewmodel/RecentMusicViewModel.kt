@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 import com.foxluo.resource.music.data.db.AppDatabase
 import kotlinx.coroutines.flow.collectLatest
 
-class RecommendMusicViewModel : BaseViewModel() {
+class RecentMusicViewModel : BaseViewModel() {
     val db = Room.databaseBuilder(
         Utils.getApp(),
         AppDatabase::class.java, "fox_resource_db"
@@ -27,9 +27,9 @@ class RecommendMusicViewModel : BaseViewModel() {
         MutableStateFlow<PagingData<MusicData>>(PagingData.empty())
     }
 
-    fun loadMusic(keyword: String = "") {
+    fun loadMusic() {
         viewModelScope.launch {
-            repo.getSearchMusicPager(keyword)
+            repo.getRecentMusicPager()
                 .cachedIn(viewModelScope)
                 .collectLatest { pagingData ->
                     musicPager.value = pagingData

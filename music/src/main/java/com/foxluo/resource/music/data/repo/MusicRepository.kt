@@ -3,17 +3,14 @@ package com.foxluo.resource.music.data.repo
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import com.foxluo.baselib.data.respository.BASE_URL
 import com.foxluo.baselib.data.respository.BaseRepository
 import com.foxluo.baselib.data.result.BaseListResponse
-import com.foxluo.baselib.data.result.BaseResponse
 import com.foxluo.baselib.data.result.BaseResponse.Companion.toRequestResult
 import com.foxluo.baselib.data.result.ListData
 import com.foxluo.baselib.data.result.RequestResult
 import com.foxluo.baselib.ui.adapter.CommentAdapter
-import com.foxluo.baselib.util.ImageExt
+import com.foxluo.baselib.util.Constant
 import com.foxluo.resource.music.data.api.MusicApi
-import com.foxluo.resource.music.data.bean.ArtistData
 import com.foxluo.resource.music.data.bean.MusicData
 import com.foxluo.resource.music.data.dao.ArtistDAO
 import com.foxluo.resource.music.data.dao.MusicDAO
@@ -21,7 +18,6 @@ import com.foxluo.resource.music.data.result.MusicResult
 import com.foxluo.resource.music.data.result.toCommentList
 import com.foxluo.resource.music.data.result.toCommentReplay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 
 class MusicRepository(
     private val musicDao: MusicDAO,
@@ -46,13 +42,23 @@ class MusicRepository(
         return processNetworkResult(result)
     }
 
+    suspend fun getHistoryMusicList(page: Int, size: Int): RequestResult {
+        val result = kotlin.runCatching { api?.getHistoryMusicList(page, size) }.getOrNull()
+        return processNetworkResult(result, false)
+    }
+
     // 本地查询方法
     suspend fun getLocalMusicList(page: Int, size: Int, keyword: String = ""): List<MusicData> {
         return musicDao.searchMusics(page, size, keyword).map { it.getMusicWithArtist() }
     }
 
+    suspend fun getRecentMusicList(page: Int, size: Int): List<MusicData> {
+        return musicDao.getMusics(Constant.TABLE_ALBUM_HISTORY_ID.toLong(), page, size)
+            .map { it.getMusicWithArtist() }
+    }
+
     // 新增方法
-    fun getMusicPager(keyword: String = ""): Flow<PagingData<MusicData>> {
+    fun getSearchMusicPager(keyword: String = ""): Flow<PagingData<MusicData>> {
         return Pager(
             config = PagingConfig(
                 pageSize = 20,
@@ -63,12 +69,26 @@ class MusicRepository(
         ).flow
     }
 
-    private suspend fun processNetworkResult(result: BaseListResponse<MusicResult>?): RequestResult {
+    fun getRecentMusicPager(): Flow<PagingData<MusicData>> {
+        return Pager(
+            config = PagingConfig(
+                pageSize = 20,
+                prefetchDistance = 2,
+                initialLoadSize = 20
+            ),
+            pagingSourceFactory = { RecentMusicPagingSource(this) }
+        ).flow
+    }
+
+    private suspend fun processNetworkResult(
+        result: BaseListResponse<MusicResult>?,
+        cacheMusic: Boolean = true
+    ): RequestResult {
         val dataResult = ListData<MusicData>()
         result?.data?.let { data ->
             data.list?.map { it.toMusicData() }?.also { musics ->
                 // 插入数据库
-                musicDao.insertMusics(musics)
+                if (cacheMusic) musicDao.insertMusics(musics)
                 dataResult.apply {
                     list = musics
                     total = data.total

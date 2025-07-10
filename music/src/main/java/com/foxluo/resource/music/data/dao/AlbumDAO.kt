@@ -15,12 +15,15 @@ import com.foxluo.resource.music.data.bean.AlbumWithDetails
 import com.foxluo.resource.music.data.bean.MusicAlbumJoin
 import com.foxluo.resource.music.data.bean.MusicData
 import com.foxluo.resource.music.data.dao.AlbumWithMusics
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 @Dao
@@ -113,7 +116,9 @@ interface AlbumDAO {
     suspend fun removeMusicInAlbum(albumId: String, musicId: String)
 
     fun updateAlbumWithMusicsJava(musicAlbum: AlbumData, musicDao: MusicDAO) {
-        runBlocking(Dispatchers.IO) {
+        CoroutineScope(Dispatchers.IO).launch(CoroutineExceptionHandler { _, throwable ->
+            LogUtils.e(throwable.message)
+        }) {
             updateAlbumWithMusics(musicAlbum, musicDao)
         }
     }
