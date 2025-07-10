@@ -44,17 +44,17 @@ interface MusicDAO {
     }
 
     // 内部插入方法（实际执行数据库操作）
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun _insertMusic(music: MusicData): Long
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun _insertMusics(musics: List<MusicData>): List<Long>
 
     // 艺人操作方法
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun upsertArtist(artist: ArtistData)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun upsertArtists(artists: List<ArtistData>)
 
     // 根据业务ID查询
@@ -79,7 +79,6 @@ interface MusicDAO {
         """
         SELECT * FROM music 
         WHERE title LIKE '%' || :keyword || '%' 
-        ORDER BY music_id ASC 
         LIMIT :size OFFSET (:page - 1) * :size
     """
     )

@@ -18,13 +18,17 @@ package com.foxluo.resource.music.player;
 
 import android.annotation.SuppressLint;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.media3.exoplayer.ExoPlayer;
+import androidx.room.Room;
 
+import com.blankj.utilcode.util.Utils;
 import com.foxluo.resource.music.data.bean.AlbumData;
 import com.foxluo.resource.music.data.bean.ArtistData;
 import com.foxluo.resource.music.data.bean.MusicData;
+import com.foxluo.resource.music.data.db.AppDatabase;
 import com.foxluo.resource.music.player.contract.ICacheProxy;
 import com.foxluo.resource.music.player.contract.IPlayController;
 import com.foxluo.resource.music.player.domain.MusicDTO;
@@ -33,10 +37,16 @@ import com.foxluo.resource.music.player.domain.PlayingInfoManager;
 
 import java.util.List;
 
+import kotlin.coroutines.CoroutineContext;
+import kotlinx.coroutines.CoroutineScope;
+
 /**
  * Create by KunMinX at 19/10/31
  */
 public class PlayerManager implements IPlayController<AlbumData, MusicData, ArtistData> {
+    private final AppDatabase db = Room.databaseBuilder(Utils.getApp(), AppDatabase.class, "fox_resource_db").build();
+
+    private InitCallback initCallback;
 
     @SuppressLint("StaticFieldLeak")
     private static final PlayerManager sManager = new PlayerManager();
@@ -54,16 +64,39 @@ public class PlayerManager implements IPlayController<AlbumData, MusicData, Arti
     @Override
     public void init(ExoPlayer player, ICacheProxy iCacheProxy) {
         mController.init(player, iCacheProxy);
+        if (initCallback!=null){
+            initCallback.initialized();
+        }
+    }
+
+    public void setInitCallback(InitCallback callback){
+        this.initCallback = callback;
+        if (mController.isInit()){
+            callback.initialized();
+        }
     }
 
     @Override
-    public void loadAlbum(AlbumData musicAlbum) {
-        mController.loadAlbum(musicAlbum);
+    public void loadAlbum(@NonNull AlbumData musicAlbum, boolean actionByUser) {
+        int curMusicId = musicAlbum.getCurMusicId();
+        int position = curMusicId;
+        for (int i = 0; i < musicAlbum.getMusics().size(); i++) {
+            if (musicAlbum.getMusics().get(i).getMusicId().equals(String.valueOf(curMusicId))) {
+                position = i;
+                break;
+            }
+        }
+        if (actionByUser) {
+            db.albumDao().updateAlbumWithMusicsJava(musicAlbum, db.musicDao());
+        }
+        mController.loadAlbum(musicAlbum, position);
     }
 
     @Override
-    public void loadAlbum(AlbumData musicAlbum, int playIndex) {
-        mController.loadAlbum(musicAlbum, playIndex);
+    public void loadAlbum(AlbumData musicAlbum, int playIndex, boolean actionByUser) {
+        int curMusicId = Integer.valueOf(musicAlbum.getMusics().get(playIndex).getMusicId());
+        musicAlbum.setCurMusicId(curMusicId);
+        loadAlbum(musicAlbum, actionByUser);
     }
 
     @Override
@@ -174,7 +207,7 @@ public class PlayerManager implements IPlayController<AlbumData, MusicData, Arti
 
     @Override
     public MusicData removeAlbumIndex(int index) {
-       return mController.removeAlbumIndex(index);
+        return mController.removeAlbumIndex(index);
     }
 
     @Override

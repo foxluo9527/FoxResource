@@ -41,6 +41,7 @@ import com.xuexiang.xui.utils.XToastUtils.toast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 
 const val PERMISSIONS_REQUEST_FOREGROUND_SERVICE = 2333
@@ -107,19 +108,6 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
                 )
             }
 
-    @OptIn(UnstableApi::class)
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        val sessionToken = SessionToken(this, ComponentName(this, MusicService::class.java))
-        val controllerFuture = MediaController.Builder(this, sessionToken).buildAsync()
-        controllerFuture.addListener(
-            {
-                controller = controllerFuture.get()
-            },
-            MoreExecutors.directExecutor()
-        )
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         controller?.release()
@@ -169,20 +157,6 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
     }
 
     override fun initObserver() {
-        musicViewModel.playingAlbum.observeForever {
-            val musicId: Int = it.curMusicId
-            var position = it.curMusicId
-            it.musics?.indexOfFirst { it.musicId == musicId.toString() }
-                ?.let { if (it >= 0) position = it }
-            PlayerManager.getInstance().loadAlbum(it, position)
-            if (!it.autoPlay) {
-                PlayerManager.getInstance().pauseAudio()
-            }
-            CoroutineScope(Dispatchers.IO).launch {
-                val dao = App.db.albumDao()
-                dao.updateAlbumWithMusics(it, App.db.musicDao())
-            }
-        }
         PlayerManager.getInstance().uiStates.observeForever {
             val isPlaying = it != null && it.isPaused == false && it.isBuffering == false
             val isMusicChanged =
@@ -194,10 +168,11 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
                 setPlaying(isPlaying)
             }
             if (isMusicChanged) {
-                val currentMusic = PlayerManager.getInstance().currentPlayingMusic?:return@observeForever
+                val currentMusic =
+                    PlayerManager.getInstance().currentPlayingMusic ?: return@observeForever
                 CoroutineScope(Dispatchers.IO).launch {
                     //更新数据库中正在播放的位置
-                    val album = musicViewModel.playingAlbum.value ?: return@launch
+                    val album = PlayerManager.getInstance().album ?: return@launch
                     album.curMusicId = currentMusic.musicId.toInt()
                     val dao = App.db.albumDao()
                     dao.updateAlbum(album)
@@ -216,11 +191,21 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
     }
 
     override fun initData() {
-        CoroutineScope(Dispatchers.IO).launch {
-            val dao = App.db.albumDao()
-            val album = dao.getAlbumWithMusics(Constant.TABLE_ALBUM_PLAYING_ID.toString())
-            album.autoPlay = false
-            musicViewModel.playingAlbum.postValue(album)
+        val sessionToken = SessionToken(this, ComponentName(this, MusicService::class.java))
+        val controllerFuture = MediaController.Builder(this, sessionToken).buildAsync()
+        controllerFuture.addListener(
+            {
+                controller = controllerFuture.get()
+            },
+            MoreExecutors.directExecutor()
+        )
+        PlayerManager.getInstance().setInitCallback {
+            runBlocking{
+                val dao = App.db.albumDao()
+                val album = dao.getAlbumWithMusics(Constant.TABLE_ALBUM_PLAYING_ID.toString())
+                album.autoPlay = false
+                PlayerManager.getInstance().loadAlbum(album, false)
+            }
         }
     }
 

@@ -45,6 +45,10 @@ data class AlbumData(
 ) {
     @Ignore
     var autoPlay: Boolean = true
+        set(value) {
+            field = value
+            super.autoPlay = value
+        }
 
     // 非持久化字段需要标记忽略
     @Transient

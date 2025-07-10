@@ -37,14 +37,16 @@ class RecommendMusicFragment : BaseBindingFragment<FragmentMusicListBinding>() {
 
     private val onClickItem: (Boolean, Int) -> Unit = { _: Boolean, position: Int ->
         musicViewModel.isCurrentMusicByUser = true
-        musicViewModel.playingAlbum.value =
-            AlbumData(
-                albumId = Constant.TABLE_ALBUM_PLAYING_ID.toString(),
-                title = Constant.PLAY_LIST_ALBUM_TITLE,
-                curMusicId = position
-            ).apply {
-                musics = adapter.getPlayList().distinctBy { it.musicId }
-            }
+        AlbumData(
+            albumId = Constant.TABLE_ALBUM_PLAYING_ID.toString(),
+            title = Constant.PLAY_LIST_ALBUM_TITLE,
+            curMusicId = position
+        ).apply {
+            musics = adapter.getPlayList().distinctBy { it.musicId }
+            autoPlay = true
+        }.let {
+            PlayerManager.getInstance().loadAlbum(it, true)
+        }
     }
 
     override fun initObserver() {

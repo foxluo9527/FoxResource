@@ -15,11 +15,13 @@ import com.foxluo.resource.music.data.bean.AlbumWithDetails
 import com.foxluo.resource.music.data.bean.MusicAlbumJoin
 import com.foxluo.resource.music.data.bean.MusicData
 import com.foxluo.resource.music.data.dao.AlbumWithMusics
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.runBlocking
 
 @Dao
 interface AlbumDAO {
@@ -109,6 +111,12 @@ interface AlbumDAO {
 
     @Query("DELETE FROM music_album_join WHERE album_id = :albumId AND music_id=:musicId")
     suspend fun removeMusicInAlbum(albumId: String, musicId: String)
+
+    fun updateAlbumWithMusicsJava(musicAlbum: AlbumData, musicDao: MusicDAO) {
+        runBlocking(Dispatchers.IO) {
+            updateAlbumWithMusics(musicAlbum, musicDao)
+        }
+    }
 }
 
 /**

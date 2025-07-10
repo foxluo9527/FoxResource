@@ -38,6 +38,7 @@ import androidx.media3.common.Player;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.ExoPlayer;
 
+import com.blankj.utilcode.util.LogUtils;
 import com.blankj.utilcode.util.Utils;
 import com.foxluo.baselib.util.ImageExt;
 import com.foxluo.baselib.util.StringUtil;
@@ -144,7 +145,12 @@ public class PlayerController<
     }
 
     private void setAlbum(B musicAlbum, int albumIndex) {
-        if (!isInit()) return;
+        if (currentAlbum != null && currentAlbum.musics.size() == musicAlbum.musics.size()) {
+            if (currentAlbum.musics.equals(musicAlbum.musics)) {
+                if (isInit()) mPlayer.seekToDefaultPosition(albumIndex);
+                return;
+            }
+        }
         currentAlbum = musicAlbum;
         playingList.clear();
         musicAlbum.musics.forEach(new Consumer<M>() {
@@ -156,6 +162,7 @@ public class PlayerController<
                 }
             }
         });
+        if (!isInit()) return;
         mPlayer.clearMediaItems();
         mPlayer.addMediaItems(playingList);
         mPlayer.seekToDefaultPosition(albumIndex);
@@ -165,6 +172,9 @@ public class PlayerController<
     public void loadAlbum(B musicAlbum, int albumIndex) {
         setAlbum(musicAlbum, albumIndex);
         playAudio();
+        if (!musicAlbum.autoPlay) {
+            pauseAudio();
+        }
     }
 
     public boolean isPlaying() {
@@ -238,7 +248,8 @@ public class PlayerController<
                 mediaItem = new MediaItem.Builder().setUri(Uri.parse("file:///android_asset/" + url)).setTag(currentMusic).build();
             }
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            LogUtils.e(e.getMessage());
+            return null;
         }
         return mediaItem;
     }

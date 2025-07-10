@@ -36,39 +36,39 @@ public interface IPlayController<
         A extends BaseArtistItem>
         extends IPlayInfoManager<B, M, A> {
 
-  void init(ExoPlayer player, ICacheProxy iCacheProxy);
+    void init(ExoPlayer player, ICacheProxy iCacheProxy);
 
-  void loadAlbum(B musicAlbum);
+    void loadAlbum(B musicAlbum, boolean actionByUser);
 
-  void loadAlbum(B musicAlbum, int playIndex);
+    void loadAlbum(B musicAlbum, int playIndex, boolean actionByUser);
 
-  void playAudio();
+    void playAudio();
 
-  void playAudio(int albumIndex);
+    void playAudio(int albumIndex);
 
-  void playNext();
+    void playNext();
 
-  void playPrevious();
+    void playPrevious();
 
-  void playAgain();
+    void playAgain();
 
-  void togglePlay();
+    void togglePlay();
 
-  void pauseAudio();
+    void pauseAudio();
 
-  void resumeAudio();
+    void resumeAudio();
 
-  void changeMode();
+    void changeMode();
 
-  boolean isPlaying();
+    boolean isPlaying();
 
-  boolean isPaused();
+    boolean isPaused();
 
-  boolean isInit();
+    boolean isInit();
 
-  void setSeek(int progress);
+    void setSeek(int progress);
 
-  String getTrackTime(int progress);
+    String getTrackTime(int progress);
 
-  LiveData<MusicDTO<B, M, A>> getUiStates();
+    LiveData<MusicDTO<B, M, A>> getUiStates();
 }

@@ -27,26 +27,27 @@ public class BaseAlbumItem<
         A extends BaseArtistItem>
         implements Serializable {
 
-  public final String albumId;
-  public final String title;
-  public final String summary;
-  public A artist;
-  public final String coverImg;
-  public List<M> musics;
+    public final String albumId;
+    public final String title;
+    public final String summary;
+    public A artist;
+    public final String coverImg;
+    public List<M> musics;
+    public boolean autoPlay;
 
-  public BaseAlbumItem(
-          String albumId,
-          String title,
-          String summary,
-          A artist,
-          String coverImg,
-          List<M> musics
-  ) {
-    this.albumId = albumId;
-    this.title = title;
-    this.summary = summary;
-    this.artist = artist;
-    this.coverImg = coverImg;
-    this.musics = musics;
-  }
+    public BaseAlbumItem(
+            String albumId,
+            String title,
+            String summary,
+            A artist,
+            String coverImg,
+            List<M> musics
+    ) {
+        this.albumId = albumId;
+        this.title = title;
+        this.summary = summary;
+        this.artist = artist;
+        this.coverImg = coverImg;
+        this.musics = musics;
+    }
 }
