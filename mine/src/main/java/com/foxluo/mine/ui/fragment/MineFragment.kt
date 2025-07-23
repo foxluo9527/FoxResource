@@ -19,7 +19,7 @@ import com.foxluo.baselib.util.ImageExt.loadUrlWithCircle
 import com.foxluo.mine.databinding.FragmentMineBinding
 import com.foxluo.mine.ui.activity.LoginActivity
 import com.foxluo.mine.ui.activity.PersonalActivity
-import com.foxluo.mine.ui.data.viewmodel.LoginViewModel
+import com.foxluo.mine.data.viewmodel.LoginViewModel
 import com.google.android.material.tabs.TabLayoutMediator
 import com.xuexiang.xui.utils.XToastUtils
 import com.xuexiang.xui.utils.XToastUtils.success

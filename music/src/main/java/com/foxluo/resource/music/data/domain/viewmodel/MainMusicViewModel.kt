@@ -3,21 +3,18 @@ package com.foxluo.resource.music.data.domain.viewmodel
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import androidx.room.Room
-import com.blankj.utilcode.util.Utils
 import com.foxluo.baselib.data.result.RequestResult
 import com.foxluo.baselib.domain.viewmodel.BaseViewModel
-import com.foxluo.resource.music.data.bean.AlbumData
-import com.foxluo.resource.music.data.bean.MusicData
-import com.foxluo.resource.music.data.db.AppDatabase
+import com.foxluo.resource.music.data.database.AlbumEntity
+import com.foxluo.resource.music.data.database.MusicEntity
+import com.foxluo.resource.music.data.domain.MusicModuleInitializer
 import com.foxluo.resource.music.data.repo.MusicRepository
 import kotlinx.coroutines.launch
 
 class MainMusicViewModel: BaseViewModel() {
-    val db = Room.databaseBuilder(
-        Utils.getApp(),
-        AppDatabase::class.java, "fox_resource_db"
-    ).build()
+    private val db by lazy{
+        MusicModuleInitializer.musicDb
+    }
 
     private val repo by lazy {
         MusicRepository(db.musicDao(),db.artistDao())
@@ -26,7 +23,7 @@ class MainMusicViewModel: BaseViewModel() {
     var isCurrentMusicByUser = false
 
     val currentMusic by lazy {
-        MutableLiveData<MusicData?>()
+        MutableLiveData<MusicEntity?>()
     }
 
     val musicFavoriteState by lazy {
@@ -38,7 +35,7 @@ class MainMusicViewModel: BaseViewModel() {
     }
 
     val playingAlbum by lazy {
-        MutableLiveData<AlbumData>()
+        MutableLiveData<AlbumEntity>()
     }
 
     fun recordPlayMusicChanged(musicId: String) {

@@ -1,8 +1,8 @@
 package com.foxluo.resource.music.data.result
 
 import com.foxluo.baselib.util.ImageExt
-import com.foxluo.resource.music.data.bean.ArtistData
-import com.foxluo.resource.music.data.bean.MusicData
+import com.foxluo.resource.music.data.database.ArtistEntity
+import com.foxluo.resource.music.data.database.MusicEntity
 
 data class MusicResult(
     val id: Long,
@@ -16,7 +16,7 @@ data class MusicResult(
     val album: Album? = null,
     val artists: List<MusicArtist>? = null
 ){
-    fun toMusicData() = MusicData(
+    fun toMusicData() = MusicEntity(
         musicId = this.id.toString(),
         coverImg = this.cover_image,
         url = ImageExt.processUrl(this.url),
@@ -40,7 +40,7 @@ data class MusicArtist(
     val cover_image: String?,
     val description: String?
 ){
-    fun toArtistData() = ArtistData(
+    fun toArtistData() = ArtistEntity(
         artistId = this.id,
         name = this.name,
         avatar = this.avatar,

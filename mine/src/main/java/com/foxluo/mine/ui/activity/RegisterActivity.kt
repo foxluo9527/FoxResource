@@ -5,7 +5,7 @@ import androidx.lifecycle.lifecycleScope
 import com.foxluo.baselib.data.manager.AuthManager
 import com.foxluo.baselib.ui.BaseBindingActivity
 import com.foxluo.mine.databinding.ActivityRegisterBinding
-import com.foxluo.mine.ui.data.viewmodel.RegisterViewModel
+import com.foxluo.mine.data.viewmodel.RegisterViewModel
 import com.xuexiang.xui.utils.XToastUtils
 import com.xuexiang.xui.utils.XToastUtils.success
 import com.xuexiang.xui.utils.XToastUtils.toast
@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 
 class RegisterActivity: BaseBindingActivity<ActivityRegisterBinding>() {
 
-    private val viewModel by viewModels<RegisterViewModel>()
+    private val viewModel by viewModels<com.foxluo.mine.data.viewmodel.RegisterViewModel>()
 
     override fun initBinding()=ActivityRegisterBinding.inflate(layoutInflater)
 

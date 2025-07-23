@@ -22,13 +22,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.media3.exoplayer.ExoPlayer;
-import androidx.room.Room;
 
-import com.blankj.utilcode.util.Utils;
-import com.foxluo.resource.music.data.bean.AlbumData;
-import com.foxluo.resource.music.data.bean.ArtistData;
-import com.foxluo.resource.music.data.bean.MusicData;
-import com.foxluo.resource.music.data.db.AppDatabase;
+import com.foxluo.resource.music.data.database.AlbumEntity;
+import com.foxluo.resource.music.data.database.ArtistEntity;
+import com.foxluo.resource.music.data.database.MusicEntity;
+import com.foxluo.resource.music.data.database.MusicDatabase;
+import com.foxluo.resource.music.data.domain.MusicModuleInitializer;
 import com.foxluo.resource.music.player.contract.ICacheProxy;
 import com.foxluo.resource.music.player.contract.IPlayController;
 import com.foxluo.resource.music.player.domain.MusicDTO;
@@ -37,21 +36,18 @@ import com.foxluo.resource.music.player.domain.PlayingInfoManager;
 
 import java.util.List;
 
-import kotlin.coroutines.CoroutineContext;
-import kotlinx.coroutines.CoroutineScope;
-
 /**
  * Create by KunMinX at 19/10/31
  */
-public class PlayerManager implements IPlayController<AlbumData, MusicData, ArtistData> {
-    private final AppDatabase db = Room.databaseBuilder(Utils.getApp(), AppDatabase.class, "fox_resource_db").build();
+public class PlayerManager implements IPlayController<AlbumEntity, MusicEntity, ArtistEntity> {
+    private final MusicDatabase db = MusicModuleInitializer.Companion.getMusicDb();
 
     private InitCallback initCallback;
 
     @SuppressLint("StaticFieldLeak")
     private static final PlayerManager sManager = new PlayerManager();
 
-    private final PlayerController<AlbumData, MusicData, ArtistData> mController;
+    private final PlayerController<AlbumEntity, MusicEntity, ArtistEntity> mController;
 
     private PlayerManager() {
         mController = new PlayerController<>();
@@ -77,7 +73,7 @@ public class PlayerManager implements IPlayController<AlbumData, MusicData, Arti
     }
 
     @Override
-    public void loadAlbum(@NonNull AlbumData musicAlbum, boolean actionByUser) {
+    public void loadAlbum(@NonNull AlbumEntity musicAlbum, boolean actionByUser) {
         int curMusicId = musicAlbum.getCurMusicId();
         int position = curMusicId;
         for (int i = 0; i < musicAlbum.getMusics().size(); i++) {
@@ -93,7 +89,7 @@ public class PlayerManager implements IPlayController<AlbumData, MusicData, Arti
     }
 
     @Override
-    public void loadAlbum(AlbumData musicAlbum, int playIndex, boolean actionByUser) {
+    public void loadAlbum(AlbumEntity musicAlbum, int playIndex, boolean actionByUser) {
         int curMusicId = Integer.valueOf(musicAlbum.getMusics().get(playIndex).getMusicId());
         musicAlbum.setCurMusicId(curMusicId);
         loadAlbum(musicAlbum, actionByUser);
@@ -165,17 +161,17 @@ public class PlayerManager implements IPlayController<AlbumData, MusicData, Arti
     }
 
     @Override
-    public LiveData<MusicDTO<AlbumData, MusicData, ArtistData>> getUiStates() {
+    public LiveData<MusicDTO<AlbumEntity, MusicEntity, ArtistEntity>> getUiStates() {
         return mController.getUiStates();
     }
 
     @Override
-    public AlbumData getAlbum() {
+    public AlbumEntity getAlbum() {
         return mController.getAlbum();
     }
 
     @Override
-    public List<MusicData> getAlbumMusics() {
+    public List<MusicEntity> getAlbumMusics() {
         return mController.getAlbumMusics();
     }
 
@@ -201,17 +197,17 @@ public class PlayerManager implements IPlayController<AlbumData, MusicData, Arti
 
     @Override
     @Nullable
-    public MusicData getCurrentPlayingMusic() {
+    public MusicEntity getCurrentPlayingMusic() {
         return mController.getCurrentPlayingMusic();
     }
 
     @Override
-    public MusicData removeAlbumIndex(int index) {
+    public MusicEntity removeAlbumIndex(int index) {
         return mController.removeAlbumIndex(index);
     }
 
     @Override
-    public void appendPlayList(List<MusicData> list) {
+    public void appendPlayList(List<MusicEntity> list) {
         mController.appendPlayingList(list);
     }
 

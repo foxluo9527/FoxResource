@@ -3,12 +3,11 @@ package com.foxluo.resource.music.ui.fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
-import com.foxluo.baselib.R
 import com.foxluo.baselib.domain.viewmodel.getAppViewModel
 import com.foxluo.baselib.ui.BaseBindingFragment
 import com.foxluo.baselib.util.Constant
 import com.foxluo.baselib.util.ViewExt.visible
-import com.foxluo.resource.music.data.bean.AlbumData
+import com.foxluo.resource.music.data.database.AlbumEntity
 import com.foxluo.resource.music.data.domain.viewmodel.MainMusicViewModel
 import com.foxluo.resource.music.data.domain.viewmodel.RecommendMusicViewModel
 import com.foxluo.resource.music.databinding.FragmentMusicListBinding
@@ -37,7 +36,7 @@ class RecommendMusicFragment : BaseBindingFragment<FragmentMusicListBinding>() {
 
     private val onClickItem: (Boolean, Int) -> Unit = { _: Boolean, position: Int ->
         musicViewModel.isCurrentMusicByUser = true
-        AlbumData(
+        AlbumEntity(
             albumId = Constant.TABLE_ALBUM_PLAYING_ID.toString(),
             title = Constant.PLAY_LIST_ALBUM_TITLE,
             curMusicId = position

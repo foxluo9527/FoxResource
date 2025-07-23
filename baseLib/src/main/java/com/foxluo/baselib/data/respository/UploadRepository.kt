@@ -29,11 +29,11 @@ class UploadRepository: BaseRepository() {
         val result = if (mediaTypeStr.contains("image")) {
             uploadApi?.uploadImage(part)
         } else if (mediaTypeStr.contains("audio")) {
-            null
+            uploadApi?.uploadAudio(part)
         } else if (mediaTypeStr.contains("video")) {
-            null
+            uploadApi?.uploadVideo(part)
         } else {
-            null
+            uploadApi?.uploadFile(part)
         }
         return result.toRequestResult()
     }

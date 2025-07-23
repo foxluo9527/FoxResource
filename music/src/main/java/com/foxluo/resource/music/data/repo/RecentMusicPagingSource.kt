@@ -4,14 +4,13 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.foxluo.baselib.data.result.ListData
 import com.foxluo.baselib.data.result.RequestResult
-import com.foxluo.resource.music.data.bean.MusicData
-import java.util.concurrent.ConcurrentHashMap
+import com.foxluo.resource.music.data.database.MusicEntity
 
 class RecentMusicPagingSource(
     private val repo: MusicRepository
-) : PagingSource<Int, MusicData>() {
+) : PagingSource<Int, MusicEntity>() {
 
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, MusicData> {
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, MusicEntity> {
         return try {
             // 尝试网络请求
             val page = params.key ?: 1
@@ -19,7 +18,7 @@ class RecentMusicPagingSource(
             when (result) {
                 is RequestResult.Success<*> -> {
                     // 网络成功，返回分页数据
-                    (result.data as? ListData<MusicData>)?.list ?: emptyList()
+                    (result.data as? ListData<MusicEntity>)?.list ?: emptyList()
                 }
 
                 is RequestResult.Error -> {
@@ -46,7 +45,7 @@ class RecentMusicPagingSource(
         }
     }
 
-    override fun getRefreshKey(state: PagingState<Int, MusicData>): Int? {
+    override fun getRefreshKey(state: PagingState<Int, MusicEntity>): Int? {
         return state.anchorPosition?.let { anchorPosition ->
             state.closestPageToPosition(anchorPosition)?.prevKey?.plus(1)
                 ?: state.closestPageToPosition(anchorPosition)?.nextKey?.minus(1)

@@ -2,12 +2,20 @@ package com.foxluo.baselib.util
 
 import android.annotation.SuppressLint
 import java.net.URL
-import java.text.SimpleDateFormat
-import java.time.LocalDateTime
-import java.util.Date
+import java.time.Instant
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 object StringUtil {
+    fun String.prefix(prefix: String): String {
+        return "${prefix}$this"
+    }
+
+    // UTC时间格式化器（线程安全）
+    private val isoFormatter by lazy {
+        DateTimeFormatter.ISO_INSTANT
+    }
+
     fun getUrlName(url: String?): String {
         var urlName: String? = null
         try {
@@ -22,51 +30,31 @@ object StringUtil {
     @SuppressLint("SimpleDateFormat")
     fun String.formatServerTime(): String {
         //进行转化时区
-        val dateFormat: SimpleDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", Locale.US)
-        val formatDate: Date? = dateFormat.parse(this.replace("Z", "+0000"))
-        return formatDate?.time?.getFriendlyTimeSpanByNow() ?: "时间格式化错误"
+        return com.blankj.utilcode.util.TimeUtils.getFriendlyTimeSpanByNow(formatServerTimeS())
     }
 
-    /**
-     * 获取友好型与当前时间的差
-     *
-     * @param millis 毫秒时间戳
-     * @return 友好型与当前时间的差
-     *
-     *  * 如果小于1秒钟内，显示刚刚
-     *  * 如果在1分钟内，显示XXX秒前
-     *  * 如果在1小时内，显示XXX分钟前
-     *  * 如果在1小时外的今天内，显示今天15:32
-     *  * 如果是昨天的，显示昨天15:32
-     *  * 其余显示，2016-10-15
-     *  * 时间不合法的情况全部日期和时间信息，如星期六 十月 27 14:21:20 CST 2007
-     *
-     */
-    @SuppressLint("DefaultLocale")
-    fun Long.getFriendlyTimeSpanByNow(): String {
-        val millis = this
-        val now = System.currentTimeMillis()
-        val span = now - millis
-        if (span < 0) return String.format(
-            "%tc",
-            millis
-        ) // U can read http://www.apihome.cn/api/java/Formatter.html to understand it.
+    @SuppressLint("SimpleDateFormat")
+    fun String.formatServerTimeS(): Long {
+        //进行转化时区
+        return Instant.from(isoFormatter.parse(this))
+            .toEpochMilli()
+    }
 
-        if (span < 1000) {
-            return "刚刚"
-        } else if (span < ConstUtils.MIN) {
-            return java.lang.String.format("%d秒前", span / ConstUtils.SEC)
-        } else if (span < ConstUtils.HOUR) {
-            return java.lang.String.format("%d分钟前", span / ConstUtils.MIN)
-        }
-        // 获取当天00:00
-        val wee: Long = (now / ConstUtils.DAY) * ConstUtils.DAY
-        if (millis >= wee) {
-            return String.format("今天%tR", millis)
-        } else if (millis >= wee - ConstUtils.DAY) {
-            return String.format("昨天%tR", millis)
-        } else {
-            return String.format("%tF", millis)
+    @SuppressLint("SimpleDateFormat", "DefaultLocale")
+    fun Long.toServerTime(): String {
+        // 1. 转换为UTC时区时间
+        val instant = Instant.ofEpochMilli(this)
+
+        // 2. 格式化输出
+        return isoFormatter.format(instant).let {
+            // 确保毫秒部分有3位数字
+            if (it.substringAfterLast(".").length < 4) {
+                it.replace(Regex("(\\.[0-9]{1,3})Z"), { mr ->
+                    String.format(".%03dZ", mr.groupValues[1].substring(1).toLong())
+                })
+            } else {
+                it
+            }
         }
     }
 

@@ -19,6 +19,33 @@ interface UploadApi:BaseApi {
     ): BaseResponse<FileUploadResponse>
 
     /**
+     * 上传音频文件
+     */
+    @Multipart
+    @POST("/api/upload/audio")
+    suspend fun uploadAudio(
+        @Part file: MultipartBody.Part
+    ): BaseResponse<FileUploadResponse>
+
+    /**
+     * 上传视频文件
+     */
+    @Multipart
+    @POST("/api/upload/video")
+    suspend fun uploadVideo(
+        @Part file: MultipartBody.Part
+    ): BaseResponse<FileUploadResponse>
+
+    /**
+     * 上传通用文件
+     */
+    @Multipart
+    @POST("/api/upload/file")
+    suspend fun uploadFile(
+        @Part file: MultipartBody.Part
+    ): BaseResponse<FileUploadResponse>
+
+    /**
      * 通过网络链接上传图片文件到服务器
      * body { url }
      */

@@ -5,13 +5,13 @@ import androidx.activity.viewModels
 import com.foxluo.baselib.ui.BaseBindingActivity
 import com.foxluo.mine.R
 import com.foxluo.mine.databinding.ActivityForgetBinding
-import com.foxluo.mine.ui.data.viewmodel.ForgetViewModel
+import com.foxluo.mine.data.viewmodel.ForgetViewModel
 import com.xuexiang.xui.utils.XToastUtils
 import com.xuexiang.xui.utils.XToastUtils.success
 import com.xuexiang.xui.utils.XToastUtils.toast
 
 class ForgetActivity : BaseBindingActivity<ActivityForgetBinding>() {
-    private val viewModel by viewModels<ForgetViewModel>()
+    private val viewModel by viewModels<com.foxluo.mine.data.viewmodel.ForgetViewModel>()
 
     override fun initListener() {
         binding.send.setOnClickListener {

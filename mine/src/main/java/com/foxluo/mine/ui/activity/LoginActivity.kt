@@ -8,7 +8,7 @@ import com.alibaba.android.arouter.facade.annotation.Route
 import com.foxluo.baselib.data.manager.AuthManager
 import com.foxluo.baselib.ui.BaseBindingActivity
 import com.foxluo.mine.databinding.ActivityLoginBinding
-import com.foxluo.mine.ui.data.viewmodel.LoginViewModel
+import com.foxluo.mine.data.viewmodel.LoginViewModel
 import com.xuexiang.xui.utils.XToastUtils.error
 import com.xuexiang.xui.utils.XToastUtils.success
 import com.xuexiang.xui.utils.XToastUtils.toast
@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 
 @Route(path = "/mine/login")
 class LoginActivity : BaseBindingActivity<ActivityLoginBinding>() {
-    private val viewModel by viewModels<LoginViewModel>()
+    private val viewModel by viewModels<com.foxluo.mine.data.viewmodel.LoginViewModel>()
     override fun initListener() {
         binding.back.setOnClickListener {
             finish()

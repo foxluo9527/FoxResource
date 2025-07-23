@@ -1,23 +1,30 @@
 package com.foxluo.mine.ui.activity
 
+import android.annotation.SuppressLint
 import android.view.View
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
+import com.foxluo.baselib.data.manager.AuthManager
 import com.foxluo.baselib.data.manager.AuthManager.userInfoStateFlow
 import com.foxluo.baselib.ui.BaseBindingActivity
+import com.foxluo.baselib.util.CropImageContract
+import com.foxluo.baselib.util.CropImageResult
 import com.foxluo.baselib.util.DialogUtil.showConfirmDialog
 import com.foxluo.baselib.util.DialogUtil.showInputDialog
 import com.foxluo.baselib.util.ImageExt.loadUrl
+import com.foxluo.baselib.util.StringUtil.prefix
+import com.foxluo.baselib.util.getFilePath
+import com.foxluo.mine.data.viewmodel.LoginViewModel
+import com.foxluo.mine.data.viewmodel.PersonalViewModel
 import com.foxluo.mine.databinding.ActivityPersonalBinding
-import com.foxluo.mine.ui.data.viewmodel.LoginViewModel
-import com.foxluo.mine.ui.data.viewmodel.PersonalViewModel
+import com.foxluo.mine.ui.fragment.ChooseShowHeadDialog
 import com.xuexiang.xui.utils.XToastUtils
 import com.xuexiang.xui.utils.XToastUtils.success
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 /**
  * 个人资料
@@ -34,27 +41,18 @@ class PersonalActivity : BaseBindingActivity<ActivityPersonalBinding>() {
     private val viewModel by viewModels<PersonalViewModel>()
 
     // 注册相册选择页面回调
+    @SuppressLint("SuspiciousIndentation")
     private val pickMedia =
         registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
             if (uri != null) {
-                //contentProvider会提供一个当前activity可以读取的uri，离开页面后会作废，使用takePersistableUriPermission让应用长时间持有文件访问权限
-                //applicationContext.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                applicationContext.contentResolver.query(
-                    uri, null, null, null, null, null
-                )?.let { cursor ->
-                    try {
-                        cursor.moveToFirst()
-                        val dataColIndex = cursor.getColumnIndex("_data")
-                        //使用contentResolver查询临时uri的文件路径，这个filePath只能用于上传，退出应用后将无法再访问文件
-                        val dataPath: String = cursor.getString(dataColIndex)
-                        viewModel.uploadFile(dataPath)
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    } finally {
-                        cursor.close()
-                    }
-                }
+                cropImageContract.launch(CropImageResult(uri, 1f, 1f))
             }
+        }
+
+    private val cropImageContract =
+        registerForActivityResult(CropImageContract()) { uri ->
+            val path = runBlocking { uri?.getFilePath(true) }
+            path?.let { viewModel.uploadFile(it) }
         }
 
     override fun initData() {
@@ -63,7 +61,13 @@ class PersonalActivity : BaseBindingActivity<ActivityPersonalBinding>() {
 
     override fun initListener() {
         binding.llHead.setOnClickListener {
-            pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+            ChooseShowHeadDialog().show(
+                supportFragmentManager,
+                AuthManager.authInfo?.user?.avatar ?: "",
+                binding.icHead
+            ) {
+                pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+            }
         }
         binding.back.setOnClickListener {
             finish()

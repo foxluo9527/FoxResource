@@ -41,6 +41,12 @@ kapt {
     }
 }
 dependencies {
+    api(libs.androidx.work.runtime.ktx)
+    api(libs.androidx.media3.session)
+    api(libs.androidx.media3.exoplayer)
+    api(libs.media3.ui)
+    api(libs.ucrop)
+    api(libs.pinyin4j)
     api(libs.androidx.paging.runtime.ktx)
     api(libs.androidx.room.paging)
     api(libs.androidx.room.runtime)
@@ -68,7 +74,6 @@ dependencies {
     api(libs.constraintlayout)
     api(libs.android.defensecrash)
     api(libs.utilcodex)
-    api(libs.openimage.glide)
     implementation(libs.androidx.core.animation)
     testApi(libs.junit)
     testApi(libs.junit.junit)

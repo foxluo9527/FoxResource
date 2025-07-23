@@ -16,7 +16,7 @@
 
 package com.foxluo.resource.music.player.contract;
 
-import com.foxluo.resource.music.data.bean.MusicData;
+import com.foxluo.resource.music.data.database.MusicEntity;
 import com.foxluo.resource.music.player.domain.PlayingInfoManager;
 import com.foxluo.resource.music.player.bean.base.BaseAlbumItem;
 import com.foxluo.resource.music.player.bean.base.BaseArtistItem;
@@ -41,7 +41,7 @@ public interface IPlayInfoManager<B extends BaseAlbumItem<M, A>, M extends BaseM
 
   M getCurrentPlayingMusic();
 
-  MusicData removeAlbumIndex(int index);
+  MusicEntity removeAlbumIndex(int index);
 
   void appendPlayList(List<M> list);
 

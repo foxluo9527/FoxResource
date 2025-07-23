@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
+
+    <RelativeLayout
+        android:id="@+id/back"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/iv_back"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center_vertical"
+            android:padding="15dp"
+            android:src="@drawable/ic_arrow_left"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:textColor="#333"
+            android:textSize="15sp"
+            tools:text="名称" />
+
+        <ImageView
+            android:id="@+id/more"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_alignParentEnd="true"
+            android:padding="16dp"
+            android:rotation="90"
+            android:src="@drawable/ic_more"
+            android:tint="#333" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@color/F7F7F7"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@id/bottom"
+        app:layout_constraintTop_toBottomOf="@id/back">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/item_message_text" />
+    </LinearLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#4DB3B3B3"
+        android:orientation="vertical"
+        android:paddingVertical="15dp"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <ImageView
+            android:id="@+id/action_voice_btn"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="16dp"
+            android:src="@drawable/ic_voice"
+            app:layout_constraintBottom_toBottomOf="@id/content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/content" />
+
+        <com.xuexiang.xui.widget.edittext.ClearEditText
+            android:id="@+id/content"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:background="@drawable/shape_white_trans_r8"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:focusedByDefault="false"
+            android:lineHeight="22dp"
+            android:minHeight="40dp"
+            android:paddingStart="8dp"
+            android:textColor="@color/black"
+            android:textColorHint="#c1c1c1"
+            android:textSize="13sp"
+            app:layout_constraintBottom_toTopOf="@id/actions"
+            app:layout_constraintEnd_toStartOf="@id/add"
+            app:layout_constraintStart_toEndOf="@id/action_voice_btn" />
+
+        <ImageView
+            android:id="@+id/add"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginEnd="15dp"
+            android:src="@drawable/iv_add"
+            app:layout_constraintBottom_toBottomOf="@id/content"
+            app:layout_constraintEnd_toStartOf="@id/send"
+            app:layout_constraintTop_toTopOf="@id/content" />
+
+        <TextView
+            android:id="@+id/send"
+            android:layout_width="58dp"
+            android:layout_height="36dp"
+            android:layout_marginEnd="15dp"
+            android:background="@drawable/selector_comment_send_btn"
+            android:gravity="center"
+            android:text="@string/send"
+            android:textColor="@drawable/selector_color_comment_send_text"
+            android:textSize="13sp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/content" />
+
+        <LinearLayout
+            android:id="@+id/actions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="bottom"
+            android:paddingTop="10dp"
+            android:visibility="gone"
+            android:orientation="horizontal"
+            android:weightSum="4"
+            tools:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_horizontal|bottom">
+
+                <ImageView
+                    android:id="@+id/action_send_image"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/shape_white_trans_r8"
+                    android:padding="12dp"
+                    android:src="@drawable/iv_pic" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_horizontal|bottom">
+
+                <ImageView
+                    android:id="@+id/action_take_photo"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/shape_white_trans_r8"
+                    android:padding="12dp"
+                    android:src="@drawable/iv_photo" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_horizontal|bottom">
+
+                <ImageView
+                    android:id="@+id/action_call_video"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/shape_white_trans_r8"
+                    android:padding="12dp"
+                    android:src="@drawable/iv_video" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_horizontal|bottom">
+
+                <ImageView
+                    android:id="@+id/action_file"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/shape_white_trans_r8"
+                    android:padding="12dp"
+                    android:src="@drawable/iv_file" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

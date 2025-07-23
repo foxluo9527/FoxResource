@@ -2,19 +2,20 @@ package com.foxluo.resource.music.ui.fragment
 
 import android.content.Intent
 import androidx.lifecycle.lifecycleScope
-import com.flyjingfish.openimagelib.OpenImage
-import com.flyjingfish.openimagelib.enums.MediaType
 import com.foxluo.baselib.domain.viewmodel.getAppViewModel
 import com.foxluo.baselib.ui.BaseBindingFragment
+import com.foxluo.baselib.ui.ImageViewInfo
 import com.foxluo.baselib.util.ImageExt.processUrl
 import com.foxluo.baselib.util.ViewExt.fastClick
-import com.foxluo.resource.music.data.bean.MusicData
+import com.foxluo.resource.music.data.database.MusicEntity
 import com.foxluo.resource.music.data.domain.viewmodel.MainMusicViewModel
 import com.foxluo.resource.music.databinding.FragmentDetailSongBinding
 import com.foxluo.resource.music.ui.activity.MusicCommentActivity
+import com.xuexiang.xui.utils.ViewUtils
+import com.xuexiang.xui.widget.imageview.preview.PreviewBuilder
 
 class DetailSongFragment : BaseBindingFragment<FragmentDetailSongBinding>() {
-    private var currentMusic: MusicData? = null
+    private var currentMusic: MusicEntity? = null
     private var onPlaying = false
     var targetPage: (() -> Unit)? = null
 
@@ -22,7 +23,7 @@ class DetailSongFragment : BaseBindingFragment<FragmentDetailSongBinding>() {
         getAppViewModel<MainMusicViewModel>()
     }
 
-    fun initMusicData(data: MusicData?) {
+    fun initMusicData(data: MusicEntity?) {
         this.currentMusic = data
         lifecycleScope.launchWhenStarted {
             initView()
@@ -71,11 +72,10 @@ class DetailSongFragment : BaseBindingFragment<FragmentDetailSongBinding>() {
     override fun initListener() {
         binding.cover.albumView.setOnClickListener {
             currentMusic?.coverImg?.let {
-                OpenImage
-                    .with(this)
-                    .setImageUrl(processUrl(it), MediaType.IMAGE)
-                    .setNoneClickView()
-                    .show()
+                PreviewBuilder.from(this)
+                    .setImg<ImageViewInfo>(ImageViewInfo(processUrl(it), ViewUtils.calculateViewScreenLocation(binding.cover)))
+                    .setType(PreviewBuilder.IndicatorType.Dot)
+                    .start()
             }
         }
         binding.root.setOnClickListener {

@@ -5,15 +5,13 @@ import com.blankj.utilcode.util.SPUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 object AuthManager {
     val userInfoStateFlow by lazy {
-        MutableSharedFlow<UserInfo?>(0).apply {
-            CoroutineScope(Dispatchers.IO).launch {
-                emit(authInfo?.user)
-            }
-        }
+        MutableStateFlow<UserInfo?>(authInfo?.user)
     }
 
     private val sp by lazy {
@@ -34,7 +32,7 @@ object AuthManager {
             } ?: run {
                 sp.remove("KEY_SP_AUTH_INFO")
             }
-            CoroutineScope(Dispatchers.IO).launch {
+            runBlocking(Dispatchers.IO) {
                 userInfoStateFlow.emit(authInfo?.user)
             }
         }
@@ -55,11 +53,18 @@ object AuthManager {
         avatar: String?,
         signature: String?
     ) {
-        authInfo = authInfo?.apply {
-            user.username = username
-            user.avatar = avatar
-            user.signature = signature
-            user.nickname = nickname
+        val userInfo = authInfo?.user
+        if (userInfo?.username != username ||
+            userInfo.avatar != avatar ||
+            userInfo.signature != signature ||
+            userInfo.nickname != nickname
+        ) {
+            authInfo = authInfo?.apply {
+                user.username = username
+                user.avatar = avatar
+                user.signature = signature
+                user.nickname = nickname
+            }
         }
     }
 }

@@ -4,23 +4,15 @@ import LogInterceptor
 import com.alibaba.android.arouter.launcher.ARouter
 import com.blankj.utilcode.util.ActivityUtils
 import com.foxluo.baselib.data.api.BaseApi
-import com.foxluo.baselib.data.result.BaseResponse.Companion.toRequestResult
-import com.foxluo.baselib.data.result.RequestResult
-import com.foxluo.baselib.util.StringUtil.getMediaType
 import okhttp3.Interceptor
 import okhttp3.MediaType
-import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.Protocol
 import okhttp3.Request
-import okhttp3.RequestBody
 import okhttp3.Response
 import okhttp3.ResponseBody
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.io.File
-import java.io.IOException
-import java.nio.file.Paths
 
 
 const val BASE_URL = "http://39.106.30.151:9000"
@@ -43,9 +35,9 @@ open class BaseRepository {
                 Response.Builder()
                     .request(request)
                     .protocol(Protocol.HTTP_1_1)
-                    .code(500)
+                    .code(200)
                     .message("Network Error")
-                    .body("{ \"error\": \"${e.message}\" }".toResponseBody())
+                    .body("{\"code\":500,\"message\":\"${e.message}\",\"data\":null,\"success\":false}".toResponseBody())
                     .build()
             }
         }

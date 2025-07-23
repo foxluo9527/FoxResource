@@ -1,6 +1,7 @@
 package com.foxluo.baselib.data.result
 
 open class BaseResponse<T> {
+    //{\"code\":500,\"message\":\"无效的好友申请\",\"data\":null,\"success\":false}
     val code: Int? = null
 
     var message: String = ""

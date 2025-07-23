@@ -41,7 +41,7 @@ interface MusicApi : BaseApi {
     @DELETE("/api/music-history")
     suspend fun deletePlayHistory(
         @Body map: Map<String, Array<Int>>
-    ): BaseListResponse<Unit>
+    ): BaseResponse<Unit>
 
     @GET("/api/music-comments")
     suspend fun getMusicComments(

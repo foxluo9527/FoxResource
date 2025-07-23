@@ -11,9 +11,9 @@ import com.foxluo.baselib.data.result.RequestResult
 import com.foxluo.baselib.ui.adapter.CommentAdapter
 import com.foxluo.baselib.util.Constant
 import com.foxluo.resource.music.data.api.MusicApi
-import com.foxluo.resource.music.data.bean.MusicData
-import com.foxluo.resource.music.data.dao.ArtistDAO
-import com.foxluo.resource.music.data.dao.MusicDAO
+import com.foxluo.resource.music.data.database.MusicEntity
+import com.foxluo.resource.music.data.database.ArtistDAO
+import com.foxluo.resource.music.data.database.MusicDAO
 import com.foxluo.resource.music.data.result.MusicResult
 import com.foxluo.resource.music.data.result.toCommentList
 import com.foxluo.resource.music.data.result.toCommentReplay
@@ -48,17 +48,17 @@ class MusicRepository(
     }
 
     // 本地查询方法
-    suspend fun getLocalMusicList(page: Int, size: Int, keyword: String = ""): List<MusicData> {
+    suspend fun getLocalMusicList(page: Int, size: Int, keyword: String = ""): List<MusicEntity> {
         return musicDao.searchMusics(page, size, keyword).map { it.getMusicWithArtist() }
     }
 
-    suspend fun getRecentMusicList(page: Int, size: Int): List<MusicData> {
+    suspend fun getRecentMusicList(page: Int, size: Int): List<MusicEntity> {
         return musicDao.getMusics(Constant.TABLE_ALBUM_HISTORY_ID.toLong(), page, size)
             .map { it.getMusicWithArtist() }
     }
 
     // 新增方法
-    fun getSearchMusicPager(keyword: String = ""): Flow<PagingData<MusicData>> {
+    fun getSearchMusicPager(keyword: String = ""): Flow<PagingData<MusicEntity>> {
         return Pager(
             config = PagingConfig(
                 pageSize = 20,
@@ -69,7 +69,7 @@ class MusicRepository(
         ).flow
     }
 
-    fun getRecentMusicPager(): Flow<PagingData<MusicData>> {
+    fun getRecentMusicPager(): Flow<PagingData<MusicEntity>> {
         return Pager(
             config = PagingConfig(
                 pageSize = 20,
@@ -84,7 +84,7 @@ class MusicRepository(
         result: BaseListResponse<MusicResult>?,
         cacheMusic: Boolean = true
     ): RequestResult {
-        val dataResult = ListData<MusicData>()
+        val dataResult = ListData<MusicEntity>()
         result?.data?.let { data ->
             data.list?.map { it.toMusicData() }?.also { musics ->
                 // 插入数据库

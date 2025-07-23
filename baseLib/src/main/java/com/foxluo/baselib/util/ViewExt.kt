@@ -18,6 +18,10 @@ object ViewExt {
         visibility = View.VISIBLE
     }
 
+    fun View.inVisible(){
+        visibility = View.INVISIBLE
+    }
+
     fun View.visible(visible: Boolean) {
         visibility = if (visible) {
             View.VISIBLE

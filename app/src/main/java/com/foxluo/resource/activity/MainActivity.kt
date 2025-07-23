@@ -4,13 +4,10 @@ import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.app.PendingIntent
 import android.content.ComponentName
-import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.LinearInterpolator
-import androidx.annotation.OptIn
 import androidx.lifecycle.lifecycleScope
-import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -21,14 +18,14 @@ import com.foxluo.baselib.ui.BaseBindingActivity
 import com.foxluo.baselib.ui.MainPageFragment
 import com.foxluo.baselib.util.Constant
 import com.foxluo.baselib.util.ImageExt.loadUrlWithCircle
-import com.foxluo.chat.ui.ChatFragment
+import com.foxluo.chat.ui.ChatHomeFragment
 import com.foxluo.home.ui.HomeFragment
 import com.foxluo.mine.ui.fragment.MineFragment
 import com.foxluo.resource.App
 import com.foxluo.resource.R
 import com.foxluo.resource.community.ui.CommunityFragment
 import com.foxluo.resource.databinding.ActivityMainBinding
-import com.foxluo.resource.music.data.bean.MusicData
+import com.foxluo.resource.music.data.domain.MusicModuleInitializer
 import com.foxluo.resource.music.data.domain.viewmodel.MainMusicViewModel
 import com.foxluo.resource.music.player.PlayerManager
 import com.foxluo.resource.music.ui.activity.PlayActivity
@@ -48,7 +45,7 @@ const val PERMISSIONS_REQUEST_FOREGROUND_SERVICE = 2333
 
 class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
     private val fragments by lazy {
-        listOf(HomeFragment(), ChatFragment(), CommunityFragment(), MineFragment())
+        listOf(HomeFragment(), ChatHomeFragment(), CommunityFragment(), MineFragment())
     }
 
     private var controller: MediaController? = null
@@ -87,14 +84,14 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
             // 申请单个权限
             //.permission(Permission.RECORD_AUDIO) // 申请多个权限
             //.permission(Permission.Group.CALENDAR)
-            .request(object : OnPermissionCallback {
-                override fun onGranted(permissions: MutableList<String>, all: Boolean) {
-                }
-
-                override fun onDenied(permissions: MutableList<String>, never: Boolean) {
-                    toast("弹窗权限被拒绝，可能导致状态栏跳转异常")
-                }
-            })
+//            .request(object : OnPermissionCallback {
+//                override fun onGranted(permissions: MutableList<String>, all: Boolean) {
+//                }
+//
+//                override fun onDenied(permissions: MutableList<String>, never: Boolean) {
+//                    toast("弹窗权限被拒绝，可能导致状态栏跳转异常")
+//                }
+//            })
     }
 
     val sessionActivityPendingIntent: PendingIntent?
@@ -174,7 +171,7 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
                     //更新数据库中正在播放的位置
                     val album = PlayerManager.getInstance().album ?: return@launch
                     album.curMusicId = currentMusic.musicId.toInt()
-                    val dao = App.db.albumDao()
+                    val dao = MusicModuleInitializer.musicDb.albumDao()
                     dao.updateAlbum(album)
                 }
                 musicViewModel.currentMusic.value = currentMusic
@@ -201,7 +198,7 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
         )
         PlayerManager.getInstance().setInitCallback {
             runBlocking{
-                val dao = App.db.albumDao()
+                val dao = MusicModuleInitializer.musicDb.albumDao()
                 val album = dao.getAlbumWithMusics(Constant.TABLE_ALBUM_PLAYING_ID.toString())
                 album.autoPlay = false
                 PlayerManager.getInstance().loadAlbum(album, false)

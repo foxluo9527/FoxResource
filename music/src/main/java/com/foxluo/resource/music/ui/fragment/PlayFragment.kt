@@ -3,15 +3,13 @@ package com.foxluo.resource.music.ui.fragment
 import android.os.Build
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
-import com.blankj.utilcode.util.SPUtils
 import com.foxluo.baselib.R
 import com.foxluo.baselib.ui.BaseBindingFragment
 import com.foxluo.baselib.util.BitmapUtil.ColorFilterCallback
 import com.foxluo.baselib.util.BitmapUtil.getImageColors
-import com.foxluo.resource.music.data.bean.AlbumData
-import com.foxluo.resource.music.data.bean.ArtistData
-import com.foxluo.resource.music.data.bean.MusicData
+import com.foxluo.resource.music.data.database.AlbumEntity
+import com.foxluo.resource.music.data.database.ArtistEntity
+import com.foxluo.resource.music.data.database.MusicEntity
 import com.foxluo.resource.music.databinding.FragmentPlayBinding
 import com.foxluo.resource.music.player.PlayerManager
 import com.foxluo.resource.music.player.domain.MusicDTO
@@ -25,7 +23,7 @@ class PlayFragment : BaseBindingFragment<FragmentPlayBinding>() {
         PlayerManager.getInstance()
     }
 
-    var currentMusicData: MusicData? = null
+    var currentMusicEntity: MusicEntity? = null
 
     private var colorFilters: Triple<Int, Int, Int>? = null
 
@@ -97,14 +95,14 @@ class PlayFragment : BaseBindingFragment<FragmentPlayBinding>() {
 
     override fun initData() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            arguments?.getSerializable("musicData", MusicData::class.java)?.let {
-                currentMusicData = it
+            arguments?.getSerializable("musicData", MusicEntity::class.java)?.let {
+                currentMusicEntity = it
                 setMusicData(it)
             }
         }
     }
 
-    private fun setMusicData(music: MusicData) {
+    private fun setMusicData(music: MusicEntity) {
         lifecycleScope.launch {
             context?.getImageColors(music.coverImg, object : ColorFilterCallback {
                 override suspend fun onColorFilterChanged(
@@ -138,8 +136,8 @@ class PlayFragment : BaseBindingFragment<FragmentPlayBinding>() {
         )
     }
 
-    fun updatePlayState(uiState: MusicDTO<AlbumData, MusicData, ArtistData>) {
-        if (uiState.musicId != currentMusicData?.musicId) return
+    fun updatePlayState(uiState: MusicDTO<AlbumEntity, MusicEntity, ArtistEntity>) {
+        if (uiState.musicId != currentMusicEntity?.musicId) return
         (fragments[0] as DetailSongFragment).initPlayState(!uiState.isPaused)
         (fragments[1] as DetailLyricsFragment).setLyricsDuration(
             uiState.progress.toLong()

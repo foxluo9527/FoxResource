@@ -2,14 +2,14 @@ package com.foxluo.resource.music.ui.dialog
 
 import androidx.lifecycle.MutableLiveData
 import com.foxluo.baselib.ui.BaseBottomSheetDialogFragment
-import com.foxluo.resource.music.data.bean.MusicData
+import com.foxluo.resource.music.data.database.MusicEntity
 import com.foxluo.resource.music.databinding.DialogPlayingListBinding
 import com.foxluo.resource.music.player.PlayerManager
 import com.foxluo.resource.music.ui.adapter.PlayingListAdapter
 
 class PlayListDialog : BaseBottomSheetDialogFragment<DialogPlayingListBinding>() {
     private val currentMusic by lazy {
-        MutableLiveData<MusicData>(playManager.currentPlayingMusic)
+        MutableLiveData<MusicEntity>(playManager.currentPlayingMusic)
     }
 
     private val adapter by lazy {
@@ -22,7 +22,7 @@ class PlayListDialog : BaseBottomSheetDialogFragment<DialogPlayingListBinding>()
 
     var clearBlock:(()-> Unit) ?= null
 
-    var removeBlock:((MusicData)-> Unit) ?= null
+    var removeBlock:((MusicEntity)-> Unit) ?= null
 
     private val onClickItem: (Boolean, Int) -> Unit = { isDelete: Boolean, position: Int ->
         if (isDelete) {

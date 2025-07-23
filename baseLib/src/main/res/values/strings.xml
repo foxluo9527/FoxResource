@@ -17,6 +17,9 @@
     <string name="singer">歌手</string>
     <string name="playlist">歌单</string>
     <string name="song">歌曲</string>
+    <string name="message">消息</string>
+    <string name="friends">好友</string>
+    <string name="search">搜索</string>
     <string name="self_description">介绍一下自己吧</string>
     <string name="click_login">点击登录</string>
     <string name="login_sync_info">登录同步个人信息</string>
@@ -31,4 +34,21 @@
     <string name="cancel">取消</string>
     <string name="personal_info">个人资料</string>
     <string name="sure">确认</string>
+
+    <!--chat-->
+    <string name="to_login">去登录</string>
+    <string name="add_friend">添加好友</string>
+    <string name="search_friend_hint">搜索用户名/昵称</string>
+    <string name="cannot_find_user">未找到用户</string>
+    <string name="request_add">申请添加好友</string>
+    <string name="hello_word">打个招呼吧</string>
+    <string name="set_mark">设置备注</string>
+    <string name="send_request">发送申请</string>
+    <string name="friend_request">好友申请</string>
+    <string name="mark">备注名</string>
+    <string name="community">社区</string>
+    <string name="community_active">动态</string>
+    <string name="send_message">发消息</string>
+    <string name="voice_video_call">音视频通话</string>
+    <string name="delete">删除</string>
 </resources>

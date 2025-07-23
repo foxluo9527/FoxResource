@@ -5,13 +5,13 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.foxluo.baselib.R
-import com.foxluo.resource.music.data.bean.MusicData
+import com.foxluo.resource.music.data.database.MusicEntity
 import com.foxluo.resource.music.databinding.ItemPlayingMusicListBinding
 
 class PlayingListAdapter(private val onItemClick: (Boolean, Int) -> Unit) :
     RecyclerView.Adapter<PlayingListAdapter.PlayingListViewHolder>() {
 
-    private val musicList = mutableListOf<MusicData>()
+    private val musicList = mutableListOf<MusicEntity>()
 
     var currentIndex: Int? = null
         set(value) {
@@ -24,7 +24,7 @@ class PlayingListAdapter(private val onItemClick: (Boolean, Int) -> Unit) :
     fun getPlayList() = musicList
 
     @SuppressLint("NotifyDataSetChanged")
-    fun setDataList(list: List<MusicData>) {
+    fun setDataList(list: List<MusicEntity>) {
         musicList.clear()
         musicList.addAll(list)
         notifyDataSetChanged()
@@ -32,7 +32,7 @@ class PlayingListAdapter(private val onItemClick: (Boolean, Int) -> Unit) :
 
     inner class PlayingListViewHolder(val binding: ItemPlayingMusicListBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        fun initData(position: Int, data: MusicData) {
+        fun initData(position: Int, data: MusicEntity) {
             binding.title.text = data.title
             binding.singer.text = data.artist?.name
             binding.root.setBackgroundResource(if (currentIndex == position) R.color.F7F7F7 else R.color.white)

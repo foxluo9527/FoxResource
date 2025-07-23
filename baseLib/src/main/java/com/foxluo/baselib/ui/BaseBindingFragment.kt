@@ -1,9 +1,11 @@
 package com.foxluo.baselib.ui
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
@@ -23,7 +25,11 @@ abstract class BaseBindingFragment<Binding : ViewBinding> : Fragment() {
     }
 
     private val loadingDialog by lazy {
-        WidgetUtils.getLoadingDialog(requireContext()).setLoadingIcon(R.mipmap.ic_app_round)
+        AlertDialog
+            .Builder(context)
+            .setView(R.layout.dialog_loading)
+            .setCancelable(false)
+            .create()
     }
 
     override fun onCreateView(
@@ -36,7 +42,8 @@ abstract class BaseBindingFragment<Binding : ViewBinding> : Fragment() {
 
     fun setLoading(loading: Boolean) {
         if (loading) {
-            loadingDialog.performShow()
+            loadingDialog.show()
+            loadingDialog.window?.setBackgroundDrawable(null)
         } else {
             loadingDialog.dismiss()
         }

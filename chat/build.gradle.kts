@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     kotlin("kapt")
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -42,6 +43,8 @@ kapt {
     }
 }
 dependencies {
+    implementation(libs.androidx.room.runtime)
+    ksp(libs.androidx.room.compiler)
     implementation(libs.arouter.api)
     kapt(libs.arouter.compiler)
     implementation(project(":baseLib"))

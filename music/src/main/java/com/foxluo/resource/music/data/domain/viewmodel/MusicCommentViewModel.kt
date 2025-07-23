@@ -2,22 +2,19 @@ package com.foxluo.resource.music.data.domain.viewmodel
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import androidx.room.Room
-import com.blankj.utilcode.util.Utils
 import com.foxluo.baselib.data.result.ListData
 import com.foxluo.baselib.data.result.RequestResult
 import com.foxluo.baselib.domain.viewmodel.BaseViewModel
 import com.foxluo.baselib.ui.adapter.CommentAdapter
-import com.foxluo.resource.music.data.db.AppDatabase
+import com.foxluo.resource.music.data.domain.MusicModuleInitializer
 import com.foxluo.resource.music.data.repo.MusicRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class MusicCommentViewModel : BaseViewModel() {
-    val db = Room.databaseBuilder(
-        Utils.getApp(),
-        AppDatabase::class.java, "fox_resource_db"
-    ).build()
+    private val db by lazy{
+        MusicModuleInitializer.musicDb
+    }
 
     private val repo by lazy {
         MusicRepository(db.musicDao(),db.artistDao())

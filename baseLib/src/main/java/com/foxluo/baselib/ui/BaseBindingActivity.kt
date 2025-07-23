@@ -1,8 +1,12 @@
 package com.foxluo.baselib.ui
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.View
+import android.view.WindowInsets
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -23,12 +27,17 @@ abstract class BaseBindingActivity<Binding : ViewBinding> : AppCompatActivity() 
     }
 
     private val loadingDialog by lazy {
-        WidgetUtils.getLoadingDialog(this).setLoadingIcon(R.mipmap.ic_app_round)
+        AlertDialog
+            .Builder(this)
+            .setView(R.layout.dialog_loading)
+            .setCancelable(false)
+            .create()
     }
 
     fun setLoading(loading: Boolean) {
         if (loading) {
-            loadingDialog.performShow()
+            loadingDialog.show()
+            loadingDialog.window?.setBackgroundDrawable(null)
         } else {
             loadingDialog.dismiss()
         }
@@ -72,4 +81,13 @@ abstract class BaseBindingActivity<Binding : ViewBinding> : AppCompatActivity() 
     }
 
     abstract fun initBinding(): Binding
+
+    fun onBackPressed(isEnabled: Boolean, callback: () -> Unit) {
+        onBackPressedDispatcher.addCallback(this,
+            object : OnBackPressedCallback(isEnabled) {
+                override fun handleOnBackPressed() {
+                    callback()
+                }
+            })
+    }
 }

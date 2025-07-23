@@ -9,29 +9,21 @@ import android.view.animation.LinearInterpolator
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import androidx.room.Room
-import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
-import com.blankj.utilcode.util.Utils
 import com.foxluo.baselib.R
 import com.foxluo.baselib.domain.viewmodel.getAppViewModel
 import com.foxluo.baselib.ui.BaseBindingActivity
-import com.foxluo.baselib.util.BitmapUtil
 import com.foxluo.baselib.util.BitmapUtil.ColorFilterCallback
 import com.foxluo.baselib.util.Constant
 import com.foxluo.baselib.util.ViewExt.visible
-import com.foxluo.resource.music.data.bean.MusicData
-import com.foxluo.resource.music.data.db.AppDatabase
+import com.foxluo.resource.music.data.domain.MusicModuleInitializer
 import com.foxluo.resource.music.data.domain.viewmodel.MainMusicViewModel
 import com.foxluo.resource.music.databinding.ActivityPlayBinding
 import com.foxluo.resource.music.player.PlayerManager
 import com.foxluo.resource.music.player.domain.PlayingInfoManager.RepeatMode
 import com.foxluo.resource.music.ui.adapter.PlayMusicAdapter
 import com.foxluo.resource.music.ui.dialog.PlayListDialog
-import com.foxluo.resource.music.ui.fragment.DetailLyricsFragment
-import com.foxluo.resource.music.ui.fragment.DetailSongFragment
 import com.foxluo.resource.music.ui.fragment.PlayFragment
-import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -46,11 +38,8 @@ class PlayActivity : BaseBindingActivity<ActivityPlayBinding>(), ColorFilterCall
         }
     }
 
-    private val db by lazy {
-        Room.databaseBuilder(
-            Utils.getApp(),
-            AppDatabase::class.java, "fox_resource_db"
-        ).build()
+    private val db by lazy{
+        MusicModuleInitializer.musicDb
     }
 
     private val adapter by lazy {
@@ -197,7 +186,7 @@ class PlayActivity : BaseBindingActivity<ActivityPlayBinding>(), ColorFilterCall
                 binding.totalTime.text = it.allTime
                 mCurrentMusicFragment?.let { fragment ->
                     fragment.updatePlayState(it)
-                    if (it.musicId != fragment.currentMusicData?.musicId) {
+                    if (it.musicId != fragment.currentMusicEntity?.musicId) {
                         val newMusicIndex = adapter.getFragmentPositionByMusicId(it.musicId)
                         val smoothScroll =
                             abs(newMusicIndex - adapter.getFragmentIndex(fragment)) <= 1
