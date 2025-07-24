@@ -5,6 +5,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
 import androidx.viewpager2.widget.ViewPager2
+import com.foxluo.baselib.util.TimeUtil.nowTime
 import kotlin.math.abs
 
 object ViewExt {
@@ -35,9 +36,9 @@ object ViewExt {
      */
     fun View.fastClick(clickDelay: Long = 1000L, callback: (View) -> Unit) {
         setOnClickListener {
-            val currentTime = System.currentTimeMillis()
+            val currentTime = nowTime
             ((getTag(id) as? Long)?.let {
-                if (it + clickDelay < System.currentTimeMillis()) {
+                if (it + clickDelay < nowTime) {
                     callback.invoke(this)
                     currentTime
                 } else {

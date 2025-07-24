@@ -40,13 +40,13 @@ interface MessageDao {
         """
         SELECT * 
         FROM messages 
-        WHERE (receiver_id = :userId AND sender_id = :friendId ) 
-        OR (receiver_id = :friendId AND sender_id = :userId)
+        WHERE (receiver_id = :senderId AND sender_id = :receiverId ) 
+        OR (receiver_id = :receiverId AND sender_id = :senderId)
         ORDER BY send_time DESC
         LIMIT 1
     """
     )
-    suspend fun getLastMessage(userId: Int, friendId: Int): MessageEntity
+    suspend fun getLastMessage(senderId: Int, receiverId: Int): MessageEntity
 
     // 插入消息（自动处理冲突）
     @Insert(onConflict = OnConflictStrategy.REPLACE)

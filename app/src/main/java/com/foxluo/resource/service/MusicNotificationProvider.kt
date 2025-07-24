@@ -25,6 +25,7 @@ import androidx.media3.session.MediaStyleNotificationHelper
 import androidx.media3.session.R
 import androidx.media3.session.SessionCommand
 import com.blankj.utilcode.util.LogUtils
+import com.foxluo.baselib.util.TimeUtil.nowTime
 import com.google.common.collect.ImmutableList
 import com.google.common.util.concurrent.FutureCallback
 import com.google.common.util.concurrent.Futures
@@ -339,7 +340,7 @@ class MusicNotificationProvider(private val context: Context) : MediaNotificatio
             && !player.isCurrentMediaItemDynamic
             && player.playbackParameters.speed == 1f
         ) {
-            return System.currentTimeMillis() - player.contentPosition
+            return nowTime - player.contentPosition
         } else {
             return C.TIME_UNSET
         }

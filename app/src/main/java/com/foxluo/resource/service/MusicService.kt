@@ -11,16 +11,15 @@ import android.os.Bundle
 import androidx.annotation.OptIn
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
-import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.session.CommandButton
 import androidx.media3.session.DefaultMediaNotificationProvider
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import com.blankj.utilcode.util.LogUtils
 import com.danikula.videocache.HttpProxyCacheServer
 import com.foxluo.baselib.R
+import com.foxluo.baselib.util.TimeUtil.nowTime
 import com.foxluo.resource.activity.MainActivity
 import com.foxluo.resource.music.player.PlayerManager
 import com.foxluo.resource.music.player.contract.ICacheProxy
@@ -129,7 +128,7 @@ class MusicService : MediaSessionService(), ICacheProxy {
             ActivityOptions.makeCustomAnimation(this, R.anim.activity_open, 0)
         return PendingIntent.getActivities(
             this,
-            System.currentTimeMillis().toInt(),
+            (nowTime / 1000L).toInt(),
             arrayOf(Intent(this, MainActivity::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }, Intent(this, PlayActivity::class.java).apply {

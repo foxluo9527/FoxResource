@@ -20,6 +20,7 @@ material = "1.10.0"
 appcompatVersion = "1.7.1"
 constraintlayoutVersion = "2.2.1"
 media3Exoplayer = "1.7.1"
+mobileFfmpegFull = "4.4.LTS"
 pagingRuntimeKtx = "3.3.6"
 paletteKtx = "1.0.0"
 pandora = "v2.0.0"
@@ -74,6 +75,7 @@ lyricviewx = { module = "com.github.Moriafly:LyricViewX", version.ref = "lyricvi
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompatVersion" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayoutVersion" }
+mobile-ffmpeg-full = { module = "com.arthenica:mobile-ffmpeg-full-gpl", version.ref = "mobileFfmpegFull" }
 pandora = { module = "com.github.whataa:pandora", version.ref = "pandora" }
 pinyin4j = { module = "com.belerweb:pinyin4j", version.ref = "pinyin4j" }
 refresh-header-classics = { module = "io.github.scwang90:refresh-header-classics", version.ref = "refreshHeaderClassics" }

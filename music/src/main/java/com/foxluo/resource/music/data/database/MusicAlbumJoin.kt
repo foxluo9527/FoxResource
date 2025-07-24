@@ -3,6 +3,7 @@ package com.foxluo.resource.music.data.database
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import com.foxluo.baselib.util.TimeUtil.nowTime
 
 @Entity(
     tableName = "music_album_join",
@@ -30,7 +31,7 @@ data class MusicAlbumJoin(
     val albumId: String,
 
     @ColumnInfo(name = "add_time")
-    val addTime: Long = System.currentTimeMillis(),
+    val addTime: Long = nowTime,
 
     /**
      * 插入数据库时位于列表的位置

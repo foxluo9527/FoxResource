@@ -12,6 +12,9 @@ class LogInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         // 拿到请求参数
         val request = chain.request()
+        if (request.url().toString().contains("/api/upload")){
+            return chain.proceed(request)
+        }
         // 拿到请求 body
         val body = request.body()
         var bodyString = ""

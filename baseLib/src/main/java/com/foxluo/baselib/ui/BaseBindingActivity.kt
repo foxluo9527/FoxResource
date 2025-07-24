@@ -14,6 +14,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.viewbinding.ViewBinding
 import com.blankj.utilcode.util.BarUtils
 import com.foxluo.baselib.R
+import com.foxluo.baselib.databinding.DialogLoadingBinding
 import com.xuexiang.xui.utils.WidgetUtils
 import com.xuexiang.xui.widget.dialog.LoadingDialog
 
@@ -26,17 +27,22 @@ abstract class BaseBindingActivity<Binding : ViewBinding> : AppCompatActivity() 
         initBinding()
     }
 
+    val loadingBinding by lazy {
+        DialogLoadingBinding.inflate(layoutInflater)
+    }
+
     private val loadingDialog by lazy {
         AlertDialog
             .Builder(this)
-            .setView(R.layout.dialog_loading)
+            .setView(loadingBinding.root)
             .setCancelable(false)
             .create()
     }
 
-    fun setLoading(loading: Boolean) {
+    fun setLoading(loading: Boolean,text: String="加载中") {
         if (loading) {
             loadingDialog.show()
+            loadingBinding.content.text = text
             loadingDialog.window?.setBackgroundDrawable(null)
         } else {
             loadingDialog.dismiss()

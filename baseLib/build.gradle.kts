@@ -41,6 +41,7 @@ kapt {
     }
 }
 dependencies {
+    implementation(libs.mobile.ffmpeg.full)
     api(libs.androidx.work.runtime.ktx)
     api(libs.androidx.media3.session)
     api(libs.androidx.media3.exoplayer)

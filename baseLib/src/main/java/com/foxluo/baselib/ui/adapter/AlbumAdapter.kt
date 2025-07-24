@@ -7,6 +7,7 @@ import com.foxluo.baselib.databinding.AlbumImageItemBinding
 import com.foxluo.baselib.databinding.ItemAlbumTitleBinding
 import com.foxluo.baselib.ui.adapter.AlbumAdapter.Item
 import com.foxluo.baselib.util.ImageExt.loadUri
+import com.foxluo.baselib.util.TimeUtil.nowTime
 import com.foxluo.baselib.util.ViewExt.visible
 import com.xuexiang.xui.adapter.recyclerview.BaseRecyclerAdapter
 import com.xuexiang.xui.adapter.recyclerview.RecyclerViewHolder
@@ -22,7 +23,8 @@ class AlbumAdapter() : BaseRecyclerAdapter<Item>() {
         @Transient
         var croppedUri: Uri? = null,
         val isVideo: Boolean = false,
-        var isCropped: Boolean = false
+        var isCropped: Boolean = false,
+        var isCompressed: Boolean = false
     ) : Item(), Serializable
 
     data class Title(val time: String) : Item()
@@ -31,7 +33,7 @@ class AlbumAdapter() : BaseRecyclerAdapter<Item>() {
         set(value) {
             field = value
             val map = value.groupBy {
-                val timeGap = System.currentTimeMillis() - it.date
+                val timeGap = nowTime - it.date
                 val oneDay = 86400000
                 if (timeGap <= oneDay * 3)
                     "最近"

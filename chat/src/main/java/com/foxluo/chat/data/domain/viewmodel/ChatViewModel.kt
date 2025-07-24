@@ -105,7 +105,8 @@ class ChatViewModel : BaseUploadViewModel() {
         block: (LiveData<WorkInfo?>) -> Unit
     ) {
         viewModelScope.launch {
-            val filePath = image.uri.getFilePath(image.isCropped) ?: return@launch
+            val filePath =
+                image.uri.getFilePath(image.isCropped || image.isCompressed) ?: return@launch
             isLoading.postValue(true)
             val localMessage = repo.createTempFileMessage(
                 friend,
@@ -120,11 +121,13 @@ class ChatViewModel : BaseUploadViewModel() {
         }
     }
 
-    private suspend fun enqueueSend(localMessage: MessageEntity): OneTimeWorkRequest {
+    private fun enqueueSend(localMessage: MessageEntity): OneTimeWorkRequest {
+        val id = UUID.randomUUID()
         return OneTimeWorkRequestBuilder<MessageUploadWorker>().apply {
             setInputData(
                 workDataOf(
-                    "message_data" to Gson().toJson(localMessage)
+                    "message_data" to Gson().toJson(localMessage),
+                    "id" to id.toString()
                 )
             )
             setConstraints(
@@ -132,31 +135,30 @@ class ChatViewModel : BaseUploadViewModel() {
                     .setRequiredNetworkType(NetworkType.CONNECTED)
                     .build()
             )
-        }.build().apply {
+        }.setId(id).build().apply {
             workManager.enqueue(this)
-            localMessage.let {
-                it.taskUuid = this.id.toString()
-                repo.insertMessages(listOf(it))
-            }
         }
     }
 
     fun deleteMessage(localMessage: MessageEntity) {
         viewModelScope.launch {
             isLoading.postValue(true)
-            if (localMessage.sendStatus == -1 && localMessage.taskUuid.isNotEmpty()) {
+            if (localMessage.sendStatus == -1) {
                 workManager.cancelWorkById(
                     UUID.fromString(
                         localMessage.taskUuid
                     )
                 )
-            } else {
+            } else if (localMessage.sendStatus == 1) {
                 val result = repo.deleteMessage(localMessage.id)
                 if (result is RequestResult.Error) {
                     toast.postValue(false to "删除消息失败:${result.message}")
                 }
             }
             messageDao.deleteMessage(localMessage)
+            val lastMessage =
+                messageDao.getLastMessage(localMessage.sender_id, localMessage.receiver_id)
+            repo.updateMessageChat(lastMessage)
             isLoading.postValue(false)
         }
     }
@@ -165,7 +167,15 @@ class ChatViewModel : BaseUploadViewModel() {
         viewModelScope.launch {
             isLoading.postValue(true)
             // 启动任务
+            if (localMessage.sendStatus == -1 && localMessage.taskUuid.isNotEmpty()) {
+                workManager.cancelWorkById(
+                    UUID.fromString(
+                        localMessage.taskUuid
+                    )
+                )
+            }
             val uploadWork = enqueueSend(localMessage)
+            uploadWork.id
             block.invoke(workManager.getWorkInfoByIdLiveData(uploadWork.id))
             isLoading.postValue(false)
         }

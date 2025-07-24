@@ -50,24 +50,59 @@
         android:background="@color/black"
         android:visibility="gone"
         tools:visibility="visible">
-        <TextView
-            android:id="@+id/crop"
-            android:layout_width="wrap_content"
-            android:layout_height="30dp"
-            android:textColor="@color/white"
-            android:text="裁剪"
-            android:background="@drawable/shape_black_trans_30_r8"
-            android:elevation="1dp"
-            android:layout_margin="10dp"
-            android:gravity="center"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            android:paddingHorizontal="15dp"/>
+
+        <LinearLayout
+            android:id="@+id/image_action"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="15dp"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <com.xuexiang.xui.widget.button.SmoothCheckBox
+                android:id="@+id/keep_selected"
+                android:layout_width="16dp"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                app:scb_color_checked="@color/color_ED6C40" />
+
+            <TextView
+                android:id="@+id/keep"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:elevation="1dp"
+                android:gravity="center"
+                android:paddingStart="7dp"
+                android:paddingEnd="15dp"
+                android:text="原图"
+                android:textColor="@color/white"
+                android:textSize="16sp" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/crop"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:elevation="1dp"
+                android:gravity="center"
+                android:paddingHorizontal="15dp"
+                android:text="裁剪"
+                android:textColor="@color/white"
+                android:textSize="16sp" />
+
+        </LinearLayout>
+
         <com.xuexiang.xui.widget.imageview.preview.view.SmoothImageView
             android:id="@+id/preview"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toTopOf="@id/image_action"
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -79,12 +114,43 @@
         android:background="@color/black"
         android:visibility="gone">
 
+        <LinearLayout
+            android:id="@+id/video_action"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="15dp"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <com.xuexiang.xui.widget.button.SmoothCheckBox
+                android:id="@+id/video_keep_selected"
+                android:layout_width="16dp"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                app:scb_color_checked="@color/color_ED6C40" />
+
+            <TextView
+                android:id="@+id/video_keep"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:elevation="1dp"
+                android:gravity="center"
+                android:paddingStart="7dp"
+                android:paddingEnd="15dp"
+                android:text="压缩视频"
+                android:textColor="@color/white"
+                android:textSize="16sp" />
+
+
+        </LinearLayout>
         <androidx.media3.ui.PlayerView
             android:id="@+id/play_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/video_action"
             app:resize_mode="fixed_width"
             app:show_buffering="always"
             app:use_controller="false" />

@@ -5,15 +5,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
 import com.blankj.utilcode.util.BarUtils
-import com.foxluo.baselib.R
-import com.xuexiang.xui.utils.WidgetUtils
-import com.xuexiang.xui.widget.dialog.LoadingDialog
+import com.foxluo.baselib.databinding.DialogLoadingBinding
 
 abstract class BaseBindingFragment<Binding : ViewBinding> : Fragment() {
     val binding by lazy {
@@ -23,11 +20,14 @@ abstract class BaseBindingFragment<Binding : ViewBinding> : Fragment() {
     val statusBarHeight by lazy {
         BarUtils.getStatusBarHeight()
     }
+    val loadingBinding by lazy {
+        DialogLoadingBinding.inflate(layoutInflater)
+    }
 
     private val loadingDialog by lazy {
         AlertDialog
             .Builder(context)
-            .setView(R.layout.dialog_loading)
+            .setView(loadingBinding.root)
             .setCancelable(false)
             .create()
     }
@@ -40,9 +40,10 @@ abstract class BaseBindingFragment<Binding : ViewBinding> : Fragment() {
         return binding.root
     }
 
-    fun setLoading(loading: Boolean) {
+    fun setLoading(loading: Boolean, text: String = "加载中") {
         if (loading) {
             loadingDialog.show()
+            loadingBinding.content.text = text
             loadingDialog.window?.setBackgroundDrawable(null)
         } else {
             loadingDialog.dismiss()

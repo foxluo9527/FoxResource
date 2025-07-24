@@ -6,6 +6,7 @@ import com.foxluo.baselib.data.result.BaseResponse.Companion.toRequestResult
 import com.foxluo.baselib.data.result.RequestResult
 import com.foxluo.baselib.util.StringUtil.formatServerTimeS
 import com.foxluo.baselib.util.StringUtil.toServerTime
+import com.foxluo.baselib.util.TimeUtil.nowTime
 import com.foxluo.chat.data.api.MessageApi
 import com.foxluo.chat.data.database.ChatDao
 import com.foxluo.chat.data.database.ChatEntity
@@ -15,6 +16,7 @@ import com.foxluo.chat.data.database.MessageEntity
 import com.foxluo.chat.data.result.FriendResult
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.sequences.ifEmpty
 
 class ChatRepository(
     private val messageDao: MessageDao,
@@ -34,8 +36,8 @@ class ChatRepository(
                 receiver_id = friend.id,
                 type = "text",
                 content = content,
-                sent_at = System.currentTimeMillis().toServerTime(),
-                send_time = System.currentTimeMillis(),
+                sent_at = nowTime.toServerTime(),
+                send_time = nowTime,
                 sender_nickname = sender.nickname,
                 sender_avatar = sender.avatar,
                 sendStatus = -1
@@ -94,8 +96,8 @@ class ChatRepository(
             type = "voice",
             voice_url = voiceUrl,
             voice_duration = voiceDuration,
-            sent_at = System.currentTimeMillis().toServerTime(),
-            send_time = System.currentTimeMillis(),
+            sent_at = nowTime.toServerTime(),
+            send_time = nowTime,
             sender_nickname = sender.nickname,
             sender_avatar = sender.avatar,
             sendStatus = -1
@@ -148,8 +150,8 @@ class ChatRepository(
             type = "file",
             file_path = filePath,
             file_type = fileType,
-            sent_at = System.currentTimeMillis().toServerTime(),
-            send_time = System.currentTimeMillis(),
+            sent_at = nowTime.toServerTime(),
+            send_time = nowTime,
             sender_nickname = sender.nickname,
             sender_avatar = sender.avatar,
             sendStatus = -1
@@ -266,6 +268,10 @@ class ChatRepository(
         messageDao.insertMessages(messages)
         val message =
             messageDao.getLastMessage(messages.first().sender_id, messages.first().receiver_id)
+        updateMessageChat(message)
+    }
+
+    suspend fun updateMessageChat(message: MessageEntity){
         val myId = AuthManager.authInfo?.user?.id?.toInt() ?: return
         val isISend = myId == message.sender_id
         val friend =

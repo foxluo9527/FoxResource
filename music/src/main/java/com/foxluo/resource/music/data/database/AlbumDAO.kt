@@ -10,6 +10,7 @@ import androidx.room.Relation
 import androidx.room.Transaction
 import androidx.room.Update
 import com.blankj.utilcode.util.LogUtils
+import com.foxluo.baselib.util.TimeUtil.nowTime
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -68,7 +69,7 @@ interface AlbumDAO {
                 MusicAlbumJoin(
                     musicId = musicId,
                     albumId = albumId,
-                    addTime = System.currentTimeMillis(),
+                    addTime = nowTime,
                     sort = index
                 )
             }
@@ -80,7 +81,7 @@ interface AlbumDAO {
     suspend fun clearMusicsInAlbum(albumId: String) {
         LogUtils.d(
             "DB_DEBUG",
-            "[${System.currentTimeMillis()}] 清空专辑关联: albumId=$albumId 调用栈: ${Thread.currentThread().stackTrace.joinToString { it.methodName }}"
+            "[${nowTime}] 清空专辑关联: albumId=$albumId 调用栈: ${Thread.currentThread().stackTrace.joinToString { it.methodName }}"
         )
         // 实际删除操作
         _clearMusicsInAlbum(albumId)
@@ -93,7 +94,7 @@ interface AlbumDAO {
     suspend fun insertMusicAlbumJoins(joins: List<MusicAlbumJoin>) {
         LogUtils.d(
             "DB_DEBUG",
-            "[${System.currentTimeMillis()}] 插入关联关系: ${joins.joinToString { "{album=${it.albumId}, music=${it.musicId}, sort=${it.sort}}" }}"
+            "[${nowTime}] 插入关联关系: ${joins.joinToString { "{album=${it.albumId}, music=${it.musicId}, sort=${it.sort}}" }}"
         )
         _insertMusicAlbumJoins(joins)
     }

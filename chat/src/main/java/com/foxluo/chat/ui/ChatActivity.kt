@@ -1,8 +1,11 @@
 package com.foxluo.chat.ui
 
+import android.net.Uri
 import android.view.View
 import android.view.ViewGroup.MarginLayoutParams
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.contract.ActivityResultContracts.CaptureVideo
+import androidx.activity.result.contract.ActivityResultContracts.TakePicture
 import androidx.activity.viewModels
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.LiveData
@@ -15,10 +18,14 @@ import com.foxluo.baselib.ui.BaseBindingActivity
 import com.foxluo.baselib.ui.ImageViewInfo
 import com.foxluo.baselib.ui.adapter.AlbumAdapter
 import com.foxluo.baselib.ui.contract.CommonResultContract.resultDataContract
+import com.foxluo.baselib.util.CropImageContract
+import com.foxluo.baselib.util.CropImageResult
 import com.foxluo.baselib.util.KeyboardHeightObserver
 import com.foxluo.baselib.util.KeyboardHeightProvider
+import com.foxluo.baselib.util.TimeUtil.nowTime
 import com.foxluo.baselib.util.ViewExt.gone
 import com.foxluo.baselib.util.ViewExt.visible
+import com.foxluo.baselib.util.getOutPutUri
 import com.foxluo.chat.R
 import com.foxluo.chat.data.database.MessageEntity
 import com.foxluo.chat.data.domain.viewmodel.ChatViewModel
@@ -32,6 +39,7 @@ import com.xuexiang.xui.widget.imageview.preview.PreviewBuilder
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlin.math.abs
+
 
 class ChatActivity : BaseBindingActivity<ActivityChatBinding>(), KeyboardHeightObserver {
     private val friendData by lazy {
@@ -48,8 +56,14 @@ class ChatActivity : BaseBindingActivity<ActivityChatBinding>(), KeyboardHeightO
                 viewModel.retrySendMessage(it, processSendWorkResult)
             }, showImage = showImage, playVoice = {
 
+            }, openFile = {
+
             })
     }
+
+    private var currentTakePictureUri: Uri? = null
+
+    private var currentTakeVideoUri: Uri? = null
 
     private val showImage by lazy {
         { adapter: MessageListAdapter, message: MessageEntity, itemView: View ->
@@ -77,9 +91,52 @@ class ChatActivity : BaseBindingActivity<ActivityChatBinding>(), KeyboardHeightO
             }
         }) {
             it ?: return@registerForActivityResult
+            it.uri ?: return@registerForActivityResult
             viewModel.sendImageMessage(friendData!!, it, processSendWorkResult)
         }
 
+    private val takePicture = registerForActivityResult(TakePicture()) { result ->
+        if (result) {
+            currentTakePictureUri?.let { cropImageContract.launch(CropImageResult(it, 0f, 0f)) }
+        }
+    }
+
+    private val takeVideo = registerForActivityResult(CaptureVideo()) { result ->
+        if (result) {
+            currentTakeVideoUri?.let { uri ->
+                val image =
+                    AlbumAdapter.Image(uri, nowTime, isVideo = true)
+                lifecycleScope.launch {
+                    val processedImage = AlbumSelectorActivity.getProcessedImage(
+                        this@ChatActivity,
+                        image,
+                        false
+                    ) { show, text ->
+                        setLoading(show, text)
+                    }
+                    viewModel.sendImageMessage(friendData!!, processedImage, processSendWorkResult)
+                }
+            }
+        }
+    }
+
+    private val cropImageContract = registerForActivityResult(CropImageContract()) { croppedUri ->
+        croppedUri ?: return@registerForActivityResult
+        val originUri = currentTakePictureUri ?: return@registerForActivityResult
+        val image =
+            AlbumAdapter.Image(originUri, nowTime, croppedUri, isCropped = true)
+        lifecycleScope.launch {
+            val processedImage =
+                AlbumSelectorActivity.getProcessedImage(
+                    this@ChatActivity,
+                    image,
+                    false
+                ) { show, text ->
+                    setLoading(show, text)
+                }
+            viewModel.sendImageMessage(friendData!!, processedImage, processSendWorkResult)
+        }
+    }
 
     //虚拟导航栏的高度, 默认为0
     private var mVirtualBottomHeight = 0
@@ -167,6 +224,9 @@ class ChatActivity : BaseBindingActivity<ActivityChatBinding>(), KeyboardHeightO
         binding.actionSendImage.setOnClickListener {
             pickImageLauncher.launch(Unit)
         }
+        binding.actionTakePhoto.setOnClickListener {
+            showTakePhotoOrVideo()
+        }
     }
 
     override fun initObserver() {
@@ -215,11 +275,26 @@ class ChatActivity : BaseBindingActivity<ActivityChatBinding>(), KeyboardHeightO
                 workInfo.outputData.getString("message")?.let {
                     XToastUtils.error(it)
                 }
-            }
-            if (workInfo?.state?.isFinished == true) {
+            } else if (workInfo?.state == WorkInfo.State.ENQUEUED) {
                 scrollToBottom()
                 liveData.removeObservers(this)
             }
         }
+    }
+
+    private fun showTakePhotoOrVideo() {
+        ChooseTakePhotoDialog(takePicture = {
+            takePicture.launch(
+                getOutPutUri(
+                    prefix = "IMG_",
+                    suffix = ".jpg"
+                ).also { currentTakePictureUri = it })
+        }, takeVideo = {
+            takeVideo.launch(
+                getOutPutUri(
+                    prefix = "VIDEO_",
+                    suffix = ".mp4"
+                ).also { currentTakeVideoUri = it })
+        }).show(supportFragmentManager)
     }
 }

@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.blankj.utilcode.util.ClipboardUtils
 import com.blankj.utilcode.util.ConvertUtils.dp2px
 import com.foxluo.baselib.data.manager.AuthManager
-import com.foxluo.baselib.util.DialogUtil
 import com.foxluo.baselib.util.DialogUtil.showConfirmDialog
 import com.foxluo.baselib.util.ImageExt.loadUrl
 import com.foxluo.baselib.util.ImageExt.loadUrlWithCorner
@@ -22,7 +21,6 @@ import com.foxluo.chat.databinding.ItemMessageTextBinding
 import com.foxluo.chat.databinding.ItemMessageTextMineBinding
 import com.foxluo.chat.databinding.LayoutPopMessageMenuBinding
 import com.foxluo.chat.databinding.LayoutPopMessageMenuTextBinding
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.xuexiang.xui.utils.XToastUtils
 import com.xuexiang.xui.widget.popupwindow.easypopup.EasyPopup
 import com.xuexiang.xui.widget.popupwindow.easypopup.HorizontalGravity
@@ -33,7 +31,8 @@ class MessageListAdapter(
     private val retrySend: (message: MessageEntity) -> Unit,
     private val cancelSend: (message: MessageEntity) -> Unit,
     private val showImage: (adapter: MessageListAdapter, message: MessageEntity, itemView: View) -> Unit,
-    private val playVoice: (position: Int) -> Unit
+    private val playVoice: (position: Int) -> Unit,
+    private val openFile: (message: MessageEntity) -> Unit
 ) : PagingDataAdapter<MessageEntity, RecyclerView.ViewHolder>(MESSAGE_COMPARATOR) {
     companion object {
         private val MESSAGE_COMPARATOR = object : DiffUtil.ItemCallback<MessageEntity>() {
