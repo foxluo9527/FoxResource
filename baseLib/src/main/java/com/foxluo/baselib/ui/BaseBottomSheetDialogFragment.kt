@@ -1,5 +1,6 @@
 package com.foxluo.baselib.ui
 
+import android.app.AlertDialog
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
@@ -13,6 +14,8 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.viewbinding.ViewBinding
 import com.blankj.utilcode.util.BarUtils
+import com.foxluo.baselib.databinding.DialogLoadingBinding
+import com.foxluo.baselib.util.ViewExt.visible
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -27,9 +30,18 @@ abstract class BaseBottomSheetDialogFragment<Binding : ViewBinding> : BottomShee
         BarUtils.getStatusBarHeight()
     }
 
-    private val loadingDialog by lazy {
-        LoadingDialog(requireContext())
+    val loadingBinding by lazy {
+        DialogLoadingBinding.inflate(layoutInflater)
     }
+
+    private val loadingDialog by lazy {
+        AlertDialog
+            .Builder(requireContext())
+            .setView(loadingBinding.root)
+            .setCancelable(false)
+            .create()
+    }
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -39,9 +51,16 @@ abstract class BaseBottomSheetDialogFragment<Binding : ViewBinding> : BottomShee
         return binding.root
     }
 
-    fun setLoading(loading: Boolean) {
+    fun setLoading(loading: Boolean, text: String = "加载中", cancel: (() -> Unit)? = null) {
         if (loading) {
-            loadingDialog.performShow()
+            loadingDialog.show()
+            loadingBinding.content.text = text
+            loadingDialog.window?.setBackgroundDrawable(null)
+            loadingBinding.cancel.visible(cancel != null)
+            loadingBinding.cancel.setOnClickListener {
+                cancel?.invoke()
+                loadingDialog.dismiss()
+            }
         } else {
             loadingDialog.dismiss()
         }

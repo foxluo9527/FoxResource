@@ -36,15 +36,22 @@ class ChatFragment : BaseBindingFragment<FragmentChatBinding>() {
                 adapter.submitData(it)
             }
         }
+        lifecycleScope.launch {
+            AuthManager.userInfoStateFlow.collectLatest {
+                if (it != null) {
+                    viewModel.loadMessage()
+                }
+            }
+        }
     }
 
     override fun initData() {
-        viewModel.loadMessage { }
+        viewModel.loadMessage()
     }
 
     override fun initListener() {
         binding.refresh.setOnRefreshListener {
-            viewModel.loadMessage() {
+            viewModel.loadMessage {
                 binding.refresh.finishRefresh()
             }
         }

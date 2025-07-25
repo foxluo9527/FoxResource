@@ -51,7 +51,7 @@ class PersonalActivity : BaseBindingActivity<ActivityPersonalBinding>() {
 
     private val cropImageContract =
         registerForActivityResult(CropImageContract()) { uri ->
-            val path = runBlocking { uri?.getFilePath(true) }
+            val path = runBlocking { uri?.getFilePath() }
             path?.let { viewModel.uploadFile(it) }
         }
 

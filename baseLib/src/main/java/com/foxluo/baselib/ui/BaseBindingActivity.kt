@@ -3,9 +3,6 @@ package com.foxluo.baselib.ui
 import android.app.AlertDialog
 import android.os.Bundle
 import android.view.View
-import android.view.WindowInsets
-import android.view.WindowManager
-import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -13,10 +10,8 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.viewbinding.ViewBinding
 import com.blankj.utilcode.util.BarUtils
-import com.foxluo.baselib.R
 import com.foxluo.baselib.databinding.DialogLoadingBinding
-import com.xuexiang.xui.utils.WidgetUtils
-import com.xuexiang.xui.widget.dialog.LoadingDialog
+import com.foxluo.baselib.util.ViewExt.visible
 
 abstract class BaseBindingActivity<Binding : ViewBinding> : AppCompatActivity() {
     val statusBarHeight by lazy {
@@ -39,11 +34,16 @@ abstract class BaseBindingActivity<Binding : ViewBinding> : AppCompatActivity() 
             .create()
     }
 
-    fun setLoading(loading: Boolean,text: String="加载中") {
+    fun setLoading(loading: Boolean, text: String = "加载中", cancel: (() -> Unit)? = null) {
         if (loading) {
             loadingDialog.show()
             loadingBinding.content.text = text
             loadingDialog.window?.setBackgroundDrawable(null)
+            loadingBinding.cancel.visible(cancel != null)
+            loadingBinding.cancel.setOnClickListener {
+                cancel?.invoke()
+                loadingDialog.dismiss()
+            }
         } else {
             loadingDialog.dismiss()
         }

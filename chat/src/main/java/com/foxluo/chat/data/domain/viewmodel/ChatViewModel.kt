@@ -106,7 +106,7 @@ class ChatViewModel : BaseUploadViewModel() {
     ) {
         viewModelScope.launch {
             val filePath =
-                image.uri.getFilePath(image.isCropped || image.isCompressed) ?: return@launch
+                image.uri.getFilePath() ?: return@launch
             isLoading.postValue(true)
             val localMessage = repo.createTempFileMessage(
                 friend,
@@ -167,7 +167,7 @@ class ChatViewModel : BaseUploadViewModel() {
         viewModelScope.launch {
             isLoading.postValue(true)
             // 启动任务
-            if (localMessage.sendStatus == -1 && localMessage.taskUuid.isNotEmpty()) {
+            if (localMessage.sendStatus == -1 && localMessage.taskUuid?.isNotEmpty() == true) {
                 workManager.cancelWorkById(
                     UUID.fromString(
                         localMessage.taskUuid

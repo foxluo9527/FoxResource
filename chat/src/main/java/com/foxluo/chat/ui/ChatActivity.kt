@@ -111,8 +111,8 @@ class ChatActivity : BaseBindingActivity<ActivityChatBinding>(), KeyboardHeightO
                         this@ChatActivity,
                         image,
                         false
-                    ) { show, text ->
-                        setLoading(show, text)
+                    ) { show, text, cancel ->
+                        setLoading(show, text, cancel)
                     }
                     viewModel.sendImageMessage(friendData!!, processedImage, processSendWorkResult)
                 }
@@ -131,8 +131,8 @@ class ChatActivity : BaseBindingActivity<ActivityChatBinding>(), KeyboardHeightO
                     this@ChatActivity,
                     image,
                     false
-                ) { show, text ->
-                    setLoading(show, text)
+                ) { show, text, cancel ->
+                    setLoading(show, text, cancel)
                 }
             viewModel.sendImageMessage(friendData!!, processedImage, processSendWorkResult)
         }

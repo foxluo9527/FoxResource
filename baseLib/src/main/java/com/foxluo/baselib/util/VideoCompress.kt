@@ -66,7 +66,7 @@ object VideoCompress {
                             }
                         }
 
-                        returnCode == Config.RETURN_CODE_CANCEL -> listener?.onCancel()
+                        returnCode == Config.RETURN_CODE_CANCEL -> listener?.onCancel(Exception("因意外已取消压缩"))
                         else -> {
                             val error = when (returnCode) {
                                 1 -> "参数错误或编解码器问题"
@@ -181,6 +181,6 @@ object VideoCompress {
         fun onSuccess()
         fun onProgress(percent: Float) // 进度百分比 (0-100)
         fun onFailure(error: String)
-        fun onCancel()
+        fun onCancel(e: Exception)
     }
 }

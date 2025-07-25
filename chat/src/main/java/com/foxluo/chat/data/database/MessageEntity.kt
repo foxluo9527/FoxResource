@@ -95,7 +95,7 @@ data class MessageEntity(
     var sendStatus: Int = 0,
 
     @ColumnInfo(name = "task_uuid")
-    var taskUuid: String = ""
+    var taskUuid: String? = ""
 ) {
     fun getFileExistsPath(): String? {
         return if (file_path?.let { File(it).exists() } == true)

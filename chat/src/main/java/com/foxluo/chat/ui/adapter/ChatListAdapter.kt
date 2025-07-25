@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.blankj.utilcode.util.TimeUtils
 import com.foxluo.baselib.util.ImageExt.loadUrl
+import com.foxluo.baselib.util.TimeUtil.getChatTime
 import com.foxluo.baselib.util.ViewExt.visible
 import com.foxluo.chat.R
 import com.foxluo.chat.data.database.ChatEntity
@@ -33,7 +34,7 @@ class ChatListAdapter : PagingDataAdapter<ChatEntity, RecyclerView.ViewHolder>(C
         binding.head.loadUrl(data.chatAvatar)
         binding.name.text = data.chatName
         binding.content.text = data.lastMessagePreview
-        binding.time.text = TimeUtils.getFriendlyTimeSpanByNow(data.lastMessageAt ?: 0L)
+        binding.time.text = getChatTime(data.lastMessageAt ?: 0L)
         binding.root.setOnClickListener {
             itemClickListener?.invoke(data)
         }

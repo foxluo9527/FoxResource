@@ -33,7 +33,7 @@ class MessageViewModel : BaseViewModel() {
         MutableStateFlow<PagingData<ChatEntity>>(PagingData.empty())
     }
 
-    fun loadMessage(block: () -> Unit) {
+    fun loadMessage(block:( () -> Unit)?=null) {
         viewModelScope.launch {
             val userId = AuthManager.authInfo?.user?.id?.toInt()
             if (userId != null) {
@@ -41,7 +41,7 @@ class MessageViewModel : BaseViewModel() {
                 if (result is RequestResult.Error) {
                     toast.postValue(false to result.message)
                 }
-                block.invoke()
+                block?.invoke()
                 Pager(
                     config = PagingConfig(
                         pageSize = 20,
@@ -55,7 +55,7 @@ class MessageViewModel : BaseViewModel() {
                         chatPager.value = pagingData
                     }
             } else {
-                block.invoke()
+                block?.invoke()
             }
         }
     }

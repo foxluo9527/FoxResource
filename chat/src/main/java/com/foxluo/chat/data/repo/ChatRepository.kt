@@ -249,6 +249,7 @@ class ChatRepository(
             insertMessages(list.map {
                 it.apply {
                     send_time = sent_at.formatServerTimeS()
+                    taskUuid  = ""
                 }
             })
         }
@@ -274,16 +275,16 @@ class ChatRepository(
     suspend fun updateMessageChat(message: MessageEntity){
         val myId = AuthManager.authInfo?.user?.id?.toInt() ?: return
         val isISend = myId == message.sender_id
-        val friend =
+        val friend =//获取对方的好友信息，若是我发的，则通过接收者id获取，若我是接收方，则通过发送方id获取
             friendDao.getFriendById(if (isISend) message.receiver_id else message.sender_id)
                 ?: return
         // 更新会话
         chatDao.upsertChat(
             ChatEntity(
                 chatId = "${
-                    min(message.sender_id, message.receiver_id)
+                    if(isISend) message.sender_id else message.receiver_id
                 }_${
-                    max(message.sender_id, message.receiver_id)
+                    if(isISend) message.receiver_id else message.sender_id
                 }",
                 peerId = myId,
                 type = "single",

@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
 import com.blankj.utilcode.util.BarUtils
 import com.foxluo.baselib.databinding.DialogLoadingBinding
+import com.foxluo.baselib.util.ViewExt.visible
 
 abstract class BaseBindingFragment<Binding : ViewBinding> : Fragment() {
     val binding by lazy {
@@ -40,11 +41,16 @@ abstract class BaseBindingFragment<Binding : ViewBinding> : Fragment() {
         return binding.root
     }
 
-    fun setLoading(loading: Boolean, text: String = "加载中") {
+    fun setLoading(loading: Boolean, text: String = "加载中", cancel: (() -> Unit)? = null) {
         if (loading) {
             loadingDialog.show()
             loadingBinding.content.text = text
             loadingDialog.window?.setBackgroundDrawable(null)
+            loadingBinding.cancel.visible(cancel != null)
+            loadingBinding.cancel.setOnClickListener {
+                cancel?.invoke()
+                loadingDialog.dismiss()
+            }
         } else {
             loadingDialog.dismiss()
         }

@@ -39,6 +39,7 @@ import com.foxluo.baselib.util.ViewExt.gone
 import com.foxluo.baselib.util.ViewExt.visible
 import com.foxluo.baselib.util.getFilePath
 import com.xuexiang.xui.utils.XToastUtils.toast
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -50,7 +51,7 @@ class AlbumSelectorActivity : BaseBindingActivity<ActivityAlbumSelectorBinding>(
             activity: Activity,
             image: Image,
             keep: Boolean,
-            setLoading: (Boolean, String) -> Unit
+            setLoading: (Boolean, String, (() -> Unit)) -> Unit
         ): Image {
             val isCropped = image.croppedUri != null
             if (isCropped) runCatching {
@@ -58,7 +59,7 @@ class AlbumSelectorActivity : BaseBindingActivity<ActivityAlbumSelectorBinding>(
             }.exceptionOrNull()?.run {
                 throw Exception("获取裁剪内容失败")
             }
-            val sourcePath = image.uri.getFilePath(isCropped || image.isVideo)
+            val sourcePath = image.uri.getFilePath()
             val sourceFile: File? = sourcePath?.let { File(it) }
             if ((sourceFile?.length() ?: 0L) > 200 * 1024 * 1024) {
                 throw Exception("请勿选择大于200MB的视频")
@@ -66,7 +67,7 @@ class AlbumSelectorActivity : BaseBindingActivity<ActivityAlbumSelectorBinding>(
                 val fileName = sourcePath.split("/").last()
                 val compressFile = File(activity.cacheDir, "compressed_$fileName")
                 if (!(image.isVideo)) {
-                    setLoading(true, "图像处理中")
+                    setLoading(true, "图像处理中") {}
                     ImageCompressor.compressImage(
                         sourceFile = sourceFile, targetFile = compressFile
                     )
@@ -84,7 +85,7 @@ class AlbumSelectorActivity : BaseBindingActivity<ActivityAlbumSelectorBinding>(
                     compressFile
                 )
                 image.isCompressed = true
-                setLoading(false, "")
+                setLoading(false, "") {}
 
             }
             return image
@@ -94,27 +95,31 @@ class AlbumSelectorActivity : BaseBindingActivity<ActivityAlbumSelectorBinding>(
             activity: Activity,
             inputPath: String,
             outputPath: String,
-            setLoading: (Boolean, String) -> Unit
+            setLoading: (Boolean, String, (() -> Unit)) -> Unit
         ) = suspendCancellableCoroutine { continuation ->
             val listener = object : VideoCompress.CompressionListener {
                 override fun onStart() {
                     // 可以更新启动状态
                     activity.runOnUiThread {
-                        setLoading(true, "视频处理中")
+                        setLoading(true, "视频处理中") {
+                            continuation.cancel(CancellationException("您取消了视频处理任务"))
+                        }
                     }
                 }
 
                 override fun onSuccess() {
                     continuation.resumeWith(Result.success(Unit)).also {
                         activity.runOnUiThread {
-                            setLoading(false, "")
+                            setLoading(false, "") {}
                         }
                     }
                 }
 
                 override fun onProgress(percent: Float) {
                     activity.runOnUiThread {
-                        setLoading(true, "视频处理中\n${NumberUtils.format(percent, 1)}%")
+                        setLoading(true, "视频处理中\n${NumberUtils.format(percent, 1)}%") {
+                            continuation.cancel(CancellationException("您取消了视频处理任务"))
+                        }
                     }
                 }
 
@@ -123,21 +128,24 @@ class AlbumSelectorActivity : BaseBindingActivity<ActivityAlbumSelectorBinding>(
                         "视频压缩失败"
                     }))).also {
                         activity.runOnUiThread {
-                            setLoading(false, "")
+                            setLoading(false, "") {}
                         }
                     }
                 }
 
-                override fun onCancel() {
-                    continuation.resumeWith(Result.failure(Exception("视频压缩已取消"))).also {
+                override fun onCancel(e: Exception) {
+                    continuation.resumeWith(Result.failure(Exception(e.message?.ifEmpty { "视频压缩已取消" }
+                        ?: "视频压缩已取消"))).also {
                         activity.runOnUiThread {
-                            setLoading(false, "")
+                            setLoading(false, "") {}
                         }
                     }
                 }
             }
             val executionId = VideoCompress.compressVideo(inputPath, outputPath, listener)
-            continuation.invokeOnCancellation { VideoCompress.cancel(executionId) }
+            continuation.invokeOnCancellation {
+                VideoCompress.cancel(executionId)
+            }
         }
     }
     private var currentImage: Image? = null
@@ -360,8 +368,8 @@ class AlbumSelectorActivity : BaseBindingActivity<ActivityAlbumSelectorBinding>(
                     else
                         binding.keepSelected.isChecked
                     val intent = Intent()
-                    getProcessedImage(this@AlbumSelectorActivity, it, keep) { show, text ->
-                        setLoading(show, text)
+                    getProcessedImage(this@AlbumSelectorActivity, it, keep) { show, text, cancel ->
+                        setLoading(show, text, cancel)
                     }.let { image ->
                         intent.setData(image.uri)
                         intent.putExtra("image", image)
