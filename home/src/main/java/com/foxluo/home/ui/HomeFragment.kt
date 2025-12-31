@@ -1,5 +1,6 @@
 package com.foxluo.home.ui
 
+import android.content.Intent
 import android.view.View
 import androidx.core.os.bundleOf
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -7,20 +8,18 @@ import com.foxluo.baselib.R
 import com.foxluo.baselib.ui.MainPageFragment
 import com.foxluo.baselib.ui.fragment.TempFragment
 import com.foxluo.home.databinding.FragmentHomeBinding
+import com.foxluo.resource.music.ui.activity.SearchMusicActivity
 import com.foxluo.resource.music.ui.fragment.MainMusicFragment
 import com.google.android.material.tabs.TabLayoutMediator
+import com.foxluo.baselib.util.ViewExt.fastClick
 
 class HomeFragment : MainPageFragment<FragmentHomeBinding>() {
     private val tabs by lazy {
-        arrayOf(getString(R.string.music), getString(R.string.video), getString(R.string.novel))
+        arrayOf(getString(R.string.music))
     }
 
     private val fragments by lazy {
-        arrayOf(MainMusicFragment(), TempFragment().apply {
-            arguments = bundleOf("type" to "功能开发中~")
-        }, TempFragment().apply {
-            arguments = bundleOf("type" to "功能开发中~")
-        })
+        arrayOf(MainMusicFragment())
     }
 
     override fun initView() {
@@ -36,6 +35,13 @@ class HomeFragment : MainPageFragment<FragmentHomeBinding>() {
             tab.view.tooltipText = null
         }.apply {
             this.attach()
+        }
+    }
+
+    override fun initListener() {
+        // 添加搜索点击事件
+        binding.tvSearch.fastClick {
+            startActivity(Intent(requireContext(), SearchMusicActivity::class.java))
         }
     }
 

@@ -9,7 +9,7 @@ import com.foxluo.baselib.util.Constant
 import com.foxluo.baselib.util.ViewExt.visible
 import com.foxluo.resource.music.data.database.AlbumEntity
 import com.foxluo.resource.music.data.domain.viewmodel.MainMusicViewModel
-import com.foxluo.resource.music.data.domain.viewmodel.RecommendMusicViewModel
+import com.foxluo.resource.music.data.domain.viewmodel.SearchMusicViewModel
 import com.foxluo.resource.music.databinding.FragmentMusicListBinding
 import com.foxluo.resource.music.player.PlayerManager
 import com.foxluo.resource.music.ui.adapter.MusicListAdapter
@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 //todo ConcatAdapter添加header刷新与footer加载更多
 class RecommendMusicFragment : BaseBindingFragment<FragmentMusicListBinding>() {
 
-    private val vm: RecommendMusicViewModel by viewModels()
+    private val vm: SearchMusicViewModel by viewModels()
 
     private val adapter by lazy {
         MusicListAdapter(false, onClickItem)
@@ -61,17 +61,20 @@ class RecommendMusicFragment : BaseBindingFragment<FragmentMusicListBinding>() {
             }
         }
         adapter.addLoadStateListener { loadState ->
+            val dataList = adapter.getPlayList()
             when (loadState.refresh) {
                 is LoadState.Error -> {
-
+                    binding.loading.isRefreshing = false
+                    binding.emptyView.visible(dataList.isNullOrEmpty() && vm.page == 1)
+                    binding.emptyView.setText((loadState.refresh as LoadState.Error).error.message)
                 }
 
                 is LoadState.Loading -> {
-
+                    binding.loading.isRefreshing = true
                 }
 
                 is LoadState.NotLoading -> {
-                    val dataList = adapter.getPlayList()
+                    binding.loading.isRefreshing = false
                     binding.emptyView.visible(dataList.isNullOrEmpty() && vm.page == 1)
                 }
             }
@@ -86,6 +89,14 @@ class RecommendMusicFragment : BaseBindingFragment<FragmentMusicListBinding>() {
             val musicList = adapter.getPlayList()
             adapter.currentIndex =
                 musicList.indexOf(musicList.find { it.musicId == currentMusic?.musicId })
+        }
+    }
+
+    override fun initListener() {
+        binding.loading.setOnRefreshListener {
+            binding.loading.postDelayed({
+                binding.loading.isRefreshing = false
+            },1000)
         }
     }
 

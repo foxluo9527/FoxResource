@@ -6,6 +6,7 @@ import com.foxluo.baselib.data.result.BaseResponse
 import com.foxluo.resource.music.data.result.MusicComment
 import com.foxluo.resource.music.data.result.MusicCommentReplay
 import com.foxluo.resource.music.data.result.MusicResult
+import com.foxluo.resource.music.data.result.SearchHotKeyword
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -19,7 +20,7 @@ interface MusicApi : BaseApi {
         @Query("page") page: Int,
         @Query("limit") limit: Int,
         @Query("keyword") keyword: String = "",
-        @Query("recommend") recommend: Boolean = true
+        @Query("sort") sort: String
     ): BaseListResponse<MusicResult>
 
     @POST("/api/music/{id}/play")
@@ -69,4 +70,10 @@ interface MusicApi : BaseApi {
     suspend fun postMusicComment(
         @Body map: Map<String, @JvmSuppressWildcards Any>
     ): BaseListResponse<MusicComment>
+
+    @GET("/api/search/hot-keywords")
+    suspend fun getSearchHotKeywords(
+        @Query("type") type: String = "music",
+        @Query("limit") limit: Int = 10
+    ): BaseResponse<List<SearchHotKeyword>>
 }

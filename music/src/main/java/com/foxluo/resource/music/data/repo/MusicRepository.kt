@@ -15,6 +15,7 @@ import com.foxluo.resource.music.data.database.MusicEntity
 import com.foxluo.resource.music.data.database.ArtistDAO
 import com.foxluo.resource.music.data.database.MusicDAO
 import com.foxluo.resource.music.data.result.MusicResult
+import com.foxluo.resource.music.data.result.SearchHotKeyword
 import com.foxluo.resource.music.data.result.toCommentList
 import com.foxluo.resource.music.data.result.toCommentReplay
 import kotlinx.coroutines.flow.Flow
@@ -37,8 +38,8 @@ class MusicRepository(
         return result.toRequestResult()
     }
 
-    suspend fun getMusicList(page: Int, size: Int, keyword: String = ""): RequestResult {
-        val result = kotlin.runCatching { api?.getMusicList(page, size, keyword) }.getOrNull()
+    suspend fun getMusicList(page: Int, size: Int, keyword: String = "",sort: String = ""): RequestResult {
+        val result = kotlin.runCatching { api?.getMusicList(page, size, keyword,sort) }.getOrNull()
         return processNetworkResult(result)
     }
 
@@ -58,14 +59,14 @@ class MusicRepository(
     }
 
     // 新增方法
-    fun getSearchMusicPager(keyword: String = ""): Flow<PagingData<MusicEntity>> {
+    fun getSearchMusicPager(keyword: String = "",sort: String = ""): Flow<PagingData<MusicEntity>> {
         return Pager(
             config = PagingConfig(
                 pageSize = 20,
                 prefetchDistance = 2,
                 initialLoadSize = 20
             ),
-            pagingSourceFactory = { MusicPagingSource(this, keyword) }
+            pagingSourceFactory = { MusicPagingSource(this, keyword,sort) }
         ).flow
     }
 
@@ -168,4 +169,10 @@ class MusicRepository(
         val result = kotlin.runCatching { api?.likeMusicComment(commentId) }.getOrNull()
         return result.toRequestResult()
     }
+
+    suspend fun getSearchHotKeywords(limit: Int = 10): RequestResult {
+        val result = kotlin.runCatching { api?.getSearchHotKeywords("music", limit) }.getOrNull()
+        return result.toRequestResult()
+    }
+
 }

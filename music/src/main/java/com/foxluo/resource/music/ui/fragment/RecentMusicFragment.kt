@@ -59,9 +59,22 @@ class RecentMusicFragment : BaseBindingFragment<FragmentMusicListBinding>() {
             }
         }
         adapter.addLoadStateListener { loadState ->
-            if (loadState.refresh is LoadState.NotLoading) {
-                    val dataList = adapter.getPlayList()
+            val dataList = adapter.getPlayList()
+            when (loadState.refresh) {
+                is LoadState.Error -> {
+                    binding.loading.isRefreshing = false
                     binding.emptyView.visible(dataList.isNullOrEmpty() && vm.page == 1)
+                    binding.emptyView.setText((loadState.refresh as LoadState.Error).error.message)
+                }
+
+                is LoadState.Loading -> {
+                    binding.loading.isRefreshing = true
+                }
+
+                is LoadState.NotLoading -> {
+                    binding.loading.isRefreshing = false
+                    binding.emptyView.visible(dataList.isNullOrEmpty() && vm.page == 1)
+                }
             }
         }
 
@@ -75,6 +88,11 @@ class RecentMusicFragment : BaseBindingFragment<FragmentMusicListBinding>() {
             adapter.currentIndex =
                 musicList.indexOf(musicList.find { it.musicId == currentMusic?.musicId })
         }
+        binding.loading.setOnRefreshListener {
+            binding.loading.postDelayed({
+                binding.loading.isRefreshing = false
+            },1000)
+        }
     }
 
     override fun initView() {
@@ -83,6 +101,10 @@ class RecentMusicFragment : BaseBindingFragment<FragmentMusicListBinding>() {
 
     override fun initData() {
         vm.loadMusic()
+    }
+
+    override fun initListener() {
+        super.initListener()
     }
 
     override fun initBinding() = FragmentMusicListBinding.inflate(layoutInflater)

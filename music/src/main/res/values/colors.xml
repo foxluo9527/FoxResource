@@ -5,4 +5,5 @@
     <color name="widget_album_ring_color2">#282828</color>
     <!--圆环中线条颜色-->
     <color name="widget_album_ring_line_color">#14FFFFFF</color>
+    <color name="black">#000000</color>
 </resources>
