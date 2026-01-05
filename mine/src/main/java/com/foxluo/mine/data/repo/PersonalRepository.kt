@@ -15,7 +15,7 @@ class PersonalRepository : BaseRepository() {
     suspend fun getProfile(): RequestResult {
         return api?.profile().toRequestResult().also { result ->
             if (result.isSuccess()) {
-                (result as RequestResult.Success<com.foxluo.mine.data.bean.PersonalProfile>).data.let {
+                (result as RequestResult.Success<PersonalProfile>).data.let {
                     AuthManager.updatePersonalInfo(
                         it.username,
                         it.nickname,

@@ -24,7 +24,7 @@ class FriendsRepository(private val friendDao: FriendDao) : BaseRepository() {
                 AuthManager.authInfo?.user?.id?.toInt()?.let { userId ->
                     friendDao.updateAllFriends(userId, list)
                 } ?: {
-                    result = RequestResult.Error("请先登录")
+                    result = RequestResult.Error(401,"请先登录")
                 }
             }
         }

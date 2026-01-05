@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.foxluo.resource.music.data.result.SearchHotKeyword
+import com.foxluo.baselib.domain.bean.SearchHotKeyword
 import com.foxluo.resource.music.databinding.ItemSearchHotKeywordBinding
 
 class SearchHotKeywordAdapter : RecyclerView.Adapter<SearchHotKeywordAdapter.ViewHolder>() {

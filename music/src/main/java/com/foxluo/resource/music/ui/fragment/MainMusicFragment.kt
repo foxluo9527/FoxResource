@@ -19,6 +19,8 @@ class MainMusicFragment : BaseBindingFragment<FragmentMainMusicBinding>() {
         })
     }
 
+    private var currentFragment: Fragment? = null
+
     private val tags by lazy {
         mutableListOf<View>().apply {
             for (i in 0..binding.musicTabContainer.childCount) {
@@ -36,7 +38,7 @@ class MainMusicFragment : BaseBindingFragment<FragmentMainMusicBinding>() {
     override fun initListener() {
         tags.forEachIndexed { i, tag ->
             tag.setOnClickListener { _ ->
-                replaceFragment(fragments[i])
+                switchFragment(fragments[i])
                 tags.forEachIndexed { index, view ->
                     val isCurrent = i == index
                     view.isSelected = isCurrent
@@ -52,11 +54,21 @@ class MainMusicFragment : BaseBindingFragment<FragmentMainMusicBinding>() {
         binding.musicTabContainer.getChildAt(0).performClick()
     }
 
-    private fun replaceFragment(fragment: Fragment) {
-        childFragmentManager
-            .beginTransaction()
-            .replace(R.id.music_fragment_container, fragment)
-            .commit()
+    private fun switchFragment(fragment: Fragment) {
+        val transaction = childFragmentManager.beginTransaction()
+
+        currentFragment?.let {
+            transaction.hide(it)
+        }
+
+        if (fragment.isAdded) {
+            transaction.show(fragment)
+        } else {
+            transaction.add(R.id.music_fragment_container, fragment)
+        }
+
+        transaction.commit()
+        currentFragment = fragment
     }
 
     override fun initBinding() = FragmentMainMusicBinding.inflate(layoutInflater)

@@ -1,22 +1,32 @@
 package com.foxluo.resource.music.ui.fragment
 
-import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+import androidx.paging.LoadState
+import androidx.paging.PagingData
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.foxluo.baselib.ui.BaseBindingFragment
-import com.foxluo.resource.music.R
+import com.foxluo.baselib.R
+import com.foxluo.baselib.domain.AuthorizFailError
+import com.foxluo.baselib.domain.viewmodel.getAppViewModel
+import com.foxluo.baselib.ui.MainPageFragment
+import com.foxluo.baselib.ui.view.StatusPager
+import com.foxluo.baselib.util.Constant
+import com.foxluo.resource.music.data.database.AlbumEntity
+import com.foxluo.resource.music.data.database.MusicEntity
+import com.foxluo.resource.music.data.domain.viewmodel.MainMusicViewModel
 import com.foxluo.resource.music.data.domain.viewmodel.SearchMusicViewModel
 import com.foxluo.resource.music.databinding.FragmentSearchResultBinding
-import com.foxluo.resource.music.ui.adapter.MusicListAdapter
+import com.foxluo.resource.music.player.PlayerManager
+import com.foxluo.resource.music.ui.adapter.MusicMoreMenuAdapter
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.scwang.smart.refresh.layout.SmartRefreshLayout
+import com.xuexiang.xui.utils.XToastUtils.toast
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import androidx.lifecycle.lifecycleScope
 
-class SearchResultFragment : BaseBindingFragment<FragmentSearchResultBinding>() {
-
+class SearchResultFragment : MainPageMusicFragment<FragmentSearchResultBinding>() {
     private val keyword by lazy {
         arguments?.getString("keyword") ?: ""
     }
@@ -25,38 +35,57 @@ class SearchResultFragment : BaseBindingFragment<FragmentSearchResultBinding>() 
         requireActivity()
     })
 
-    private val adapter by lazy {
-        MusicListAdapter(true) { _, _ ->
-            // 点击事件处理
-        }
-    }
+    override val loadingView: SmartRefreshLayout
+        get() = binding.loading
+
+    override val musicPager: MutableStateFlow<PagingData<MusicEntity>>
+        get() = vm.musicPager
+
 
     override fun initBinding(): FragmentSearchResultBinding {
         return FragmentSearchResultBinding.inflate(layoutInflater)
     }
 
     override fun initView() {
-        binding.rvSearchResult.layoutManager = LinearLayoutManager(requireContext())
-        binding.rvSearchResult.adapter = adapter
+        super.initView()
+        binding.recycleView.adapter = adapter
     }
 
-    override fun initListener() {
-        // 可以在这里添加下拉刷新等监听
+    override fun getPlayListId(): String {
+        return Constant.SEARCH_RESULT_ID.toString()
     }
 
-    override fun initObserver() {
-        // 观察搜索结果数据
-        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            vm.musicPager.collect {pagingData ->
-                adapter.submitData(lifecycle, pagingData)
-            }
+    override fun getPlayListTitle(): String {
+        return Constant.SEARCH_RESULT_ALBUM_TITLE_PREFIX + keyword
+    }
+
+    override fun onMenuAction(
+        action: Int,
+        music: MusicEntity?
+    ) {
+        when (action) {
+            0 -> toast("查看歌手: ${music?.artist?.name}")
+            1 -> toast("查看专辑: ")
+            2 -> toast("下一首播放")
+            3 -> toast("添加到歌单: ${music?.title}")
+            4 -> toast("分享: ${music?.title}")
+            5 -> toast("举报: ${music?.title}")
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        // 设置搜索关键词并加载搜索结果
-        vm.keyword.value = keyword
-        vm.loadMusic()
+    override fun initData() {
+        super.initData()
+        vm.loadMusic(keyword = keyword, sort = "")
+    }
+
+    /**
+     * 搜索结果页始终显示playview
+     */
+    override fun showPlayView(): Boolean {
+        return true
+    }
+
+    override fun initPlayDragPadding(): IntArray? {
+        return intArrayOf(20, 50, 20, 0)
     }
 }

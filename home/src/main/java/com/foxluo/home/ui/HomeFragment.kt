@@ -1,17 +1,19 @@
 package com.foxluo.home.ui
 
-import android.content.Intent
 import android.view.View
-import androidx.core.os.bundleOf
+import android.widget.TextView
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.foxluo.baselib.R
+import com.foxluo.baselib.domain.viewmodel.EventViewModel
 import com.foxluo.baselib.ui.MainPageFragment
-import com.foxluo.baselib.ui.fragment.TempFragment
 import com.foxluo.home.databinding.FragmentHomeBinding
-import com.foxluo.resource.music.ui.activity.SearchMusicActivity
 import com.foxluo.resource.music.ui.fragment.MainMusicFragment
 import com.google.android.material.tabs.TabLayoutMediator
-import com.foxluo.baselib.util.ViewExt.fastClick
+import com.xuexiang.xui.widget.textview.marqueen.MarqueeFactory
+import com.xuexiang.xui.widget.textview.marqueen.SimpleNoticeMF
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 class HomeFragment : MainPageFragment<FragmentHomeBinding>() {
     private val tabs by lazy {
@@ -20,6 +22,10 @@ class HomeFragment : MainPageFragment<FragmentHomeBinding>() {
 
     private val fragments by lazy {
         arrayOf(MainMusicFragment())
+    }
+
+    private val marqueeFactory by lazy {
+        SimpleNoticeMF(getContext())
     }
 
     override fun initView() {
@@ -36,12 +42,22 @@ class HomeFragment : MainPageFragment<FragmentHomeBinding>() {
         }.apply {
             this.attach()
         }
+        binding.tvSearch.setMarqueeFactory(marqueeFactory)
+        binding.tvSearch.startFlipping()
     }
 
     override fun initListener() {
         // 添加搜索点击事件
-        binding.tvSearch.fastClick {
-            startActivity(Intent(requireContext(), SearchMusicActivity::class.java))
+        marqueeFactory.setOnItemClickListener(MarqueeFactory.OnItemClickListener { view: View?, holder: MarqueeFactory.ViewHolder<TextView?, String?>? ->
+            EventViewModel.sendSearchPageEvent(true)
+        })
+    }
+
+    override fun initObserver() {
+        lifecycleScope.launch {
+            EventViewModel.hotKeywords.collectLatest { list ->
+                marqueeFactory.setData(list.map { it.keyword })
+            }
         }
     }
 

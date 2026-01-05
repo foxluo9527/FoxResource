@@ -5,6 +5,8 @@ object Constant {
     const val COLLECTION_LIST_ALBUM_TITLE = "我的收藏"
     const val HISTORY_LIST_ALBUM_TITLE = "最近播放"
 
+    const val SEARCH_RESULT_ALBUM_TITLE_PREFIX = "搜索-"
+
     const val ALL_MUSIC_ALBUM_ID = Int.MAX_VALUE
 
     /**
@@ -21,5 +23,7 @@ object Constant {
      * 预设播放历史列表id
      */
     const val TABLE_ALBUM_HISTORY_ID = Int.MAX_VALUE - 3
+
+    const val SEARCH_RESULT_ID = Int.MAX_VALUE - 4
 
 }

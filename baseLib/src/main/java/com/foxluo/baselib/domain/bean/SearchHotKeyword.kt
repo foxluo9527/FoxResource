@@ -1,4 +1,4 @@
-package com.foxluo.resource.music.data.result
+package com.foxluo.baselib.domain.bean
 
 data class SearchHotKeyword(
     val keyword: String,

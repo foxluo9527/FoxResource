@@ -55,7 +55,7 @@ open class BaseRepository {
                 """
                 {
                     "code": 401,
-                    "message": "请重新登录",
+                    "message": "请登录",
                     "data": null,
                     "success": false
                 }

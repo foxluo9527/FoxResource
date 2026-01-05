@@ -7,21 +7,27 @@ import android.content.ComponentName
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.LinearInterpolator
+import androidx.core.os.bundleOf
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.asFlow
 import androidx.lifecycle.lifecycleScope
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.blankj.utilcode.util.ConvertUtils.px2dp
 import com.foxluo.baselib.data.manager.AuthManager
+import com.foxluo.baselib.domain.viewmodel.EventViewModel
 import com.foxluo.baselib.domain.viewmodel.getAppViewModel
 import com.foxluo.baselib.ui.BaseBindingActivity
+import com.foxluo.baselib.ui.MainPage
 import com.foxluo.baselib.ui.MainPageFragment
 import com.foxluo.baselib.util.Constant
 import com.foxluo.baselib.util.ImageExt.loadUrlWithCircle
+import com.foxluo.baselib.util.ViewExt.gone
+import com.foxluo.baselib.util.ViewExt.visible
 import com.foxluo.chat.ui.ChatHomeFragment
 import com.foxluo.home.ui.HomeFragment
 import com.foxluo.mine.ui.fragment.MineFragment
-import com.foxluo.resource.App
 import com.foxluo.resource.R
 import com.foxluo.resource.community.ui.CommunityFragment
 import com.foxluo.resource.databinding.ActivityMainBinding
@@ -29,14 +35,14 @@ import com.foxluo.resource.music.data.domain.MusicModuleInitializer
 import com.foxluo.resource.music.data.domain.viewmodel.MainMusicViewModel
 import com.foxluo.resource.music.player.PlayerManager
 import com.foxluo.resource.music.ui.activity.PlayActivity
+import com.foxluo.resource.music.ui.fragment.SearchMusicFragment
 import com.foxluo.resource.service.MusicService
 import com.google.common.util.concurrent.MoreExecutors
-import com.hjq.permissions.OnPermissionCallback
 import com.hjq.permissions.Permission
 import com.hjq.permissions.XXPermissions
-import com.xuexiang.xui.utils.XToastUtils.toast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
@@ -45,7 +51,7 @@ const val PERMISSIONS_REQUEST_FOREGROUND_SERVICE = 2333
 
 class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
     private val fragments by lazy {
-        listOf(HomeFragment(), ChatHomeFragment(), CommunityFragment(), MineFragment())
+        arrayListOf(HomeFragment(), ChatHomeFragment(), CommunityFragment(), MineFragment())
     }
 
     private var controller: MediaController? = null
@@ -119,21 +125,7 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
                 else -> 3
             }
             val currentFragment = fragments[binding.fragmentContainer.currentItem]
-            (currentFragment as? MainPageFragment<*>)?.let {
-                if (!(currentFragment.showPlayView())) {
-                    binding.playView.visibility = View.INVISIBLE
-                    return@let
-                }
-                binding.playView.visibility = View.VISIBLE
-                binding.navBottom.post {
-                    binding.playView.setDragPadding(
-                        currentFragment.leftPlayPadding,
-                        statusBarHeight + currentFragment.topPlayPadding,
-                        currentFragment.rightPlayPadding,
-                        px2dp(binding.navBottom.height.toFloat()) + currentFragment.bottomPlayPadding + 10
-                    )
-                }
-            }
+            currentFragmentChanged(currentFragment)
             true
         }
         val menuView = binding.navBottom.getChildAt(0) as? ViewGroup
@@ -153,28 +145,98 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
         }
     }
 
-    override fun initObserver() {
-        PlayerManager.getInstance().uiStates.observeForever {
-            val isPlaying = it != null && it.isPaused == false && it.isBuffering == false
-            val isMusicChanged =
-                it != null && it.musicId != musicViewModel.currentMusic.value?.musicId
-            if (isMusicChanged && AuthManager.isLogin()) {
-                musicViewModel.recordPlayMusicChanged(it.musicId)
-            }
-            lifecycleScope.launchWhenResumed {
-                setPlaying(isPlaying)
-            }
-            if (isMusicChanged) {
-                val currentMusic =
-                    PlayerManager.getInstance().currentPlayingMusic ?: return@observeForever
-                CoroutineScope(Dispatchers.IO).launch {
-                    //更新数据库中正在播放的位置
-                    val album = PlayerManager.getInstance().album ?: return@launch
-                    album.curMusicId = currentMusic.musicId.toInt()
-                    val dao = MusicModuleInitializer.musicDb.albumDao()
-                    dao.updateAlbum(album)
+    // 保存当前显示的Fragment索引
+    private var currentFragmentIndex = 0
+
+    private val searchFragment by lazy {
+        SearchMusicFragment()
+    }
+
+    private fun currentFragmentChanged(currentFragment: Fragment) {
+        (currentFragment as? MainPage)?.let {
+            if (it.showPlayView()) {
+                binding.playView.visibility = View.VISIBLE
+                binding.navBottom.post {
+                    binding.playView.setDragPadding(
+                        it.getLeftPlayPadding(),
+                        statusBarHeight + it.getTopPlayPadding(),
+                        it.getRightPlayPadding(),
+                        px2dp(binding.navBottom.height.toFloat()) + it.getBottomPlayPadding() + 10
+                    )
                 }
-                musicViewModel.currentMusic.value = currentMusic
+            } else {
+                binding.playView.visibility = View.INVISIBLE
+            }
+        } ?: run {
+            binding.playView.visibility = View.INVISIBLE
+        }
+    }
+    
+    override fun initObserver() {
+        // 搜索事件监听
+        lifecycleScope.launch {
+            EventViewModel.searchPageEvent.collectLatest { showState: Pair<Boolean, Long> ->
+                val showSearch = showState.first
+                val showFragmentIndex = if (showSearch) {
+                    if (!fragments.contains(searchFragment)) {
+                        // 保存当前Fragment索引
+                        currentFragmentIndex = binding.fragmentContainer.currentItem
+                        // 显示搜索Fragment
+                        binding.navBottom.gone()
+                        fragments.add(searchFragment)
+                    }
+                    fragments.size - 1
+                } else if (showState.second != 0L) {
+                    binding.navBottom.visible()
+                    fragments.removeAt(fragments.size - 1)
+                    currentFragmentIndex
+                } else {
+                    currentFragmentIndex
+                }
+                if (showFragmentIndex != binding.fragmentContainer.currentItem) {
+                    binding.fragmentContainer.setCurrentItem(showFragmentIndex, false)
+                }
+                val currentFragment = fragments[showFragmentIndex]
+                currentFragmentChanged(currentFragment)
+            }
+        }
+        lifecycleScope.launch {
+            val uiStates = PlayerManager.getInstance().uiStates.asFlow()
+            uiStates.collectLatest { uiState ->
+                val lastMusic = musicViewModel.currentMusic.value
+                val isPlaying =
+                    uiState != null && uiState.isPaused == false && uiState.isBuffering == false
+                val isMusicChanged =
+                    uiState != null && uiState.musicId != lastMusic?.musicId
+                if (isMusicChanged && AuthManager.isLogin()) {
+                    lastMusic?.let { lastMusic ->
+                        musicViewModel.recordPlayMusicChanged(lastMusic.musicId,lastMusic.progress)
+                    }
+                }
+                lifecycleScope.launchWhenResumed {
+                    setPlaying(isPlaying)
+                }
+                if (isMusicChanged) {
+                    val currentMusic =
+                        PlayerManager.getInstance().currentPlayingMusic ?: return@collectLatest
+                    CoroutineScope(Dispatchers.IO).launch {
+                        //更新数据库中正在播放的位置
+                        val album = PlayerManager.getInstance().album ?: return@launch
+                        album.curMusicId = currentMusic.musicId.toInt()
+                        val dao = MusicModuleInitializer.musicDb.albumDao()
+                        dao.updateAlbum(album)
+                    }
+                    musicViewModel.currentMusic.value = currentMusic.apply {
+                        progress = 0
+                    }
+                } else {
+                    val progress = uiState?.let { ((it.progress * 1f / it.duration.coerceAtLeast(1)) * 100).toInt() }?:0
+                    if (progress>0){
+                        musicViewModel.currentMusic.value = musicViewModel.currentMusic.value?.apply {
+                            this.progress = progress
+                        }
+                    }
+                }
             }
         }
         musicViewModel.currentMusic.observe(this) { currentMusic ->
@@ -204,6 +266,7 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
                 PlayerManager.getInstance().loadAlbum(album, false)
             }
         }
+        musicViewModel.loadHotKeywords()
     }
 
     override fun initBinding() = ActivityMainBinding.inflate(layoutInflater)

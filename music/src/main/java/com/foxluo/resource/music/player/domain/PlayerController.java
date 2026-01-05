@@ -298,16 +298,18 @@ public class PlayerController<
 
     public void appendPlayingList(List<M> list) {
         if (!isInit()) return;
+        ArrayList<MediaItem> appendList =new ArrayList<>();
         list.forEach(new Consumer<M>() {
             @Override
             public void accept(M m) {
                 MediaItem mediaItem = getMusicMediaItem(m);
                 if (m != null && !playingList.contains(mediaItem)) {
                     playingList.add(mediaItem);
+                    appendList.add(mediaItem);
                 }
             }
         });
-        mPlayer.addMediaItems(playingList);
+        mPlayer.addMediaItems(appendList);
     }
 
     public void playNext() {

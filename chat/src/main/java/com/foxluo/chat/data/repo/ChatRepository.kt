@@ -218,7 +218,7 @@ class ChatRepository(
 
             else -> Unit
         }
-        val sender = AuthManager.authInfo?.user ?: return RequestResult.Error("请先登录")
+        val sender = AuthManager.authInfo?.user ?: return RequestResult.Error(401,"请先登录")
         var result =
             kotlin.runCatching { messageApi?.sendMessage(map) }.getOrNull().toRequestResult()
         if (result is RequestResult.Success<*>) {

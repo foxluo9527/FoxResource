@@ -3,6 +3,7 @@ package com.foxluo.resource.music.data.database
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Ignore
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.foxluo.resource.music.player.bean.base.BaseMusicItem
@@ -50,7 +51,7 @@ data class MusicEntity(
     val lyrics: String? = null,
 
     @ColumnInfo(name = "lyrics_trans")
-    val lyricsTrans: String? = null
+    val lyricsTrans: String? = null,
 ) : BaseMusicItem<ArtistEntity>(
     musicId, coverImg, url, title, null
 ), Serializable {
@@ -60,4 +61,7 @@ data class MusicEntity(
             field = value
             super.artist = value
         }
+
+    @Ignore
+    var progress:Int = 0
 }

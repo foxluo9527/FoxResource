@@ -1,45 +1,64 @@
-package com.foxluo.resource.music.ui.activity
+package com.foxluo.resource.music.ui.fragment
 
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
-import androidx.activity.viewModels
-import androidx.core.widget.addTextChangedListener
-import com.foxluo.baselib.ui.BaseBindingActivity
+import androidx.activity.OnBackPressedCallback
+import androidx.core.content.edit
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.blankj.utilcode.util.KeyboardUtils
+import com.foxluo.baselib.domain.viewmodel.EventViewModel
+import com.foxluo.baselib.domain.viewmodel.getAppViewModel
+import com.foxluo.baselib.ui.MainPageFragment
 import com.foxluo.baselib.util.ViewExt.fastClick
 import com.foxluo.baselib.util.ViewExt.visible
 import com.foxluo.resource.music.R
+import com.foxluo.resource.music.data.domain.viewmodel.MainMusicViewModel
 import com.foxluo.resource.music.data.domain.viewmodel.SearchMusicViewModel
-import com.foxluo.resource.music.databinding.ActivitySearchMusicBinding
+import com.foxluo.resource.music.databinding.FragmentSearchMusicBinding
 import com.foxluo.resource.music.ui.adapter.SearchHotKeywordAdapter
-import com.foxluo.resource.music.ui.fragment.SearchResultFragment
-import androidx.core.content.edit
-import androidx.recyclerview.widget.LinearLayoutManager
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
-class SearchMusicActivity : BaseBindingActivity<ActivitySearchMusicBinding>() {
+class SearchMusicFragment : MainPageFragment<FragmentSearchMusicBinding>() {
 
-    private val vm by viewModels<SearchMusicViewModel>()
+    private lateinit var vm: SearchMusicViewModel
 
     private val hotKeywordAdapter by lazy {
         SearchHotKeywordAdapter()
     }
 
-    override fun initBinding() = ActivitySearchMusicBinding.inflate(layoutInflater)
-
-    override fun initStatusBarView(): View {
-        return binding.main
+    private val musicViewModel by lazy {
+        getAppViewModel<MainMusicViewModel>()
     }
+
+    // 当前是否显示搜索结果
+    private var isShowingResult = false
+
+    override fun initBinding() = FragmentSearchMusicBinding.inflate(layoutInflater)
 
     override fun initView() {
         // 设置搜索热词RecyclerView
-        binding.rvHotKeywords.layoutManager = LinearLayoutManager(this)
+        binding.rvHotKeywords.layoutManager = LinearLayoutManager(requireContext())
         binding.rvHotKeywords.adapter = hotKeywordAdapter
+        showSearchHistory()
+    }
+
+    override fun initStatusBarView(): View? {
+        return binding.main
     }
 
     override fun initListener() {
         // 返回按钮点击事件
         binding.btnBack.fastClick {
-            finish()
+            if (isShowingResult) {
+                showSearchContent()
+                binding.etSearch.text?.clear()
+            } else {
+                EventViewModel.sendSearchPageEvent(false)
+            }
         }
 
         // 搜索按钮点击事件
@@ -52,17 +71,9 @@ class SearchMusicActivity : BaseBindingActivity<ActivitySearchMusicBinding>() {
             clearSearchHistory()
         }
 
-        // 搜索输入框文本变化事件
-        binding.etSearch.addTextChangedListener {
-            val keyword = it.toString().trim()
-            if (keyword.isEmpty()) {
-                showSearchContent()
-            }
-        }
-
         // 搜索输入框键盘搜索按钮点击事件
         binding.etSearch.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH) {
+            if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH || actionId == android.view.inputmethod.EditorInfo.IME_ACTION_DONE) {
                 performSearch()
                 return@setOnEditorActionListener true
             }
@@ -74,21 +85,42 @@ class SearchMusicActivity : BaseBindingActivity<ActivitySearchMusicBinding>() {
             binding.etSearch.setText(it.keyword)
             performSearch()
         }
+
+        // 设置返回键拦截
+        setupBackPressedCallback()
     }
 
     override fun initObserver() {
+        // 观察逻辑已移至onViewCreated
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        // 初始化ViewModel
+        vm = ViewModelProvider(requireActivity()).get(SearchMusicViewModel::class.java)
         // 观察搜索热词数据
-        vm.hotKeywords.observe(this) {
-            hotKeywordAdapter.setData(it)
+        lifecycleScope.launch {
+            EventViewModel.hotKeywords.collectLatest { hotKeywords ->
+                hotKeywordAdapter.setData(hotKeywords)
+            }
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        // 加载搜索热词
-        vm.loadHotKeywords()
-        // 显示搜索历史
-        showSearchHistory()
+    /**
+     * 设置返回键拦截
+     */
+    private fun setupBackPressedCallback() {
+        val callback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (isShowingResult) {
+                    showSearchContent()
+                    binding.etSearch.text?.clear()
+                } else {
+                    EventViewModel.sendSearchPageEvent(false)
+                }
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, callback)
     }
 
     /**
@@ -102,6 +134,7 @@ class SearchMusicActivity : BaseBindingActivity<ActivitySearchMusicBinding>() {
         saveSearchHistory(keyword)
         // 显示搜索结果
         showSearchResult(keyword)
+        KeyboardUtils.hideSoftInput(requireActivity())
     }
 
     /**
@@ -112,6 +145,7 @@ class SearchMusicActivity : BaseBindingActivity<ActivitySearchMusicBinding>() {
         binding.searchContent.visible(false)
         // 显示搜索结果容器
         binding.container.visible(true)
+        isShowingResult = true
 
         // 传递搜索关键词到搜索结果Fragment
         val bundle = Bundle().apply {
@@ -121,17 +155,23 @@ class SearchMusicActivity : BaseBindingActivity<ActivitySearchMusicBinding>() {
         // 跳转到搜索结果Fragment
         val fragment = SearchResultFragment()
         fragment.arguments = bundle
-        supportFragmentManager.beginTransaction()
+        childFragmentManager.beginTransaction()
             .replace(R.id.container, fragment)
             .commit()
+        EventViewModel.sendSearchPageEvent(true)
     }
 
     /**
      * 显示搜索内容（热词和历史）
      */
     private fun showSearchContent() {
+        musicViewModel.loadHotKeywords()
         binding.searchContent.visible(true)
         binding.container.visible(false)
+        isShowingResult = false
+        showSearchHistory()
+        EventViewModel.sendSearchPageEvent(true)
+        KeyboardUtils.hideSoftInput(requireActivity())
     }
 
     /**
@@ -140,12 +180,13 @@ class SearchMusicActivity : BaseBindingActivity<ActivitySearchMusicBinding>() {
     private fun showSearchHistory() {
         val history = getSearchHistory()
         if (history.isNotEmpty()) {
+            binding.searchHistory.visible(true)
             binding.historyContainer.visible(true)
             binding.historyContainer.removeAllViews()
 
             // 动态添加搜索历史项
             history.forEach { keyword ->
-                val historyItem = TextView(this).apply {
+                val historyItem = TextView(requireContext()).apply {
                     text = keyword
                     textSize = 14f
                     setTextColor(resources.getColor(R.color.black, null))
@@ -176,6 +217,7 @@ class SearchMusicActivity : BaseBindingActivity<ActivitySearchMusicBinding>() {
                 binding.historyContainer.addView(historyItem)
             }
         } else {
+            binding.searchHistory.visible(false)
             binding.historyContainer.visible(false)
         }
     }
@@ -195,7 +237,7 @@ class SearchMusicActivity : BaseBindingActivity<ActivitySearchMusicBinding>() {
             history.removeAt(history.size - 1)
         }
         // 保存到SharedPreferences
-        getSharedPreferences("search_history", MODE_PRIVATE).edit {
+        requireContext().getSharedPreferences("search_history", 0).edit {
             putStringSet("history", history.toSet())
         }
     }
@@ -204,7 +246,7 @@ class SearchMusicActivity : BaseBindingActivity<ActivitySearchMusicBinding>() {
      * 获取搜索历史
      */
     private fun getSearchHistory(): List<String> {
-        return getSharedPreferences("search_history", MODE_PRIVATE)
+        return requireContext().getSharedPreferences("search_history", 0)
             .getStringSet("history", emptySet())?.toList() ?: emptyList()
     }
 
@@ -212,9 +254,20 @@ class SearchMusicActivity : BaseBindingActivity<ActivitySearchMusicBinding>() {
      * 清空搜索历史
      */
     private fun clearSearchHistory() {
-        getSharedPreferences("search_history", MODE_PRIVATE).edit {
+        requireContext().getSharedPreferences("search_history", 0).edit {
             remove("history")
         }
         showSearchHistory()
+    }
+
+    /**
+     * 根据当前显示状态决定是否显示playview
+     */
+    override fun showPlayView(): Boolean {
+        return isShowingResult
+    }
+
+    override fun initPlayDragPadding(): IntArray? {
+        return intArrayOf(20, 50, 20, 0)
     }
 }

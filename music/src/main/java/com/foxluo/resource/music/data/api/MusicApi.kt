@@ -6,7 +6,7 @@ import com.foxluo.baselib.data.result.BaseResponse
 import com.foxluo.resource.music.data.result.MusicComment
 import com.foxluo.resource.music.data.result.MusicCommentReplay
 import com.foxluo.resource.music.data.result.MusicResult
-import com.foxluo.resource.music.data.result.SearchHotKeyword
+import com.foxluo.baselib.domain.bean.SearchHotKeyword
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -25,7 +25,8 @@ interface MusicApi : BaseApi {
 
     @POST("/api/music/{id}/play")
     suspend fun recordMusicPlay(
-        @Path("id") id: String
+        @Path("id") id: String,
+        @Body map: Map<String,Int>
     ): BaseResponse<Unit>
 
     @POST("/api/music/{id}/favorite")

@@ -7,6 +7,5 @@
             android:screenOrientation="portrait"/>
         <activity android:name=".ui.activity.MusicCommentActivity"
             android:windowSoftInputMode="adjustNothing"/>
-        <activity android:name=".ui.activity.SearchMusicActivity"/>
     </application>
 </manifest>

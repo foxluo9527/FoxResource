@@ -15,7 +15,7 @@ open class BaseResponse<T> {
             if (this != null && this.success == true) {
                 RequestResult.Success<T?>(this.data, message)
             } else {
-                RequestResult.Error(this?.message ?: "网络连接错误,请稍后重试")
+                RequestResult.Error(this?.code,this?.message ?: "网络连接错误,请稍后重试")
             }
     }
 }

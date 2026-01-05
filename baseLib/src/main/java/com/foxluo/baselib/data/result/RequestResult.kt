@@ -9,7 +9,7 @@ sealed class RequestResult {
         override fun isSuccess() = true
     }
 
-    class Error(val message: String) : RequestResult() {
+    class Error(val code: Int? = null, val message: String) : RequestResult() {
         override fun isSuccess() = false
     }
 

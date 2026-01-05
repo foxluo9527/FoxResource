@@ -5,7 +5,6 @@ import android.view.View
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.alibaba.android.arouter.launcher.ARouter
@@ -14,7 +13,6 @@ import com.foxluo.baselib.data.manager.AuthManager.userInfoStateFlow
 import com.foxluo.baselib.ui.MainPageFragment
 import com.foxluo.baselib.ui.fragment.TempFragment
 import com.foxluo.baselib.R
-import com.foxluo.baselib.util.ImageExt.loadUrl
 import com.foxluo.baselib.util.ImageExt.loadUrlWithCircle
 import com.foxluo.mine.databinding.FragmentMineBinding
 import com.foxluo.mine.ui.activity.LoginActivity
@@ -23,7 +21,6 @@ import com.foxluo.mine.data.viewmodel.LoginViewModel
 import com.google.android.material.tabs.TabLayoutMediator
 import com.xuexiang.xui.utils.XToastUtils
 import com.xuexiang.xui.utils.XToastUtils.success
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 

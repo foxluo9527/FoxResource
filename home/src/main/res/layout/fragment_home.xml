@@ -9,30 +9,38 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-
-        <TextView
-            android:id="@+id/tv_search"
+        <LinearLayout
+            android:id="@+id/ll_search"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
+            android:layout_height="48dp"
             android:layout_marginHorizontal="15dp"
             android:layout_marginTop="10dp"
             android:elevation="1dp"
             android:background="@drawable/shape_white_trans_r8"
-            android:drawableStart="@drawable/ic_search"
-            android:drawablePadding="10dp"
-            android:drawableTint="@color/color_ED6C40"
+            app:layout_constraintTop_toTopOf="parent"
             android:gravity="center_vertical"
-            android:paddingStart="10dp"
-            android:text="@string/app_name"
-            android:textColor="@color/color_ED6C40"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:orientation="horizontal">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:src="@drawable/ic_search"
+                app:tint="@color/color_ED6C40" />
+
+            <com.xuexiang.xui.widget.textview.marqueen.MarqueeView
+                android:id="@+id/tv_search"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+        </LinearLayout>
+
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/home_tab"
             android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            app:layout_constraintTop_toBottomOf="@id/tv_search"
+            app:layout_constraintTop_toBottomOf="@id/ll_search"
             app:tabGravity="fill"
             app:tabBackground="@android:color/transparent"
             app:tabRippleColor="@android:color/transparent"

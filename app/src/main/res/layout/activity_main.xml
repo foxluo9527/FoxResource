@@ -10,10 +10,10 @@
         android:id="@+id/play_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@id/nav_bottom"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginEnd="20dp"
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="82dp"
         app:cardCornerRadius="30dp">
         <LinearLayout
             android:layout_width="120dp"

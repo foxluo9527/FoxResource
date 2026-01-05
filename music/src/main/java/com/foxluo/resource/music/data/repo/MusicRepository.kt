@@ -15,7 +15,7 @@ import com.foxluo.resource.music.data.database.MusicEntity
 import com.foxluo.resource.music.data.database.ArtistDAO
 import com.foxluo.resource.music.data.database.MusicDAO
 import com.foxluo.resource.music.data.result.MusicResult
-import com.foxluo.resource.music.data.result.SearchHotKeyword
+import com.foxluo.baselib.domain.bean.SearchHotKeyword
 import com.foxluo.resource.music.data.result.toCommentList
 import com.foxluo.resource.music.data.result.toCommentReplay
 import kotlinx.coroutines.flow.Flow
@@ -33,8 +33,8 @@ class MusicRepository(
         return result.toRequestResult()
     }
 
-    suspend fun recordPlay(id: String): RequestResult {
-        val result = kotlin.runCatching { api?.recordMusicPlay(id) }.getOrNull()
+    suspend fun recordPlay(id: String,progress:Int): RequestResult {
+        val result = kotlin.runCatching { api?.recordMusicPlay(id,mapOf("progress" to progress)) }.getOrNull()
         return result.toRequestResult()
     }
 
@@ -62,7 +62,7 @@ class MusicRepository(
     fun getSearchMusicPager(keyword: String = "",sort: String = ""): Flow<PagingData<MusicEntity>> {
         return Pager(
             config = PagingConfig(
-                pageSize = 20,
+                pageSize = 100,
                 prefetchDistance = 2,
                 initialLoadSize = 20
             ),
@@ -73,7 +73,7 @@ class MusicRepository(
     fun getRecentMusicPager(): Flow<PagingData<MusicEntity>> {
         return Pager(
             config = PagingConfig(
-                pageSize = 20,
+                pageSize = 100,
                 prefetchDistance = 2,
                 initialLoadSize = 20
             ),
@@ -101,7 +101,7 @@ class MusicRepository(
         return if (result?.success == true) {
             RequestResult.Success(dataResult, result.message)
         } else {
-            RequestResult.Error(result?.message ?: "网络错误")
+            RequestResult.Error(result?.code,result?.message ?: "网络错误")
         }
     }
 
@@ -123,7 +123,7 @@ class MusicRepository(
         return if (dataList != null) {
             RequestResult.Success<ListData<CommentAdapter.CommentBean>?>(dataResult, result.message)
         } else {
-            RequestResult.Error(result?.message ?: "网络连接错误")
+            RequestResult.Error(result?.code,result?.message ?: "网络连接错误")
         }
     }
 
@@ -148,7 +148,7 @@ class MusicRepository(
         return if (dataList != null) {
             RequestResult.Success<ListData<CommentAdapter.CommentBean>?>(dataResult, result.message)
         } else {
-            RequestResult.Error(result?.message ?: "网络连接错误")
+            RequestResult.Error(result?.code,result?.message ?: "网络连接错误")
         }
     }
 
