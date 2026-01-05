@@ -57,9 +57,9 @@ class HomeFragment : MainPageFragment<FragmentHomeBinding>() {
 
     override fun initListener() {
         // 添加搜索点击事件
-        marqueeFactory.setOnItemClickListener(MarqueeFactory.OnItemClickListener { view: View?, holder: MarqueeFactory.ViewHolder<TextView?, String?>? ->
+        binding.llSearch.setOnClickListener {
             EventViewModel.sendSearchPageEvent(true)
-        })
+        }
     }
 
     override fun initObserver() {
