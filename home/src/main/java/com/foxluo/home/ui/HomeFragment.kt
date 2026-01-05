@@ -43,7 +43,16 @@ class HomeFragment : MainPageFragment<FragmentHomeBinding>() {
             this.attach()
         }
         binding.tvSearch.setMarqueeFactory(marqueeFactory)
+    }
+
+    override fun onResume() {
+        super.onResume()
         binding.tvSearch.startFlipping()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        binding.tvSearch.stopFlipping()
     }
 
     override fun initListener() {
@@ -62,7 +71,7 @@ class HomeFragment : MainPageFragment<FragmentHomeBinding>() {
     }
 
     override fun initPlayDragPadding(): IntArray? {
-        return intArrayOf(20, 50, 20, 0)//todo 待视图完全确认后填写播放控件可拖动区域
+        return intArrayOf(20, 50, 20, 0)
     }
 
     override fun initBinding() = FragmentHomeBinding.inflate(layoutInflater)
