@@ -21,7 +21,6 @@ import com.foxluo.resource.music.ui.adapter.MusicMoreMenuAdapter
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import com.scwang.smart.refresh.layout.constant.RefreshState
-import com.xuexiang.xui.utils.XToastUtils.toast
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -173,9 +172,11 @@ abstract class BaseMusicFragment<Binding : ViewBinding> : BaseBindingFragment<Bi
                         }
                     }
                     if (PlayerManager.getInstance().album.albumId != Constant.TABLE_ALBUM_PLAYING_ID.toString()) return@addLoadStateListener
-                    val playList = adapter.getPlayList()
-                    val appendList =
-                        playList.subtract(PlayerManager.getInstance().album.musics ?: listOf())
+                    val displayList = adapter.getPlayList()
+                    val playList = PlayerManager.getInstance().album.musics
+                    val appendList = displayList.apply {
+                        removeAll { item -> playList?.any { it.musicId == item.musicId } == true }
+                    }
                     if (appendList.isNullOrEmpty()) return@addLoadStateListener
                     PlayerManager.getInstance().appendPlayList(appendList.toList())
                 }

@@ -31,6 +31,14 @@ object ViewExt {
         }
     }
 
+    fun View.inVisible(inVisible: Boolean){
+        visibility = if (inVisible) {
+            View.INVISIBLE
+        } else {
+            View.VISIBLE
+        }
+    }
+
     /**
      * 防止连续点击
      */

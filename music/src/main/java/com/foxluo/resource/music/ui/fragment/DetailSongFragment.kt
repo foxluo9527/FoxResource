@@ -10,9 +10,12 @@ import com.foxluo.baselib.util.ViewExt.fastClick
 import com.foxluo.resource.music.data.database.MusicEntity
 import com.foxluo.resource.music.data.domain.viewmodel.MainMusicViewModel
 import com.foxluo.resource.music.databinding.FragmentDetailSongBinding
+import com.foxluo.resource.music.lyric.manager.LyricStyleManager
+import com.foxluo.resource.music.lyric.manager.LyricSyncManager
 import com.foxluo.resource.music.ui.activity.MusicCommentActivity
 import com.xuexiang.xui.utils.ViewUtils
 import com.xuexiang.xui.widget.imageview.preview.PreviewBuilder
+import kotlinx.coroutines.launch
 
 class DetailSongFragment : BaseBindingFragment<FragmentDetailSongBinding>() {
     private var currentMusic: MusicEntity? = null
@@ -21,6 +24,10 @@ class DetailSongFragment : BaseBindingFragment<FragmentDetailSongBinding>() {
 
     private val musicViewModel by lazy {
         getAppViewModel<MainMusicViewModel>()
+    }
+
+    private val lyricSyncManager by lazy {
+        LyricSyncManager.getInstance()
     }
 
     fun initMusicData(data: MusicEntity?) {
@@ -34,6 +41,7 @@ class DetailSongFragment : BaseBindingFragment<FragmentDetailSongBinding>() {
         binding.comment.setColorFilter(primaryColor)
         binding.like.setColorFilter(primaryColor)
         binding.downloaded.setColorFilter(primaryColor)
+        binding.desktopLyric.setColorFilter(primaryColor)
         binding.songName.setTextColor(primaryColor)
         binding.singer.setTextColor(primaryColor)
     }
@@ -67,6 +75,28 @@ class DetailSongFragment : BaseBindingFragment<FragmentDetailSongBinding>() {
         musicViewModel.musicFavoriteState.observe(this) {
             binding.like.isSelected = it
         }
+        lifecycleScope.launch {
+            lyricSyncManager.isDesktopLyricLocked.collect {
+                if (!it) {
+                    binding.desktopLyric.setImageResource(com.foxluo.baselib.R.drawable.ic_unlock)
+                } else {
+                    binding.desktopLyric.setImageResource(com.foxluo.baselib.R.drawable.ic_lock)
+                }
+            }
+        }
+        lifecycleScope.launch {
+            lyricSyncManager.isDesktopLyricEnabled.collect {
+                if (!it) {
+                    binding.desktopLyric.setImageResource(com.foxluo.baselib.R.drawable.ic_lyric)
+                } else {
+                    if (!lyricSyncManager.isDesktopLyricLocked.value) {
+                        binding.desktopLyric.setImageResource(com.foxluo.baselib.R.drawable.ic_unlock)
+                    } else {
+                        binding.desktopLyric.setImageResource(com.foxluo.baselib.R.drawable.ic_lock)
+                    }
+                }
+            }
+        }
     }
 
     override fun initListener() {
@@ -94,6 +124,13 @@ class DetailSongFragment : BaseBindingFragment<FragmentDetailSongBinding>() {
                         putExtra("music_id", musicId)
                     }
                 )
+            }
+        }
+        binding.desktopLyric.setOnClickListener {
+            if (lyricSyncManager.isDesktopLyricEnabled.value.not()) {
+                lyricSyncManager.openDesktopLyric(requireContext())
+            } else {
+                lyricSyncManager.toggleLock()
             }
         }
     }

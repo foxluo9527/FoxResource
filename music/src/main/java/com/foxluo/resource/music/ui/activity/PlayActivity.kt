@@ -19,11 +19,16 @@ import com.foxluo.baselib.util.ViewExt.visible
 import com.foxluo.resource.music.data.domain.MusicModuleInitializer
 import com.foxluo.resource.music.data.domain.viewmodel.MainMusicViewModel
 import com.foxluo.resource.music.databinding.ActivityPlayBinding
+import com.foxluo.resource.music.lyric.data.LyricStyle
+import com.foxluo.resource.music.lyric.manager.LyricStyleManager
+import com.foxluo.resource.music.lyric.manager.LyricSyncManager
 import com.foxluo.resource.music.player.PlayerManager
 import com.foxluo.resource.music.player.domain.PlayingInfoManager.RepeatMode
 import com.foxluo.resource.music.ui.adapter.PlayMusicAdapter
 import com.foxluo.resource.music.ui.dialog.PlayListDialog
 import com.foxluo.resource.music.ui.fragment.PlayFragment
+import com.hjq.permissions.OnPermissionCallback
+import com.hjq.permissions.XXPermissions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

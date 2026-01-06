@@ -1,5 +1,6 @@
 package com.foxluo.baselib.domain.viewmodel
 
+import androidx.lifecycle.MutableLiveData
 import com.foxluo.baselib.domain.bean.SearchHotKeyword
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -33,5 +34,7 @@ object EventViewModel {
         _searchPageEvent.value = false to 0L
     }
 
-
+    val appInForeground by lazy {
+        MutableLiveData<Boolean>(true)
+    }
 }

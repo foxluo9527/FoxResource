@@ -41,6 +41,7 @@ kapt {
     }
 }
 dependencies {
+    api(libs.androidx.lifecycle.process)
     implementation(libs.mobile.ffmpeg.full)
     api(libs.androidx.work.runtime.ktx)
     api(libs.androidx.media3.session)
