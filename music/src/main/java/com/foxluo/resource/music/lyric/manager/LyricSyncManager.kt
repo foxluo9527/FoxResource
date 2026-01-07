@@ -8,7 +8,6 @@ import android.graphics.PixelFormat
 import android.os.Handler
 import android.os.Looper
 import android.view.Gravity
-import android.view.View
 import android.view.WindowManager
 import androidx.lifecycle.asFlow
 import com.blankj.utilcode.util.ActivityUtils
@@ -22,7 +21,6 @@ import com.foxluo.resource.music.player.domain.MusicDTO
 import com.foxluo.resource.music.ui.activity.PlayActivity
 import com.hjq.permissions.OnPermissionCallback
 import com.hjq.permissions.XXPermissions
-import com.xuexiang.xui.utils.XToastUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -157,7 +155,7 @@ class LyricSyncManager private constructor() {
     }
 
     private fun showPermissionDeniedHint() {
-        XToastUtils.warning("需要悬浮窗权限才能显示桌面歌词")
+        ToastUtils.make().show("需要悬浮窗权限才能显示桌面歌词")
     }
 
 //    fun showLyricStyleDialog() {
@@ -201,7 +199,7 @@ class LyricSyncManager private constructor() {
                 }
 
                 override fun onExit() {
-                    disableDesktopLyric()
+                    toggleDesktopLyric()
                 }
 
                 override fun onPrev() {
@@ -310,12 +308,13 @@ class LyricSyncManager private constructor() {
 
     fun enableDesktopLyric() {
         _isDesktopLyricEnabled.value = true
-
+        ToastUtils.make().show("开启桌面歌词")
     }
 
     fun disableDesktopLyric() {
         _isDesktopLyricEnabled.value = false
         hideWindow()
+        ToastUtils.make().show("关闭桌面歌词")
     }
 
     fun toggleDesktopLyric() {

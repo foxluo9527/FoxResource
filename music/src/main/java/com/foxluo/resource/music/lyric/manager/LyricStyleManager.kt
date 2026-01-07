@@ -5,12 +5,12 @@ import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.Typeface
 import androidx.core.content.edit
+import androidx.core.graphics.toColorInt
 import com.blankj.utilcode.util.Utils
 import com.foxluo.resource.music.lyric.data.LyricStyle
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import androidx.core.graphics.toColorInt
 
 class LyricStyleManager private constructor() {
 
@@ -72,19 +72,23 @@ class LyricStyleManager private constructor() {
         )
     }
 
-    fun updateStyle(style: LyricStyle) {
-        prefs.edit {
-            putInt(KEY_FONT_SIZE, style.fontSize)
-            putInt(KEY_TEXT_COLOR, style.textColor)
-            putInt(KEY_HIGHLIGHT_COLOR, style.highlightColor)
-            putInt(KEY_BACKGROUND_COLOR, style.backgroundColor)
-            putBoolean(KEY_IS_BOLD, style.isBold)
-            putInt(KEY_ALIGNMENT, style.alignment)
-            putBoolean(KEY_SCROLL_ENABLED, style.isScrollEnabled)
-            putInt(KEY_FADE_DURATION, style.fadeDuration)
-            putFloat(KEY_LINE_SPACING, style.lineSpacing)
+    fun updateStyle(style: LyricStyle, keepFontSize: Boolean = false) {
+        if (keepFontSize) {
+            updateStyle(style.copy(fontSize = _styleFlow.value.fontSize))
+        } else {
+            prefs.edit {
+                putInt(KEY_FONT_SIZE, style.fontSize)
+                putInt(KEY_TEXT_COLOR, style.textColor)
+                putInt(KEY_HIGHLIGHT_COLOR, style.highlightColor)
+                putInt(KEY_BACKGROUND_COLOR, style.backgroundColor)
+                putBoolean(KEY_IS_BOLD, style.isBold)
+                putInt(KEY_ALIGNMENT, style.alignment)
+                putBoolean(KEY_SCROLL_ENABLED, style.isScrollEnabled)
+                putInt(KEY_FADE_DURATION, style.fadeDuration)
+                putFloat(KEY_LINE_SPACING, style.lineSpacing)
+            }
+            _styleFlow.value = style
         }
-        _styleFlow.value = style
     }
 
     fun setFontSize(size: Int) {
@@ -147,7 +151,7 @@ class LyricStyleManager private constructor() {
             backgroundColor = "#99000000".toColorInt()
         )),
         NEON("霓虹", LyricStyle(
-            fontSize = 20,
+            fontSize = 18,
             textColor = "#00FFFF".toColorInt(),
             highlightColor = "#FF00FF".toColorInt(),
             backgroundColor = "#CC000000".toColorInt()
@@ -165,7 +169,7 @@ class LyricStyleManager private constructor() {
             backgroundColor = "#B03A4A4E".toColorInt()
         )),
         DARK("暗黑", LyricStyle(
-            fontSize = 16,
+            fontSize = 18,
             textColor = "#CCCCCC".toColorInt(),
             highlightColor = "#FFFFFF".toColorInt(),
             backgroundColor = "#FF1A1A1A".toColorInt()

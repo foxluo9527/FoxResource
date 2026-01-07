@@ -3,7 +3,7 @@ package com.foxluo.resource.music.lyric.data
 import android.view.Gravity
 
 data class LyricStyle(
-    val fontSize: Int = 16,
+    val fontSize: Int = 18,
     val textColor: Int = 0xFFFFFFFF.toInt(),
     val highlightColor: Int = 0xFFFF6B6B.toInt(),
     val backgroundColor: Int = 0x99000000.toInt(),

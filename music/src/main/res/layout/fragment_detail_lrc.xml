@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -11,17 +12,68 @@
         app:lrcLabel="暂无歌词"
         app:lrcPadding="16dp" />
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/trans"
+    <LinearLayout
+        android:id="@+id/settings"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="@dimen/dp_10"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible">
+
+        <include layout="@layout/layout_lyric_settings" />
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/lyric_setting"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:layout_margin="20dp"
-        app:cardCornerRadius="4dp"
-        app:cardElevation="2dp"
-        android:visibility="gone"
+        android:layout_marginBottom="@dimen/dp_10"
+        android:padding="5dp"
+        android:src="@drawable/ic_lyric_setting"
+        app:layout_constraintBottom_toTopOf="@id/trans"
+        app:layout_constraintStart_toStartOf="@id/ll_desktop_lyric" />
+
+    <LinearLayout
+        android:id="@+id/ll_desktop_lyric"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="20dp"
+        android:gravity="center"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
+        <ImageView
+            android:id="@+id/desktop_lyric"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:padding="7dp"
+            android:tint="@color/black"
+            android:src="@drawable/ic_lyric" />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/trans"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginBottom="@dimen/dp_10"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/ll_desktop_lyric"
+        app:layout_constraintStart_toStartOf="@id/ll_desktop_lyric"
+        tools:visibility="visible">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="5dp"
+            android:rotation="90"
+            android:tint="@color/black"
+            android:src="@drawable/ic_rotate" />
         <TextView
             android:id="@+id/trans_text"
             android:layout_width="match_parent"
@@ -29,6 +81,6 @@
             android:gravity="center"
             android:text="@string/trans_chinese"
             android:textColor="@color/black"
-            android:textSize="12sp" />
-    </androidx.cardview.widget.CardView>
+            android:textSize="11sp" />
+    </RelativeLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

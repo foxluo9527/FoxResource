@@ -17,7 +17,9 @@ import com.foxluo.baselib.util.ViewExt.inVisible
 import com.foxluo.baselib.util.ViewExt.visible
 import com.foxluo.resource.music.R
 import com.foxluo.resource.music.databinding.LayoutDesktopLyricBinding
+import com.foxluo.resource.music.databinding.LayoutLyricSettingsBinding
 import com.foxluo.resource.music.lyric.manager.LyricStyleManager
+import com.foxluo.resource.music.lyric.ui.LyricSettingsExt.setListener
 
 @SuppressLint("ClickableViewAccessibility")
 class DesktopLyricContainer @JvmOverloads constructor(
@@ -146,27 +148,8 @@ class DesktopLyricContainer @JvmOverloads constructor(
             }
             toggleFavorite()
         }
-        binding.styleClassic.setOnClickListener {
-            styleManager.updateStyle(LyricStyleManager.LyricPreset.CLASSIC.style)
-        }
-        binding.styleNeon.setOnClickListener {
-            styleManager.updateStyle(LyricStyleManager.LyricPreset.NEON.style)
-        }
-        binding.styleSummer.setOnClickListener {
-            styleManager.updateStyle(LyricStyleManager.LyricPreset.WARM.style)
-        }
-        binding.styleFresh.setOnClickListener {
-            styleManager.updateStyle(LyricStyleManager.LyricPreset.COOL.style)
-        }
-        binding.styleDark.setOnClickListener {
-            styleManager.updateStyle(LyricStyleManager.LyricPreset.DARK.style)
-        }
-        binding.textSizeSub.setOnClickListener {
-            styleManager.setFontSize(styleManager.currentStyle.fontSize - 1)
-        }
-        binding.textSizeAdd.setOnClickListener {
-            styleManager.setFontSize(styleManager.currentStyle.fontSize + 1)
-        }
+        val layoutSettings = LayoutLyricSettingsBinding.bind(binding.root)
+        layoutSettings.setListener(styleManager)
         binding.llTop.getChildAt(1).setOnClickListener {
             listener?.onAppTap()
         }

@@ -1,6 +1,7 @@
 package com.foxluo.resource.music.ui.fragment
 
 import android.os.Build
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.foxluo.baselib.R
@@ -11,6 +12,7 @@ import com.foxluo.resource.music.data.database.AlbumEntity
 import com.foxluo.resource.music.data.database.ArtistEntity
 import com.foxluo.resource.music.data.database.MusicEntity
 import com.foxluo.resource.music.databinding.FragmentPlayBinding
+import com.foxluo.resource.music.lyric.manager.LyricStyleManager
 import com.foxluo.resource.music.player.PlayerManager
 import com.foxluo.resource.music.player.domain.MusicDTO
 import com.google.android.material.tabs.TabLayoutMediator
@@ -102,6 +104,17 @@ class PlayFragment : BaseBindingFragment<FragmentPlayBinding>() {
         }
     }
 
+    override fun initObserver() {
+        super.initObserver()
+        LyricStyleManager.getInstance().styleFlow.asLiveData(lifecycleScope.coroutineContext).observe(this){
+            (fragments[1] as DetailLyricsFragment).setLyricTextColor(
+                it.highlightColor,
+                it.textColor,
+                it.fontSize.toFloat()
+            )
+        }
+    }
+
     private fun setMusicData(music: MusicEntity) {
         lifecycleScope.launch {
             context?.getImageColors(music.coverImg, object : ColorFilterCallback {
@@ -118,10 +131,6 @@ class PlayFragment : BaseBindingFragment<FragmentPlayBinding>() {
                     )
                     withContext(Dispatchers.Main) {
                         lifecycleScope.launchWhenStarted {
-                            (fragments[1] as DetailLyricsFragment).setLyricTextColor(
-                                primaryTextColor,
-                                secondaryTextColor
-                            )
                             (fragments[0] as DetailSongFragment).setPrimaryColor(primaryTextColor)
                             binding.detailTab.setTabTextColors(secondaryTextColor, primaryTextColor)
                         }
