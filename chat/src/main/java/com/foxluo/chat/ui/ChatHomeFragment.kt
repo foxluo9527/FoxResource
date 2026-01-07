@@ -69,4 +69,8 @@ class ChatHomeFragment : MainPageFragment<FragmentHomeChatBinding>() {
             ARouter.getInstance().build("/mine/login").navigation(requireActivity())
         }
     }
+
+    override fun showNavBottom(): Boolean {
+        return true
+    }
 }

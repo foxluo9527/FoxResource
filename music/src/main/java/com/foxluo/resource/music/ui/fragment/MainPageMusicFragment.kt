@@ -13,6 +13,6 @@ abstract class MainPageMusicFragment<Binding : ViewBinding> : BaseMusicFragment<
     override fun getTopPlayPadding() = initPlayDragPadding()?.get(1) ?: 0
     override fun getRightPlayPadding() = initPlayDragPadding()?.get(2) ?: 0
     override fun getBottomPlayPadding() = initPlayDragPadding()?.get(3) ?: 0
-
+    override fun showNavBottom() = true
     open fun initPlayDragPadding():IntArray?{ return null}
 }

@@ -57,7 +57,7 @@ class SearchMusicFragment : MainPageFragment<FragmentSearchMusicBinding>() {
                 showSearchContent()
                 binding.etSearch.text?.clear()
             } else {
-                EventViewModel.sendSearchPageEvent(false)
+                EventViewModel.showMainPageFragment.value = null
             }
         }
 
@@ -116,7 +116,7 @@ class SearchMusicFragment : MainPageFragment<FragmentSearchMusicBinding>() {
                     showSearchContent()
                     binding.etSearch.text?.clear()
                 } else {
-                    EventViewModel.sendSearchPageEvent(false)
+                    EventViewModel.showMainPageFragment.value = null
                 }
             }
         }
@@ -158,7 +158,7 @@ class SearchMusicFragment : MainPageFragment<FragmentSearchMusicBinding>() {
         childFragmentManager.beginTransaction()
             .replace(R.id.container, fragment)
             .commit()
-        EventViewModel.sendSearchPageEvent(true)
+        EventViewModel.showMainPageFragment.value = this
     }
 
     /**
@@ -170,7 +170,7 @@ class SearchMusicFragment : MainPageFragment<FragmentSearchMusicBinding>() {
         binding.container.visible(false)
         isShowingResult = false
         showSearchHistory()
-        EventViewModel.sendSearchPageEvent(true)
+        EventViewModel.showMainPageFragment.value = this
         KeyboardUtils.hideSoftInput(requireActivity())
     }
 

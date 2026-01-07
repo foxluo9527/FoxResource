@@ -1,7 +1,6 @@
 package com.foxluo.home.ui
 
 import android.view.View
-import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.foxluo.baselib.R
@@ -9,8 +8,8 @@ import com.foxluo.baselib.domain.viewmodel.EventViewModel
 import com.foxluo.baselib.ui.MainPageFragment
 import com.foxluo.home.databinding.FragmentHomeBinding
 import com.foxluo.resource.music.ui.fragment.MainMusicFragment
+import com.foxluo.resource.music.ui.fragment.SearchMusicFragment
 import com.google.android.material.tabs.TabLayoutMediator
-import com.xuexiang.xui.widget.textview.marqueen.MarqueeFactory
 import com.xuexiang.xui.widget.textview.marqueen.SimpleNoticeMF
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -24,8 +23,12 @@ class HomeFragment : MainPageFragment<FragmentHomeBinding>() {
         arrayOf(MainMusicFragment())
     }
 
+    private val searchFragment by lazy {
+        SearchMusicFragment()
+    }
+
     private val marqueeFactory by lazy {
-        SimpleNoticeMF(getContext())
+        SimpleNoticeMF(context)
     }
 
     override fun initView() {
@@ -58,7 +61,7 @@ class HomeFragment : MainPageFragment<FragmentHomeBinding>() {
     override fun initListener() {
         // 添加搜索点击事件
         binding.llSearch.setOnClickListener {
-            EventViewModel.sendSearchPageEvent(true)
+            EventViewModel.showMainPageFragment.value = searchFragment
         }
     }
 
@@ -81,4 +84,6 @@ class HomeFragment : MainPageFragment<FragmentHomeBinding>() {
     }
 
     override fun showPlayView() = true
+
+    override fun showNavBottom() = true
 }

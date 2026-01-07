@@ -90,4 +90,6 @@ class MineFragment : MainPageFragment<FragmentMineBinding>() {
     }
 
     override fun showPlayView() = true
+
+    override fun showNavBottom() = true
 }

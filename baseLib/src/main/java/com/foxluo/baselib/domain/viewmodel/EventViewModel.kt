@@ -1,5 +1,6 @@
 package com.foxluo.baselib.domain.viewmodel
 
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import com.foxluo.baselib.domain.bean.SearchHotKeyword
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,26 +13,10 @@ import kotlinx.coroutines.flow.StateFlow
  */
 object EventViewModel {
 
-    // 搜索事件：true 表示显示搜索页，false 表示隐藏搜索页
-    private val _searchPageEvent = MutableStateFlow(false to 0L)
-    val searchPageEvent: StateFlow<Pair<Boolean, Long>> = _searchPageEvent
+    val showMainPageFragment = MutableStateFlow<Fragment?>(null)
 
     val hotKeywords by lazy {
         MutableStateFlow<List<SearchHotKeyword>>(listOf())
-    }
-
-    /**
-     * 发送搜索事件
-     */
-    fun sendSearchPageEvent(show: Boolean) {
-        _searchPageEvent.value = show to System.currentTimeMillis()
-    }
-
-    /**
-     * 清除搜索事件
-     */
-    fun clearSearchEvent() {
-        _searchPageEvent.value = false to 0L
     }
 
     val appInForeground by lazy {
