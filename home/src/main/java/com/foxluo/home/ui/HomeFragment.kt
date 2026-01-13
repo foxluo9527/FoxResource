@@ -61,7 +61,7 @@ class HomeFragment : MainPageFragment<FragmentHomeBinding>() {
     override fun initListener() {
         // 添加搜索点击事件
         binding.llSearch.setOnClickListener {
-            EventViewModel.showMainPageFragment.value = searchFragment
+            EventViewModel.showMainPageFragment.value = searchFragment to System.currentTimeMillis()
         }
     }
 

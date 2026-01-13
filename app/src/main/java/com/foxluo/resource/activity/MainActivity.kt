@@ -7,13 +7,13 @@ import android.content.ComponentName
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.LinearInterpolator
+import androidx.activity.OnBackPressedCallback
 import androidx.core.view.size
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.lifecycleScope
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
-import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.blankj.utilcode.util.ConvertUtils.px2dp
 import com.foxluo.baselib.data.manager.AuthManager
 import com.foxluo.baselib.domain.viewmodel.EventViewModel
@@ -22,7 +22,6 @@ import com.foxluo.baselib.ui.BaseBindingActivity
 import com.foxluo.baselib.ui.MainPage
 import com.foxluo.baselib.util.Constant
 import com.foxluo.baselib.util.ImageExt.loadUrlWithCircle
-import com.foxluo.baselib.util.ViewExt.gone
 import com.foxluo.baselib.util.ViewExt.visible
 import com.foxluo.chat.ui.ChatHomeFragment
 import com.foxluo.home.ui.HomeFragment
@@ -72,15 +71,9 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
         }
     }
 
+    private var currentFragment: Fragment? = null
 
     override fun initView() {
-        val adapter = object : FragmentStateAdapter(this) {
-            override fun createFragment(position: Int) = fragments[position]
-
-            override fun getItemCount() = fragments.size
-        }
-        binding.fragmentContainer.adapter = adapter
-        binding.fragmentContainer.isUserInputEnabled = false
         binding.playCover.loadUrlWithCircle(null)
         XXPermissions.with(this) // 申请安装包权限
             //.permission(Permission.REQUEST_INSTALL_PACKAGES)
@@ -121,13 +114,13 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
 
     override fun initListener() {
         binding.navBottom.setOnItemSelectedListener { item ->
-            binding.fragmentContainer.currentItem = when (item.itemId) {
+            lastMainNavFragmentIndex = when (item.itemId) {
                 R.id.item_home -> 0
                 R.id.item_chat -> 1
                 R.id.item_group -> 2
                 else -> 3
             }
-            val currentFragment = fragments[binding.fragmentContainer.currentItem]
+            val currentFragment = fragments[lastMainNavFragmentIndex]
             currentFragmentChanged(currentFragment)
             true
         }
@@ -146,12 +139,37 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
         binding.playState.setOnClickListener {
             PlayerManager.getInstance().togglePlay()
         }
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (fragments.size > binding.navBottom.menu.size) {
+                    EventViewModel.showMainPageFragment.value = null to System.currentTimeMillis()
+                } else {
+                    finish()
+                }
+            }
+        })
     }
 
     // 保存当前显示的Fragment索引
-    private var currentFragmentIndex = 0
+    private var lastMainNavFragmentIndex = 0
 
-    private fun currentFragmentChanged(currentFragment: Fragment) {
+    private fun currentFragmentChanged(fragment: Fragment) {
+        if (currentFragment != fragment) {
+            val transaction = supportFragmentManager.beginTransaction()
+
+            currentFragment?.let {
+                transaction.hide(it)
+            }
+
+            if (fragment.isAdded) {
+                transaction.show(fragment)
+            } else {
+                transaction.add(binding.fragmentContainer.id, fragment)
+            }
+
+            transaction.commit()
+            currentFragment = fragment
+        }
         (currentFragment as? MainPage)?.let {
             if (it.showPlayView()) {
                 binding.playView.visibility = View.VISIBLE
@@ -176,25 +194,22 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
     override fun initObserver() {
         // 搜索事件监听
         lifecycleScope.launch {
-            EventViewModel.showMainPageFragment.collectLatest {
-                val showFragmentIndex = if (it != null) {
-                    if (!fragments.contains(it)) {
-                        currentFragmentIndex = binding.fragmentContainer.currentItem
-                        fragments.add(it)
+            EventViewModel.showMainPageFragment.collectLatest { (fragment, _) ->
+                val currentFragment = if (fragment != null) {
+                    if (!fragments.contains(fragment)) {
+                        fragments.add(fragment)
                     }
-                    fragments.size - 1
+                    fragments.last()
                 } else {
-                    fragments.removeAt(fragments.size - 1)
                     if (fragments.size > binding.navBottom.menu.size) {
-                        fragments.size - 1
+                        fragments.removeAt(fragments.size - 1)
+                    }
+                    if (fragments.size > binding.navBottom.menu.size) {
+                        fragments.last()
                     } else {
-                        currentFragmentIndex
+                        fragments[lastMainNavFragmentIndex]
                     }
                 }
-                if (showFragmentIndex != binding.fragmentContainer.currentItem) {
-                    binding.fragmentContainer.setCurrentItem(showFragmentIndex, false)
-                }
-                val currentFragment = fragments[showFragmentIndex]
                 currentFragmentChanged(currentFragment)
             }
         }

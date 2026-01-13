@@ -1,32 +1,18 @@
 package com.foxluo.resource.music.ui.fragment
 
+import android.annotation.SuppressLint
+import android.graphics.Color
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
-import androidx.paging.LoadState
 import androidx.paging.PagingData
-import com.foxluo.baselib.R
-import com.foxluo.baselib.domain.AuthorizFailError
-import com.foxluo.baselib.domain.viewmodel.getAppViewModel
-import com.foxluo.baselib.ui.BaseBindingFragment
-import com.foxluo.baselib.ui.view.StatusPager
 import com.foxluo.baselib.util.Constant
-import com.foxluo.baselib.util.ViewExt.visible
-import com.foxluo.resource.music.data.database.AlbumEntity
 import com.foxluo.resource.music.data.database.MusicEntity
-import com.foxluo.resource.music.data.domain.viewmodel.MainMusicViewModel
 import com.foxluo.resource.music.data.domain.viewmodel.RecentMusicViewModel
-import com.foxluo.resource.music.databinding.FragmentMusicListBinding
-import com.foxluo.resource.music.player.PlayerManager
-import com.scwang.smart.refresh.layout.SmartRefreshLayout
-import com.scwang.smart.refresh.layout.constant.RefreshState
+import com.foxluo.resource.music.databinding.FragmentRecentMusicListBinding
+import com.xuexiang.xui.R
 import com.xuexiang.xui.utils.XToastUtils.toast
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 
-class RecentMusicFragment : BaseMusicFragment<FragmentMusicListBinding>() {
-    override val loadingView: SmartRefreshLayout
-        get() = binding.loading
+class RecentMusicFragment : MainPageMusicFragment<FragmentRecentMusicListBinding>() {
     override val musicPager: MutableStateFlow<PagingData<MusicEntity>>
         get() = vm.musicPager
     private val vm: RecentMusicViewModel by viewModels()
@@ -41,9 +27,31 @@ class RecentMusicFragment : BaseMusicFragment<FragmentMusicListBinding>() {
         }
     }
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     override fun initView() {
         super.initView()
-        binding.recycleView.adapter = adapter
+        // 设置返回键颜色和大小
+        binding.toolbar.navigationIcon =
+            resources.getDrawable(R.drawable.xui_ic_navigation_back_white, null)
+        binding.toolbar.setTitleTextColor(Color.WHITE)
+        // 设置返回键点击事件
+        binding.toolbar.setNavigationOnClickListener {
+            requireActivity().onBackPressedDispatcher.onBackPressed()
+        }
+        // 设置CollapsingToolbar标题
+        binding.collapsingToolbar.title = "最近播放"
+        binding.collapsingToolbar.setCollapsedTitleTextColor(Color.WHITE)
+        binding.collapsingToolbar.setStatusBarScrimColor(
+            resources.getColor(
+                com.foxluo.baselib.R.color.color_ED6C40,
+                null
+            )
+        )
+    }
+
+    override fun initListener() {
+        super.initListener()
+        binding.appBar.addOnOffsetChangedListener(this::updateMusicListHeight)
     }
 
     override fun getPlayListId(): String {
@@ -73,5 +81,8 @@ class RecentMusicFragment : BaseMusicFragment<FragmentMusicListBinding>() {
     }
 
 
-    override fun initBinding() = FragmentMusicListBinding.inflate(layoutInflater)
+    override fun initBinding() = FragmentRecentMusicListBinding.inflate(layoutInflater)
+
+    override fun showPlayView() = true
+
 }

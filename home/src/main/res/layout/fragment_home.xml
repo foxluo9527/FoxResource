@@ -16,7 +16,7 @@
             android:layout_marginHorizontal="15dp"
             android:layout_marginTop="10dp"
             android:elevation="1dp"
-            android:background="@drawable/shape_white_trans_r8"
+            android:background="@drawable/shape_white_trans_r30"
             app:layout_constraintTop_toTopOf="parent"
             android:gravity="center_vertical"
             android:orientation="horizontal">

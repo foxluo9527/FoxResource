@@ -8,10 +8,13 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
-import androidx.annotation.*
+import androidx.annotation.DrawableRes
+import androidx.annotation.IdRes
+import androidx.annotation.IntDef
+import androidx.annotation.LayoutRes
+import androidx.annotation.StringRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.viewpager.widget.ViewPager
-import java.util.*
 
 /**
  * @author : leo
@@ -45,6 +48,8 @@ class StatusPager private constructor(private val mBuilder: Builder) :
     @ViewState
     var curState = VIEW_STATE_CONTENT
         private set
+
+    var currentError: Throwable? = null
 
     @kotlin.annotation.Retention(AnnotationRetention.SOURCE)
     @IntDef(
@@ -170,7 +175,8 @@ class StatusPager private constructor(private val mBuilder: Builder) :
         return ViewHelper(mBuilder.mReplace)
     }
 
-    fun showError(): ViewHelper {
+    fun showError(error: Throwable? = null): ViewHelper {
+        this.currentError = error
         if (mBuilder.mErrorId == View.NO_ID) {
             throw NullPointerException("error layout is invalid")
         }

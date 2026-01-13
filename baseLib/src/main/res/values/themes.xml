@@ -7,6 +7,7 @@
     </declare-styleable>
     <style name="AppTheme" parent="XUITheme.Phone">
         <item name="colorPrimary">@color/color_ED6C40</item>
+        <item name="colorPrimaryVariant">@color/color_ED6C40</item>
         <item name="colorSecondary">@color/color_F05019</item>
     </style>
 </resources>

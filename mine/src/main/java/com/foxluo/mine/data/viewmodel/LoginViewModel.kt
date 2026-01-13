@@ -41,6 +41,7 @@ class LoginViewModel : BaseViewModel() {
                 AuthManager.logout()
             } else if (result is RequestResult.Error) {
                 toast.postValue(false to result.message)
+                AuthManager.logout()
             }
         }
     }

@@ -64,7 +64,7 @@ class MusicRepository(
             config = PagingConfig(
                 pageSize = 100,
                 prefetchDistance = 2,
-                initialLoadSize = 20
+                initialLoadSize = 100
             ),
             pagingSourceFactory = { MusicPagingSource(this, keyword,sort) }
         ).flow

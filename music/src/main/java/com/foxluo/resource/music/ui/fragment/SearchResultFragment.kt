@@ -16,6 +16,7 @@ import com.foxluo.resource.music.data.database.AlbumEntity
 import com.foxluo.resource.music.data.database.MusicEntity
 import com.foxluo.resource.music.data.domain.viewmodel.MainMusicViewModel
 import com.foxluo.resource.music.data.domain.viewmodel.SearchMusicViewModel
+import com.foxluo.resource.music.databinding.FragmentMusicListBinding
 import com.foxluo.resource.music.databinding.FragmentSearchResultBinding
 import com.foxluo.resource.music.player.PlayerManager
 import com.foxluo.resource.music.ui.adapter.MusicMoreMenuAdapter
@@ -31,12 +32,7 @@ class SearchResultFragment : MainPageMusicFragment<FragmentSearchResultBinding>(
         arguments?.getString("keyword") ?: ""
     }
 
-    private val vm by viewModels<SearchMusicViewModel>({
-        requireActivity()
-    })
-
-    override val loadingView: SmartRefreshLayout
-        get() = binding.loading
+    private val vm by viewModels<SearchMusicViewModel>()
 
     override val musicPager: MutableStateFlow<PagingData<MusicEntity>>
         get() = vm.musicPager
@@ -44,11 +40,6 @@ class SearchResultFragment : MainPageMusicFragment<FragmentSearchResultBinding>(
 
     override fun initBinding(): FragmentSearchResultBinding {
         return FragmentSearchResultBinding.inflate(layoutInflater)
-    }
-
-    override fun initView() {
-        super.initView()
-        binding.recycleView.adapter = adapter
     }
 
     override fun getPlayListId(): String {

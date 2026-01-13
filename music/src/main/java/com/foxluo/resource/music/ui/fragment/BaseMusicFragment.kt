@@ -6,6 +6,8 @@ import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewbinding.ViewBinding
+import com.alibaba.android.arouter.launcher.ARouter
+import com.blankj.utilcode.util.ActivityUtils
 import com.foxluo.baselib.R
 import com.foxluo.baselib.domain.AuthorizFailError
 import com.foxluo.baselib.domain.viewmodel.getAppViewModel
@@ -15,11 +17,11 @@ import com.foxluo.baselib.util.Constant
 import com.foxluo.resource.music.data.database.AlbumEntity
 import com.foxluo.resource.music.data.database.MusicEntity
 import com.foxluo.resource.music.data.domain.viewmodel.MainMusicViewModel
+import com.foxluo.resource.music.databinding.FragmentMusicListBinding
 import com.foxluo.resource.music.player.PlayerManager
 import com.foxluo.resource.music.ui.adapter.MusicListAdapter
 import com.foxluo.resource.music.ui.adapter.MusicMoreMenuAdapter
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import com.scwang.smart.refresh.layout.constant.RefreshState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -62,15 +64,25 @@ abstract class BaseMusicFragment<Binding : ViewBinding> : BaseBindingFragment<Bi
         onMoreClick(position)
     }
 
-    abstract val loadingView: SmartRefreshLayout
-    private val statePager by lazy {
-        StatusPager.builder(loadingView)
+    val musicListBinding: FragmentMusicListBinding by lazy {
+        FragmentMusicListBinding.bind(binding.root)
+    }
+
+    protected val statePager by lazy {
+        StatusPager.builder(musicListBinding.loading)
             .emptyViewLayout(getEmptyViewLayout())
             .loadingViewLayout(getLoadingViewLayout())
             .errorViewLayout(getErrorViewLayout())
             .addRetryButtonId(getRetryBtn())
-            .setRetryClickListener { _, _ ->
-                adapter.refresh()
+            .setRetryClickListener { pager, _ ->
+                if (pager.currentError is AuthorizFailError) {
+                    val topActivity = ActivityUtils.getTopActivity()
+                    if (topActivity.javaClass.simpleName != "LoginActivity") {
+                        ARouter.getInstance().build("/mine/login").navigation(topActivity)
+                    }
+                } else {
+                    adapter.refresh()
+                }
             }
             .build()
     }
@@ -123,8 +135,8 @@ abstract class BaseMusicFragment<Binding : ViewBinding> : BaseBindingFragment<Bi
             val append = loadState.append
             when (refresh) {
                 is LoadState.Error -> {
-                    loadingView.finishRefresh(false)
-                    statePager.showError().apply {
+                    musicListBinding.loading.finishRefresh(false)
+                    statePager.showError(refresh.error).apply {
                         setText(R.id.tv_title, refresh.error.message)
                         if (refresh.error is AuthorizFailError) {
                             setText(R.id.btn_retry, "点击登录")
@@ -136,19 +148,19 @@ abstract class BaseMusicFragment<Binding : ViewBinding> : BaseBindingFragment<Bi
 
                 is LoadState.Loading -> {
                     hasRefreshing = true
-                    if (loadingView.state != RefreshState.Refreshing) {
+                    if (musicListBinding.loading.state != RefreshState.Refreshing) {
                         statePager.showLoading()
                     }
                 }
 
                 is LoadState.NotLoading -> {
                     if (hasRefreshing) {
-                        loadingView.finishRefresh(true)
+                        musicListBinding.loading.finishRefresh(true)
                         statePager.showContent()
                         //如果第一页数据就没有更多了，第一页不会触发append
                         if ((append as? LoadState.NotLoading)?.endOfPaginationReached == true) {
                             //没有更多了(只能用source的append)
-                            loadingView.finishLoadMoreWithNoMoreData()
+                            musicListBinding.loading.finishLoadMoreWithNoMoreData()
                         }
                     }
                 }
@@ -158,7 +170,7 @@ abstract class BaseMusicFragment<Binding : ViewBinding> : BaseBindingFragment<Bi
                 is LoadState.Loading -> {
                     hasLoadingMore = true
                     //重置上拉加载状态，显示加载loading
-                    loadingView.resetNoMoreData()
+                    musicListBinding.loading.resetNoMoreData()
                 }
 
                 is LoadState.NotLoading -> {
@@ -166,9 +178,9 @@ abstract class BaseMusicFragment<Binding : ViewBinding> : BaseBindingFragment<Bi
                         hasLoadingMore = false
                         if (append.endOfPaginationReached) {
                             //没有更多了(只能用source的append)
-                            loadingView.finishLoadMoreWithNoMoreData()
+                            musicListBinding.loading.finishLoadMoreWithNoMoreData()
                         } else {
-                            loadingView.finishLoadMore(true)
+                            musicListBinding.loading.finishLoadMore(true)
                         }
                     }
                     if (PlayerManager.getInstance().album.albumId != Constant.TABLE_ALBUM_PLAYING_ID.toString()) return@addLoadStateListener
@@ -182,7 +194,7 @@ abstract class BaseMusicFragment<Binding : ViewBinding> : BaseBindingFragment<Bi
                 }
 
                 is LoadState.Error -> {
-                    loadingView.finishLoadMore(false)
+                    musicListBinding.loading.finishLoadMore(false)
                 }
             }
         }
@@ -199,11 +211,11 @@ abstract class BaseMusicFragment<Binding : ViewBinding> : BaseBindingFragment<Bi
     override fun initListener() {
         super.initListener()
         //设置下拉刷新
-        loadingView.setOnRefreshListener {
+        musicListBinding.loading.setOnRefreshListener {
             adapter.refresh()
         }
         //上拉加载更多
-        loadingView.setOnLoadMoreListener {
+        musicListBinding.loading.setOnLoadMoreListener {
             adapter.retry()
         }
     }
@@ -211,6 +223,7 @@ abstract class BaseMusicFragment<Binding : ViewBinding> : BaseBindingFragment<Bi
     override fun initView() {
         super.initView()
         statePager.showLoading()
+        musicListBinding.recycleView.adapter = adapter
     }
 
     open fun onClickItem(position: Int) {}

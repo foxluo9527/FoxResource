@@ -339,7 +339,8 @@ public class DesktopDragView extends CardView {
     public void setTouchAble(boolean touchAble){
         try {
             mWindowParams.flags = touchAble ? WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE : WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
-            mWindowManager.updateViewLayout(this, mWindowParams);
+            mWindowManager.removeView(this);
+            mWindowManager.addView(this, mWindowParams);
         } catch (Exception e) {
             e.printStackTrace();
         }

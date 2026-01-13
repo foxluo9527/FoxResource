@@ -4,6 +4,7 @@ import LogInterceptor
 import com.alibaba.android.arouter.launcher.ARouter
 import com.blankj.utilcode.util.ActivityUtils
 import com.foxluo.baselib.data.api.BaseApi
+import com.foxluo.baselib.data.manager.AuthManager
 import okhttp3.Interceptor
 import okhttp3.MediaType
 import okhttp3.OkHttpClient
@@ -48,7 +49,7 @@ open class BaseRepository {
         if (topActivity.javaClass.simpleName != "LoginActivity") {
             ARouter.getInstance().build("/mine/login").navigation(topActivity)
         }
-
+        AuthManager.logout()
         return originalResponse.newBuilder()
             .code(200)
             .body(

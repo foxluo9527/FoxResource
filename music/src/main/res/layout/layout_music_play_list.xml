@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:parentTag="android.widget.LinearLayout"
+    android:orientation="vertical">
+    <!-- 播放全部标题 -->
+    <LinearLayout
+        android:id="@+id/ll_play_all"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="@drawable/shape_white_top_r15"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="20dp"
+        android:visibility="visible">
+
+        <ImageView
+            android:id="@+id/iv_play_all"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/iv_play"
+            app:tint="@color/black" />
+
+        <TextView
+            android:id="@+id/tv_play_all_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12dp"
+            android:layout_weight="1"
+            android:text="播放全部"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_song_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0首"
+            android:textColor="@color/color_999999"
+            android:textSize="14sp" />
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/ll_music_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white">
+        <include layout="@layout/fragment_music_list" />
+    </LinearLayout>
+</merge>

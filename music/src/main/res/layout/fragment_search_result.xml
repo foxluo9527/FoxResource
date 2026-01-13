@@ -6,26 +6,6 @@
     android:background="@color/white"
     android:orientation="vertical">
 
-    <com.scwang.smart.refresh.layout.SmartRefreshLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/loading">
-        <com.scwang.smart.refresh.header.ClassicsHeader
-            app:srlEnableLastTime="false"
-            app:srlTextPulling="下拉刷新"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycle_view"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
-        <com.scwang.smart.refresh.footer.ClassicsFooter
-            app:srlTextPulling="加载更多"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-    </com.scwang.smart.refresh.layout.SmartRefreshLayout>
+    <include layout="@layout/layout_music_play_list"/>
 
 </LinearLayout>

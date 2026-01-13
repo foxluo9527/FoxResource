@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
  */
 object EventViewModel {
 
-    val showMainPageFragment = MutableStateFlow<Fragment?>(null)
+    val showMainPageFragment = MutableStateFlow<Pair<Fragment?, Long>>(null to 0L)
 
     val hotKeywords by lazy {
         MutableStateFlow<List<SearchHotKeyword>>(listOf())

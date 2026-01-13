@@ -37,6 +37,8 @@ class SearchMusicFragment : MainPageFragment<FragmentSearchMusicBinding>() {
     // 当前是否显示搜索结果
     private var isShowingResult = false
 
+    private var currentSearchResultFragment: SearchResultFragment? = null
+
     override fun initBinding() = FragmentSearchMusicBinding.inflate(layoutInflater)
 
     override fun initView() {
@@ -57,7 +59,8 @@ class SearchMusicFragment : MainPageFragment<FragmentSearchMusicBinding>() {
                 showSearchContent()
                 binding.etSearch.text?.clear()
             } else {
-                EventViewModel.showMainPageFragment.value = null
+                EventViewModel.showMainPageFragment.value = null to System.currentTimeMillis()
+                KeyboardUtils.hideSoftInput(requireActivity())
             }
         }
 
@@ -116,7 +119,7 @@ class SearchMusicFragment : MainPageFragment<FragmentSearchMusicBinding>() {
                     showSearchContent()
                     binding.etSearch.text?.clear()
                 } else {
-                    EventViewModel.showMainPageFragment.value = null
+                    EventViewModel.showMainPageFragment.value = null to System.currentTimeMillis()
                 }
             }
         }
@@ -151,14 +154,15 @@ class SearchMusicFragment : MainPageFragment<FragmentSearchMusicBinding>() {
         val bundle = Bundle().apply {
             putString("keyword", keyword)
         }
-
+        currentSearchResultFragment?.let {
+            childFragmentManager.beginTransaction().remove(it).commit()
+        }
         // 跳转到搜索结果Fragment
         val fragment = SearchResultFragment()
+        currentSearchResultFragment = fragment
         fragment.arguments = bundle
-        childFragmentManager.beginTransaction()
-            .replace(R.id.container, fragment)
-            .commit()
-        EventViewModel.showMainPageFragment.value = this
+        childFragmentManager.beginTransaction().add(R.id.container, fragment).commit()
+        EventViewModel.showMainPageFragment.value = this to System.currentTimeMillis()
     }
 
     /**
@@ -170,7 +174,7 @@ class SearchMusicFragment : MainPageFragment<FragmentSearchMusicBinding>() {
         binding.container.visible(false)
         isShowingResult = false
         showSearchHistory()
-        EventViewModel.showMainPageFragment.value = this
+        EventViewModel.showMainPageFragment.value = this to System.currentTimeMillis()
         KeyboardUtils.hideSoftInput(requireActivity())
     }
 
@@ -269,5 +273,9 @@ class SearchMusicFragment : MainPageFragment<FragmentSearchMusicBinding>() {
 
     override fun initPlayDragPadding(): IntArray? {
         return intArrayOf(20, 50, 20, 0)
+    }
+
+    override fun showNavBottom(): Boolean {
+        return false
     }
 }
