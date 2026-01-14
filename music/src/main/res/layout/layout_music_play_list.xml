@@ -17,13 +17,22 @@
         android:paddingHorizontal="20dp"
         android:visibility="visible">
 
-        <ImageView
-            android:id="@+id/iv_play_all"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:src="@drawable/iv_play"
-            app:tint="@color/black" />
+        <androidx.cardview.widget.CardView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            app:cardBackgroundColor="@color/color_ED6C40"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="0dp"
+            app:contentPadding="7dp">
 
+            <ImageView
+                android:id="@+id/iv_play_all"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/iv_play"
+                android:paddingStart="2dp"
+                app:tint="@color/white" />
+        </androidx.cardview.widget.CardView>
         <TextView
             android:id="@+id/tv_play_all_title"
             android:layout_width="0dp"

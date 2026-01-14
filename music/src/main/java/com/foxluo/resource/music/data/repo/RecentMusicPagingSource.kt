@@ -4,7 +4,6 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.foxluo.baselib.data.result.ListData
 import com.foxluo.baselib.data.result.RequestResult
-import com.foxluo.baselib.domain.AuthorizFailError
 import com.foxluo.resource.music.data.database.MusicEntity
 
 class RecentMusicPagingSource(
@@ -26,12 +25,7 @@ class RecentMusicPagingSource(
                     // 网络失败，返回本地数据,若无本地数据则返回错误
                     val localData = repo.getRecentMusicList(page, params.loadSize)
                     if (localData.isNullOrEmpty()) {
-                        val error = if (result.code == 401) {
-                            AuthorizFailError()
-                        } else {
-                            Throwable(result.message)
-                        }
-                        return LoadResult.Error(error)
+                        return LoadResult.Error(result.getError())
                     } else {
                         localData
                     }

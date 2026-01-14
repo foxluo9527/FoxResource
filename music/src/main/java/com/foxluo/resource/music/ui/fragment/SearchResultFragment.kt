@@ -7,7 +7,6 @@ import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.foxluo.baselib.R
-import com.foxluo.baselib.domain.AuthorizFailError
 import com.foxluo.baselib.domain.viewmodel.getAppViewModel
 import com.foxluo.baselib.ui.MainPageFragment
 import com.foxluo.baselib.ui.view.StatusPager

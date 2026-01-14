@@ -2,25 +2,18 @@ package com.foxluo.home.ui
 
 import android.view.View
 import androidx.lifecycle.lifecycleScope
-import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.foxluo.baselib.R
 import com.foxluo.baselib.domain.viewmodel.EventViewModel
 import com.foxluo.baselib.ui.MainPageFragment
 import com.foxluo.home.databinding.FragmentHomeBinding
 import com.foxluo.resource.music.ui.fragment.MainMusicFragment
 import com.foxluo.resource.music.ui.fragment.SearchMusicFragment
-import com.google.android.material.tabs.TabLayoutMediator
 import com.xuexiang.xui.widget.textview.marqueen.SimpleNoticeMF
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class HomeFragment : MainPageFragment<FragmentHomeBinding>() {
-    private val tabs by lazy {
-        arrayOf(getString(R.string.music))
-    }
-
-    private val fragments by lazy {
-        arrayOf(MainMusicFragment())
+    private val mainMusicFragment by lazy {
+        MainMusicFragment()
     }
 
     private val searchFragment by lazy {
@@ -32,19 +25,9 @@ class HomeFragment : MainPageFragment<FragmentHomeBinding>() {
     }
 
     override fun initView() {
-        val adapter = object : FragmentStateAdapter(this) {
-            override fun createFragment(position: Int) = fragments[position]
-
-            override fun getItemCount() = fragments.size
-        }
-        binding.homeViewpager.adapter = adapter
-        TabLayoutMediator(binding.homeTab, binding.homeViewpager) { tab, position ->
-            tab.text = tabs[position]
-            tab.view.setOnLongClickListener{ true }
-            tab.view.tooltipText = null
-        }.apply {
-            this.attach()
-        }
+        childFragmentManager.beginTransaction()
+            .replace(com.foxluo.home.R.id.home_container, mainMusicFragment)
+            .commit()
         binding.tvSearch.setMarqueeFactory(marqueeFactory)
     }
 

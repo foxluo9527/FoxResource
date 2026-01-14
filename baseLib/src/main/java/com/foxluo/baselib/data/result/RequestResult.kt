@@ -1,6 +1,7 @@
 package com.foxluo.baselib.data.result
 
 import com.foxluo.baselib.data.respository.BaseRepository
+import com.foxluo.baselib.domain.AuthorizFailError
 
 sealed class RequestResult {
     abstract fun isSuccess(): Boolean
@@ -11,6 +12,12 @@ sealed class RequestResult {
 
     class Error(val code: Int? = null, val message: String) : RequestResult() {
         override fun isSuccess() = false
+
+        fun getError() = if (code == 401) {
+            AuthorizFailError()
+        } else {
+            Throwable(message)
+        }
     }
 
     fun <T> invokeCallback(callback: BaseRepository.ResultCallback<T>) {

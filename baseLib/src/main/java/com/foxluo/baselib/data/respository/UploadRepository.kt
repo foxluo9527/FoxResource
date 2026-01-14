@@ -24,16 +24,18 @@ class UploadRepository: BaseRepository() {
             throw Exception("文件类型获取错误 ${filePath}")
         }
         val mediaTypeStr = getMediaType(fileType)
-        val requestFile = RequestBody.create(MediaType.parse(mediaTypeStr), file)
-        val part = MultipartBody.Part.createFormData("file", file.getName(), requestFile)
-        val result = if (mediaTypeStr.contains("image")) {
-            uploadApi?.uploadImage(part)
-        } else if (mediaTypeStr.contains("audio")) {
-            uploadApi?.uploadAudio(part)
-        } else if (mediaTypeStr.contains("video")) {
-            uploadApi?.uploadVideo(part)
-        } else {
-            uploadApi?.uploadFile(part)
+        val result = runCatching {
+            val requestFile = RequestBody.create(MediaType.parse(mediaTypeStr), file)
+            val part = MultipartBody.Part.createFormData("file", file.getName(), requestFile)
+            if (mediaTypeStr.contains("image")) {
+                uploadApi?.uploadImage(part)
+            } else if (mediaTypeStr.contains("audio")) {
+                uploadApi?.uploadAudio(part)
+            } else if (mediaTypeStr.contains("video")) {
+                uploadApi?.uploadVideo(part)
+            } else {
+                uploadApi?.uploadFile(part)
+            }
         }
         return result.toRequestResult()
     }

@@ -3,6 +3,8 @@ package com.foxluo.resource.music.ui.fragment
 import android.annotation.SuppressLint
 import android.view.Choreographer
 import androidx.viewbinding.ViewBinding
+import com.alibaba.android.arouter.launcher.ARouter
+import com.blankj.utilcode.util.ActivityUtils
 import com.foxluo.baselib.ui.MainPage
 import com.foxluo.baselib.ui.view.StatusPager
 import com.foxluo.resource.music.data.database.AlbumEntity
@@ -20,10 +22,6 @@ abstract class MainPageMusicFragment<Binding : ViewBinding> : BaseMusicFragment<
     val playlistBinding by lazy {
         LayoutMusicPlayListBinding.bind(binding.root)
     }
-
-    // 标记是否需要更新布局
-    @Volatile
-    private var isUpdatePending = false
 
     // Choreographer用于根据屏幕刷新率更新UI
     private val choreographer = Choreographer.getInstance()
@@ -74,24 +72,20 @@ abstract class MainPageMusicFragment<Binding : ViewBinding> : BaseMusicFragment<
     }
 
     protected fun updateMusicListHeight(appBarLayout: AppBarLayout, verticalOffset: Int) {
-        // 请求下一帧更新，避免频繁计算和布局
-        if (!isUpdatePending) {
-            isUpdatePending = true
-            choreographer.postFrameCallback { _ ->
-                // 获取root布局高度
-                val rootHeight = binding.root.height
-                val totalScrollRange = appBarLayout.height
-                // 计算剩余空间高度
-                val remainingHeight = rootHeight - totalScrollRange - verticalOffset - playlistBinding.llMusicList.top
-                playlistBinding.llMusicList.let {
-                    // 只在高度发生变化时才更新，避免不必要的布局
-                    if (it.height != remainingHeight) {
-                        it.layoutParams = it.layoutParams?.apply {
-                            height = remainingHeight
-                        }
+        choreographer.postFrameCallback { _ ->
+            // 获取root布局高度
+            val rootHeight = binding.root.height
+            val totalScrollRange = appBarLayout.height
+            // 计算剩余空间高度
+            val remainingHeight =
+                rootHeight - totalScrollRange - verticalOffset - playlistBinding.llMusicList.top
+            playlistBinding.llMusicList.let {
+                // 只在高度发生变化时才更新，避免不必要的布局
+                if (it.height != remainingHeight) {
+                    it.layoutParams = it.layoutParams?.apply {
+                        height = remainingHeight
                     }
                 }
-                isUpdatePending = false
             }
         }
     }
@@ -109,6 +103,12 @@ abstract class MainPageMusicFragment<Binding : ViewBinding> : BaseMusicFragment<
      * 播放全部歌曲
      */
     private fun playAllSongs() {
+        if (statePager.curState != StatusPager.VIEW_STATE_CONTENT) {
+            if (statePager.curState == StatusPager.VIEW_STATE_ERROR) {
+                retry()
+            }
+            return
+        }
         val playList = adapter.getPlayList()
         if (playList.isEmpty()) {
             toast("暂无歌曲可播放")

@@ -11,11 +11,17 @@ open class BaseResponse<T> {
     var success: Boolean? = null
 
     companion object {
-        inline fun <reified T> BaseResponse<T>?.toRequestResult() =
-            if (this != null && this.success == true) {
-                RequestResult.Success<T?>(this.data, message)
-            } else {
-                RequestResult.Error(this?.code,this?.message ?: "网络连接错误,请稍后重试")
+        inline fun <reified T> Result<BaseResponse<T>?>.toRequestResult() =
+            (this.getOrNull() to this.exceptionOrNull()).let { (resultData, error) ->
+                if (resultData?.success == true) {
+                    RequestResult.Success<T?>(resultData.data, resultData.message)
+                } else {
+                    RequestResult.Error(
+                        resultData?.code ?: 201,
+                        error?.message ?: resultData?.message
+                        ?: "网络连接错误,请稍后重试"
+                    )
+                }
             }
     }
 }

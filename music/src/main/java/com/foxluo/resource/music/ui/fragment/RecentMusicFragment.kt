@@ -3,7 +3,10 @@ package com.foxluo.resource.music.ui.fragment
 import android.annotation.SuppressLint
 import android.graphics.Color
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.lifecycleScope
 import androidx.paging.PagingData
+import com.foxluo.baselib.data.manager.AuthManager
 import com.foxluo.baselib.util.Constant
 import com.foxluo.resource.music.data.database.MusicEntity
 import com.foxluo.resource.music.data.domain.viewmodel.RecentMusicViewModel
@@ -24,6 +27,9 @@ class RecentMusicFragment : MainPageMusicFragment<FragmentRecentMusicListBinding
         }
         vm.toast.observe(this) {
             toast(it.second)
+        }
+        AuthManager.userInfoStateFlow.asLiveData(lifecycleScope.coroutineContext).observe(this){
+            adapter.refresh()
         }
     }
 

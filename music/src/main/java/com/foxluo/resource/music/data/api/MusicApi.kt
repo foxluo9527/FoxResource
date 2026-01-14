@@ -7,6 +7,9 @@ import com.foxluo.resource.music.data.result.MusicComment
 import com.foxluo.resource.music.data.result.MusicCommentReplay
 import com.foxluo.resource.music.data.result.MusicResult
 import com.foxluo.baselib.domain.bean.SearchHotKeyword
+import com.foxluo.resource.music.data.result.ArtistResult
+import com.foxluo.resource.music.data.result.PlaylistDetailResult
+import com.foxluo.resource.music.data.result.PlaylistResult
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -77,4 +80,29 @@ interface MusicApi : BaseApi {
         @Query("type") type: String = "music",
         @Query("limit") limit: Int = 10
     ): BaseResponse<List<SearchHotKeyword>>
+
+    @GET("/api/playlists/recommended")
+    suspend fun getRecommendedPlaylistList(
+        @Query("page") page: Int,
+        @Query("limit") limit: Int
+    ): BaseResponse<List<PlaylistResult>>
+
+    @GET("/api/playlists/{id}")
+    suspend fun getPlaylistDetail(
+        @Path("id") id: String
+    ): BaseResponse<PlaylistDetailResult>
+
+    @GET("/api/playlists")
+    suspend fun getPlaylistList(
+        @Query("page") page: Int,
+        @Query("limit") limit: Int
+    ): BaseResponse<List<PlaylistResult>>
+
+    @GET("/api/artists")
+    suspend fun getArtistList(
+        @Query("page") page: Int,
+        @Query("limit") limit: Int,
+        @Query("keyword") keyword: String = "",
+        @Query("tag_id") tagId: String? = null
+    ): BaseListResponse<ArtistResult>
 }

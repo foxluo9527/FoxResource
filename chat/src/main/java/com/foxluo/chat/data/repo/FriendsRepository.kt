@@ -15,7 +15,7 @@ class FriendsRepository(private val friendDao: FriendDao) : BaseRepository() {
 
     suspend fun loadFriendship(): RequestResult {
         var result =
-            kotlin.runCatching { friendsApi?.getFriendsList() }.getOrNull().toRequestResult()
+            kotlin.runCatching { friendsApi?.getFriendsList() }.toRequestResult()
         if (result is RequestResult.Success<*>) {
             (result.data as? List<FriendResult>)?.let {
                 val list = it.map {
@@ -33,7 +33,7 @@ class FriendsRepository(private val friendDao: FriendDao) : BaseRepository() {
 
     suspend fun searchUser(keyword: String): RequestResult {
         var result =
-            kotlin.runCatching { friendsApi?.search(keyword) }.getOrNull().toRequestResult()
+            kotlin.runCatching { friendsApi?.search(keyword) }.toRequestResult()
         return result
     }
 
@@ -44,33 +44,33 @@ class FriendsRepository(private val friendDao: FriendDao) : BaseRepository() {
             "mark" to mark
         )
         var result =
-            kotlin.runCatching { friendsApi?.request(map) }.getOrNull().toRequestResult()
+            kotlin.runCatching { friendsApi?.request(map) }.toRequestResult()
         return result
     }
 
     suspend fun getRequests(): RequestResult {
         var result =
-            kotlin.runCatching { friendsApi?.getFriendsRequests() }.getOrNull().toRequestResult()
+            kotlin.runCatching { friendsApi?.getFriendsRequests() }.toRequestResult()
         return result
     }
 
     suspend fun delete(id: Int): RequestResult {
         var result =
-            kotlin.runCatching { friendsApi?.delete(id.toString()) }.getOrNull().toRequestResult()
+            kotlin.runCatching { friendsApi?.delete(id.toString()) }.toRequestResult()
         return result
     }
 
     suspend fun remark(id: Int, mark: String): RequestResult {
         val map = mapOf<String, String>("friendId" to id.toString(), "remark" to mark)
         var result =
-            kotlin.runCatching { friendsApi?.remark(map) }.getOrNull().toRequestResult()
+            kotlin.runCatching { friendsApi?.remark(map) }.toRequestResult()
         return result
     }
 
     suspend fun accept(id: Int): RequestResult {
         val map = mapOf<String, String>("requestId" to id.toString())
         var result =
-            kotlin.runCatching { friendsApi?.accept(map) }.getOrNull().toRequestResult()
+            kotlin.runCatching { friendsApi?.accept(map) }.toRequestResult()
         return result
     }
 }

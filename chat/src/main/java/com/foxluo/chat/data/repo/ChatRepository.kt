@@ -14,9 +14,7 @@ import com.foxluo.chat.data.database.FriendDao
 import com.foxluo.chat.data.database.MessageDao
 import com.foxluo.chat.data.database.MessageEntity
 import com.foxluo.chat.data.result.FriendResult
-import kotlin.math.max
 import kotlin.math.min
-import kotlin.sequences.ifEmpty
 
 class ChatRepository(
     private val messageDao: MessageDao,
@@ -63,8 +61,7 @@ class ChatRepository(
             "content" to (localMessage.content ?: "/"),
             "type" to "text"
         )
-        var result =
-            kotlin.runCatching { messageApi?.sendMessage(map) }.getOrNull().toRequestResult()
+        var result = kotlin.runCatching { messageApi?.sendMessage(map) }.toRequestResult()
         if (result is RequestResult.Success<*>) {
             messageDao.deleteMessage(localMessage)
             insertMessages(listOf(localMessage.apply {
@@ -117,8 +114,7 @@ class ChatRepository(
             "voice_url" to (localMessage.file_url ?: ""),
             "voice_duration" to localMessage.voice_duration.toString()
         )
-        var result =
-            kotlin.runCatching { messageApi?.sendMessage(map) }.getOrNull().toRequestResult()
+        var result = kotlin.runCatching { messageApi?.sendMessage(map) }.toRequestResult()
         if (result is RequestResult.Success<*>) {
             messageDao.deleteMessage(localMessage)
             insertMessages(listOf(localMessage.apply {
@@ -174,8 +170,7 @@ class ChatRepository(
             "file_name" to (localMessage.file_name ?: ""),
             "file_size" to (localMessage.file_size?.toString() ?: ""),
         )
-        var result =
-            kotlin.runCatching { messageApi?.sendMessage(map) }.getOrNull().toRequestResult()
+        var result = kotlin.runCatching { messageApi?.sendMessage(map) }.toRequestResult()
         if (result is RequestResult.Success<*>) {
             messageDao.deleteMessage(localMessage)
             insertMessages(listOf(localMessage.apply {
@@ -219,8 +214,7 @@ class ChatRepository(
             else -> Unit
         }
         val sender = AuthManager.authInfo?.user ?: return RequestResult.Error(401,"请先登录")
-        var result =
-            kotlin.runCatching { messageApi?.sendMessage(map) }.getOrNull().toRequestResult()
+        var result = kotlin.runCatching { messageApi?.sendMessage(map) }.toRequestResult()
         if (result is RequestResult.Success<*>) {
             messageDao.deleteMessage(localMessage)
             insertMessages(listOf((result.data as MessageEntity).apply {
@@ -243,7 +237,7 @@ class ChatRepository(
     suspend fun getUnreadMessages(userId: Int = 0): RequestResult {
         var result = kotlin.runCatching {
             messageApi?.getMessages(userId.toString())
-        }.getOrNull().toRequestResult()
+        }.toRequestResult()
         if (result is RequestResult.Success<*>) {
             val list = ((result.data as List<MessageEntity>).map { it.apply { sendStatus = 1 } })
             insertMessages(list.map {
@@ -259,7 +253,7 @@ class ChatRepository(
     suspend fun deleteMessage(id:Int): RequestResult{
         val result=runCatching {
             messageApi?.deleteMessage(id.toString())
-        }.getOrNull().toRequestResult()
+        }.toRequestResult()
         return result
     }
 

@@ -75,16 +75,20 @@ abstract class BaseMusicFragment<Binding : ViewBinding> : BaseBindingFragment<Bi
             .errorViewLayout(getErrorViewLayout())
             .addRetryButtonId(getRetryBtn())
             .setRetryClickListener { pager, _ ->
-                if (pager.currentError is AuthorizFailError) {
-                    val topActivity = ActivityUtils.getTopActivity()
-                    if (topActivity.javaClass.simpleName != "LoginActivity") {
-                        ARouter.getInstance().build("/mine/login").navigation(topActivity)
-                    }
-                } else {
-                    adapter.refresh()
-                }
+                retry()
             }
             .build()
+    }
+
+    fun retry(){
+        if (statePager.currentError is AuthorizFailError) {
+            val topActivity = ActivityUtils.getTopActivity()
+            if (topActivity.javaClass.simpleName != "LoginActivity") {
+                ARouter.getInstance().build("/mine/login").navigation(topActivity)
+            }
+        } else {
+            adapter.refresh()
+        }
     }
 
     abstract val musicPager: MutableStateFlow<PagingData<MusicEntity>>
