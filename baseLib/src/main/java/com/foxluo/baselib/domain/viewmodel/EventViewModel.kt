@@ -22,4 +22,12 @@ object EventViewModel {
     val appInForeground by lazy {
         MutableLiveData<Boolean>(true)
     }
+
+    val updatePlaylist by lazy {
+        MutableLiveData<Long>(0L)
+    }
+
+    val deletePlaylist by lazy {
+        MutableLiveData<String>(null)
+    }
 }

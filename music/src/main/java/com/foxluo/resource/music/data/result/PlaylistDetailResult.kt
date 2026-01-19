@@ -1,5 +1,6 @@
 package com.foxluo.resource.music.data.result
 
+import com.foxluo.baselib.data.result.ListData
 import com.google.gson.annotations.SerializedName
 import kotlinx.serialization.Serializable
 
@@ -10,61 +11,69 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class PlaylistDetailResult (
-    val artists: List<Artist>,
+    val artists: List<Artist>?,
 
     @SerializedName("collection_count")
-    val collectionCount: Long,
+    val collectionCount: Long?,
 
     @SerializedName("cover_image")
-    val coverImage: String,
+    val coverImage: String?,
 
     @SerializedName("created_at")
-    val createdAt: String,
+    val createdAt: String?,
 
     @SerializedName("creator_id")
     val creatorID: Long? = null,
 
     val description: String? = null,
-    val duration: Long,
+    val duration: Long?,
 
     @SerializedName("favorite_count")
-    val favoriteCount: Long,
+    val favoriteCount: Long?,
 
-    val id: Long,
+    val id: Long?,
 
     @SerializedName("is_featured")
-    val isFeatured: Long,
+    val isFeatured: Boolean?,
 
     @SerializedName("is_public")
-    val isPublic: Long,
+    val isPublic: Int?,
 
     val language: String? = null,
 
     @SerializedName("like_count")
-    val likeCount: Long,
+    val likeCount: Long?,
 
     @SerializedName("play_count")
-    val playCount: Int,
+    val playCount: Int?,
 
-    val publisher: String,
+    val publisher: String?,
 
     @SerializedName("release_date")
-    val releaseDate: String,
+    val releaseDate: String?,
 
-    val title: String,
+    val tags: List<Tag>? = null,
+
+    val title: String?,
 
     @SerializedName("track_count")
-    val trackCount: Long,
+    val trackCount: Long?,
 
-    val tracks: List<MusicResult>,
-    val type: String,
+    val tracks: ListData<MusicResult>?,
+    val type: String?,
 
     @SerializedName("updated_at")
-    val updatedAt: String,
+    val updatedAt: String?,
 
     @SerializedName("view_count")
-    val viewCount: Long
-)
+    val viewCount: Long?
+) : java.io.Serializable
+
+@Serializable
+data class Tag (
+    val id: Long,
+    val name: String
+) : java.io.Serializable
 
 @Serializable
 data class Artist (
@@ -95,4 +104,4 @@ data class Artist (
 
     @SerializedName("view_count")
     val viewCount: Long? = null
-)
+) : java.io.Serializable

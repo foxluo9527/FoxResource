@@ -8,7 +8,12 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="color_999999">#d3d3d3</color>
+    <color name="color_666666">#666666</color>
+    <color name="color_333333">#333333</color>
+    <color name="color_FFFFFF">#fff</color>
+    <color name="color_F5F5F5">#f5f5f5</color>
     <color name="color_ED6C40">#ed6c40</color>
+    <color name="color_E0E0E0">#e0e0e0</color>
     <color name="color_F05019">#F05019</color>
     <color name="color_white_trans">#99FFFFFF</color>
     <color name="color_white_trans_30">#4DFFFFFF</color>

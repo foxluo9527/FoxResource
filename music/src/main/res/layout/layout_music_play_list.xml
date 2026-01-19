@@ -13,6 +13,7 @@
         android:layout_height="60dp"
         android:background="@drawable/shape_white_top_r15"
         android:gravity="center_vertical"
+        android:elevation="0dp"
         android:orientation="horizontal"
         android:paddingHorizontal="20dp"
         android:visibility="visible">

@@ -1,5 +1,6 @@
 package com.foxluo.resource.music.data.repo
 
+import androidx.lifecycle.MutableLiveData
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
@@ -16,6 +17,7 @@ import com.foxluo.resource.music.data.database.MusicDAO
 import com.foxluo.resource.music.data.database.MusicEntity
 import com.foxluo.resource.music.data.result.ArtistResult
 import com.foxluo.resource.music.data.result.MusicResult
+import com.foxluo.resource.music.data.result.PlaylistDetailResult
 import com.foxluo.resource.music.data.result.PlaylistResult
 import com.foxluo.resource.music.data.result.toCommentList
 import com.foxluo.resource.music.data.result.toCommentReplay
@@ -182,7 +184,7 @@ class MusicRepository(
     }
 
     suspend fun getPlaylistDetail(id: String): RequestResult {
-        val result = kotlin.runCatching { api?.getPlaylistDetail(id) }
+        val result = kotlin.runCatching { api?.getPlaylistDetail(id, 1, 10) }
         return result.toRequestResult()
     }
 
@@ -212,6 +214,98 @@ class MusicRepository(
             ),
             pagingSourceFactory = { PlayListPagingSource(this, isRecommend) }
         ).flow
+    }
+
+    suspend fun getPlaylistDetail(
+        id: String,
+        page: Int,
+        size: Int,
+        playlistDetail: MutableLiveData<PlaylistDetailResult>
+    ): RequestResult {
+        val result = runCatching {
+            api?.getPlaylistDetail(id, page, size)?.let {
+                BaseListResponse<MusicResult>().apply {
+                    code = it.code
+                    message = it.message
+                    data = it.data?.tracks
+                    success = it.success
+                    if (it.success == true && playlistDetail.value == null) {
+                        playlistDetail.value = it.data
+                    }
+                }
+            }
+        }
+        return processNetworkResult(result)
+    }
+
+    fun getPlaylistDetailPaging(
+        id: String,
+        playlistDetail: MutableLiveData<PlaylistDetailResult>
+    ): Flow<PagingData<MusicEntity>> {
+        return Pager(
+            config = PagingConfig(
+                pageSize = 100,
+                prefetchDistance = 2,
+                initialLoadSize = 20
+            ),
+            pagingSourceFactory = { PlayListDetailPagingSource(this, id, playlistDetail) }
+        ).flow
+    }
+
+    /**
+     * 创建播放列表
+     */
+    suspend fun createPlaylist(title: String): RequestResult {
+        val result = kotlin.runCatching { api?.createPlaylist(mapOf("title" to title)) }
+        return result.toRequestResult()
+    }
+
+    
+    /**
+     * 更新播放列表
+     */
+    suspend fun updatePlaylist(playlist: PlaylistDetailResult): RequestResult {
+        val map = mutableMapOf<String, Any>()
+        playlist.title?.let { map["title"] = it }
+        playlist.description?.let { map["description"] = it }
+        playlist.coverImage?.let { map["cover_image"] = it }
+        playlist.tags?.let { tags -> map["tags"] = tags.map { it.id } }
+        playlist.isPublic?.let { map["is_public"] = it }
+        val result = kotlin.runCatching { api?.updatePlaylist(playlist.id.toString(), map) }
+        return result.toRequestResult()
+    }
+    
+    /**
+     * 获取音乐标签
+     */
+    suspend fun getMusicTags(): RequestResult {
+        val result = kotlin.runCatching { api?.getMusicTags() }
+        return result.toRequestResult()
+    }
+
+    /**
+     * 删除播放列表
+     */
+    suspend fun deletePlaylist(id: String): RequestResult {
+        val result = kotlin.runCatching { api?.deletePlaylist(id) }
+        return result.toRequestResult()
+    }
+
+    /**
+     * 向播放列表添加音乐
+     */
+    suspend fun addMusicToPlaylist(id: String, musicIds: List<Int>): RequestResult {
+        val result =
+            kotlin.runCatching { api?.addMusicToPlaylist(id, mapOf("musicIds" to musicIds)) }
+        return result.toRequestResult()
+    }
+
+    /**
+     * 从播放列表删除音乐
+     */
+    suspend fun deleteMusicInPlaylist(id: String, musicId: String): RequestResult {
+        val result = kotlin.runCatching { api?.deleteMusicInPlaylist(id, musicId) }
+        return result.toRequestResult()
     }
 
     fun getArtistPaging(keyword: String, tagId: String? = null): Flow<PagingData<ArtistResult>> {

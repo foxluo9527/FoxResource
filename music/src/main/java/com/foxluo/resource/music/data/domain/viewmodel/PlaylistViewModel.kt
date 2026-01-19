@@ -5,12 +5,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import com.foxluo.baselib.data.result.ListData
 import com.foxluo.baselib.data.result.RequestResult
 import com.foxluo.baselib.domain.viewmodel.BaseViewModel
 import com.foxluo.resource.music.data.domain.MusicModuleInitializer
 import com.foxluo.resource.music.data.repo.MusicRepository
-import com.foxluo.resource.music.data.result.MusicResult
 import com.foxluo.resource.music.data.result.PlaylistDetailResult
 import com.foxluo.resource.music.data.result.PlaylistResult
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,8 +28,6 @@ class PlaylistViewModel() : BaseViewModel() {
         MusicRepository(db.musicDao(), db.artistDao())
     }
 
-    private val _playlistDetail = MutableLiveData<List<MusicResult>>()
-    val playlistDetail: LiveData<List<MusicResult>> = _playlistDetail
 
     val playlistPager by lazy {
         MutableStateFlow<PagingData<PlaylistResult>>(PagingData.empty())
@@ -44,16 +40,6 @@ class PlaylistViewModel() : BaseViewModel() {
                 .collectLatest { pagingData ->
                     playlistPager.value = pagingData
                 }
-        }
-    }
-
-    fun getPlaylistDetail(playlistId: Long) {
-        viewModelScope.launch {
-            val result = repository.getPlaylistDetail(playlistId.toString())
-            if (result is RequestResult.Success<*>) {
-                _playlistDetail.value =
-                    (result.data as? PlaylistDetailResult)?.tracks ?: emptyList()
-            }
         }
     }
 
@@ -71,4 +57,16 @@ class PlaylistViewModel() : BaseViewModel() {
             }
         }
     }
+
+    fun createPlaylist(title: String, block: () -> Unit) {
+        viewModelScope.launch {
+            val result = repository.createPlaylist(title)
+            if (result is RequestResult.Success<*>) {
+                block()
+            } else if (result is RequestResult.Error) {
+                toast.value = false to result.message
+            }
+        }
+    }
+
 }

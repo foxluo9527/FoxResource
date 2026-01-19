@@ -1,8 +1,9 @@
 package com.foxluo.resource.music.ui.fragment
 
+import android.annotation.SuppressLint
 import android.view.View
 import androidx.core.os.bundleOf
-import androidx.fragment.app.Fragment
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
@@ -16,6 +17,7 @@ import com.foxluo.baselib.domain.viewmodel.EventViewModel
 import com.foxluo.baselib.ui.BaseBindingFragment
 import com.foxluo.baselib.ui.fragment.TempFragment
 import com.foxluo.baselib.ui.view.StatusPager
+import com.foxluo.baselib.util.DialogUtil.showInputDialog
 import com.foxluo.resource.music.data.domain.viewmodel.ArtistViewModel
 import com.foxluo.resource.music.data.domain.viewmodel.PlaylistViewModel
 import com.foxluo.resource.music.databinding.FragmentMainMusicBinding
@@ -43,8 +45,6 @@ class MainMusicFragment : BaseBindingFragment<FragmentMainMusicBinding>() {
             arguments = bundleOf("type" to "歌手")
         }
     }
-
-    private var currentFragment: Fragment? = null
 
     private val recommendMusicStatusPager by lazy {
         getStatusPager(binding.rvRecommendPlayList) {
@@ -97,6 +97,9 @@ class MainMusicFragment : BaseBindingFragment<FragmentMainMusicBinding>() {
     private val recommendPlaylistAdapter by lazy {
         RecommendPlaylistAdapter {
             // 处理推荐歌单点击事件
+            EventViewModel.showMainPageFragment.value = PlaylistFragment().apply {
+                arguments = bundleOf("id" to it.id.toString())
+            } to System.currentTimeMillis()
         }
     }
 
@@ -109,7 +112,14 @@ class MainMusicFragment : BaseBindingFragment<FragmentMainMusicBinding>() {
     private val myPlaylistAdapter by lazy {
         MyPlaylistAdapter {
             // 处理我的歌单点击事件
+            EventViewModel.showMainPageFragment.value = PlaylistFragment().apply {
+                arguments = bundleOf("id" to it.id.toString())
+            } to System.currentTimeMillis()
         }
+    }
+
+    private val loadedDataList by lazy {
+        MutableLiveData<Int>(0)
     }
 
     override fun initView() {
@@ -136,13 +146,31 @@ class MainMusicFragment : BaseBindingFragment<FragmentMainMusicBinding>() {
     override fun initData() {
         super.initData()
         // 加载数据
-        loadData()
+        binding.root.isRefreshing = true
     }
 
+    @SuppressLint("SetTextI18n")
     override fun initObserver() {
         super.initObserver()
         AuthManager.userInfoStateFlow.asLiveData(lifecycleScope.coroutineContext).observe(this){
             loadData()
+        }
+        EventViewModel.updatePlaylist.observe(this) {
+            if (it > 0L) {
+                loadData()
+            }
+        }
+        EventViewModel.deletePlaylist.observe(this) {id->
+            if (id != null) {
+                val currentList = myPlaylistAdapter.currentList.filter { it.id.toString() != id }
+                myPlaylistAdapter.submitList(currentList)
+                binding.count.text = "(${currentList.size})"
+            }
+        }
+        loadedDataList.observe(this) {
+            if (it >= 3) {
+                binding.root.isRefreshing = false
+            }
         }
     }
 
@@ -168,6 +196,15 @@ class MainMusicFragment : BaseBindingFragment<FragmentMainMusicBinding>() {
         // 创建歌单按钮
         binding.createPlayList.setOnClickListener {
             // 处理创建歌单点击事件
+            requireContext().showInputDialog(content = "请输入歌单名称") {
+                playlistViewModel.createPlaylist(it) {
+                    loadMyPlaylistData()
+                }
+            }
+        }
+        binding.root.setOnRefreshListener {
+            loadedDataList.value = 0
+            loadData()
         }
     }
 
@@ -187,6 +224,7 @@ class MainMusicFragment : BaseBindingFragment<FragmentMainMusicBinding>() {
                 recommendMusicStatusPager.showContent()
             }
             recommendPlaylistAdapter.submitList(it)
+            loadedDataList.value = (loadedDataList.value ?: 0) + 1
         }, error = { error ->
             onLoadError(recommendMusicStatusPager, error)
         })
@@ -202,6 +240,7 @@ class MainMusicFragment : BaseBindingFragment<FragmentMainMusicBinding>() {
                 hotSingerStatusPager.showContent()
             }
             hotSingerAdapter.submitList(it)
+            loadedDataList.value = (loadedDataList.value ?: 0) + 1
         }, error = { error ->
             onLoadError(hotSingerStatusPager, error)
         })
@@ -219,6 +258,7 @@ class MainMusicFragment : BaseBindingFragment<FragmentMainMusicBinding>() {
             myPlaylistAdapter.submitList(it)
             // 更新歌单数量
             binding.count.text = "(${it.size})"
+            loadedDataList.value = (loadedDataList.value ?: 0) + 1
         }, error = { error ->
             onLoadError(playlistMusicStatusPager, error)
         })

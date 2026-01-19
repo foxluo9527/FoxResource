@@ -11,7 +11,7 @@ open class BaseUploadViewModel : BaseViewModel() {
     private val uploadRepo by lazy {
         UploadRepository()
     }
-    protected val processUploadingFile by lazy {
+    val processUploadingFile by lazy {
         MutableLiveData<String>()
     }
 
@@ -23,6 +23,19 @@ open class BaseUploadViewModel : BaseViewModel() {
                     val data = it.data as FileUploadResponse
                     processUploadingFile.value = data.url
                 }
+            }
+        }
+    }
+
+    suspend fun uploadFileAsync(filePath: String): String? {
+        isLoading.value = true
+        return uploadRepo.uploadFile(filePath).let {
+            if (it is RequestResult.Success<*>) {
+                val data = it.data as FileUploadResponse
+                processUploadingFile.value = data.url
+                data.url
+            } else {
+                null
             }
         }
     }

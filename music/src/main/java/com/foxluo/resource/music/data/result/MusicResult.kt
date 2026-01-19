@@ -3,7 +3,9 @@ package com.foxluo.resource.music.data.result
 import com.foxluo.baselib.util.ImageExt
 import com.foxluo.resource.music.data.database.ArtistEntity
 import com.foxluo.resource.music.data.database.MusicEntity
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class MusicResult(
     val id: Long,
     val title: String,
@@ -15,7 +17,7 @@ data class MusicResult(
     val lyrics_trans: String = "",
     val album: Album? = null,
     val artists: List<MusicArtist>? = null
-){
+) : java.io.Serializable {
     fun toMusicData() = MusicEntity(
         musicId = this.id.toString(),
         coverImg = this.cover_image,
@@ -30,8 +32,10 @@ data class MusicResult(
     }
 }
 
-data class Album(val id: Long, val title: String, val cover_image: String?)
+@Serializable
+data class Album(val id: Long, val title: String, val cover_image: String?) : java.io.Serializable
 
+@Serializable
 data class MusicArtist(
     val id: Long,
     val name: String,
@@ -39,7 +43,7 @@ data class MusicArtist(
     val avatar: String?,
     val cover_image: String?,
     val description: String?
-){
+) : java.io.Serializable {
     fun toArtistData() = ArtistEntity(
         artistId = this.id,
         name = this.name,

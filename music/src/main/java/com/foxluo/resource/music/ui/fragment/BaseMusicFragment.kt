@@ -160,7 +160,11 @@ abstract class BaseMusicFragment<Binding : ViewBinding> : BaseBindingFragment<Bi
                 is LoadState.NotLoading -> {
                     if (hasRefreshing) {
                         musicListBinding.loading.finishRefresh(true)
-                        statePager.showContent()
+                        if (adapter.getPlayList().isEmpty()){
+                            statePager.showEmpty()
+                        }else{
+                            statePager.showContent()
+                        }
                         //如果第一页数据就没有更多了，第一页不会触发append
                         if ((append as? LoadState.NotLoading)?.endOfPaginationReached == true) {
                             //没有更多了(只能用source的append)

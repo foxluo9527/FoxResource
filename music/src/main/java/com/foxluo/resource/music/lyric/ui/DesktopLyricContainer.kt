@@ -13,6 +13,7 @@ import com.blankj.utilcode.util.ConvertUtils
 import com.blankj.utilcode.util.ToastUtils
 import com.dirror.lyricviewx.LyricViewX
 import com.foxluo.baselib.util.ImageExt.loadUrlWithCircle
+import com.foxluo.baselib.util.ViewExt.gone
 import com.foxluo.baselib.util.ViewExt.inVisible
 import com.foxluo.baselib.util.ViewExt.visible
 import com.foxluo.resource.music.R
@@ -243,7 +244,7 @@ class DesktopLyricContainer @JvmOverloads constructor(
      * 更新控件可见性
      */
     private fun updateVisibility() {
-        if (binding.settings.isVisible && !isActive) return
+        binding.settings.gone()
         binding.llTop.inVisible(!isActive)
         binding.llBottom.inVisible(!isActive)
         binding.back.inVisible(!isActive)

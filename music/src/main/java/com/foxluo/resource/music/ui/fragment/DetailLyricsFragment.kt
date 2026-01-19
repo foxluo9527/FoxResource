@@ -111,7 +111,11 @@ class DetailLyricsFragment : BaseBindingFragment<FragmentDetailLrcBinding>() {
         })
         binding.lyricView.setOnSingerClickListener(object : OnSingleClickListener {
             override fun onClick() {
-                targetPage?.invoke()
+                if (binding.settings.isVisible.not()) {
+                    targetPage?.invoke()
+                } else {
+                    binding.settings.visible(false)
+                }
             }
         })
         binding.lyricView.setOnTouchListener(getLyricViewTouchEventListener())
