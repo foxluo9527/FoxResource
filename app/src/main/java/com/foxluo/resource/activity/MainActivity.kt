@@ -80,25 +80,9 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
 
     override fun initView() {
         binding.playCover.loadUrlWithCircle(null)
-        XXPermissions.with(this) // 申请安装包权限
-            //.permission(Permission.REQUEST_INSTALL_PACKAGES)
+        XXPermissions.with(this)
             // 申请悬浮窗权限
             .permission(Permission.SYSTEM_ALERT_WINDOW)
-        // 申请通知栏权限
-        //.permission(Permission.NOTIFICATION_SERVICE)
-        // 申请系统设置权限
-        //.permission(Permission.WRITE_SETTINGS)
-        // 申请单个权限
-        //.permission(Permission.RECORD_AUDIO) // 申请多个权限
-        //.permission(Permission.Group.CALENDAR)
-//            .request(object : OnPermissionCallback {
-//                override fun onGranted(permissions: MutableList<String>, all: Boolean) {
-//                }
-//
-//                override fun onDenied(permissions: MutableList<String>, never: Boolean) {
-//                    toast("弹窗权限被拒绝，可能导致状态栏跳转异常")
-//                }
-//            })
     }
 
     val sessionActivityPendingIntent: PendingIntent?
@@ -178,6 +162,10 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
             transaction.commit()
             currentFragment = fragment
         }
+        mainPageStateChanged()
+    }
+
+    private fun mainPageStateChanged(){
         (currentFragment as? MainPage)?.let {
             if (it.showPlayView()) {
                 binding.playView.visibility = View.VISIBLE
@@ -219,6 +207,13 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
                     }
                 }
                 currentFragmentChanged(currentFragment)
+            }
+        }
+        lifecycleScope.launch {
+            EventViewModel.mainPageStateChanged.collectLatest {
+                if (it>0){
+                    mainPageStateChanged()
+                }
             }
         }
         lifecycleScope.launch {

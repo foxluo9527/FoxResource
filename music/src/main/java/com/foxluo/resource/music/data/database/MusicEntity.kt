@@ -64,4 +64,7 @@ data class MusicEntity(
 
     @Ignore
     var progress:Int = 0
+
+    @Ignore
+    var isSelect:Boolean = false
 }

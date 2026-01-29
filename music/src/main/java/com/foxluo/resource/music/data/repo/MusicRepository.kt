@@ -4,6 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import com.blankj.utilcode.util.JsonUtils
 import com.foxluo.baselib.data.respository.BaseRepository
 import com.foxluo.baselib.data.result.BaseListResponse
 import com.foxluo.baselib.data.result.BaseResponse.Companion.toRequestResult
@@ -12,6 +13,7 @@ import com.foxluo.baselib.data.result.RequestResult
 import com.foxluo.baselib.domain.bean.SearchHotKeyword
 import com.foxluo.baselib.ui.adapter.CommentAdapter
 import com.foxluo.baselib.util.Constant
+import com.foxluo.baselib.util.GsonUtil
 import com.foxluo.resource.music.data.api.MusicApi
 import com.foxluo.resource.music.data.database.ArtistDAO
 import com.foxluo.resource.music.data.database.MusicDAO
@@ -305,7 +307,7 @@ class MusicRepository(
     /**
      * 向播放列表添加音乐
      */
-    suspend fun addMusicToPlaylist(id: String, musicIds: List<Int>): RequestResult<Unit?> {
+    suspend fun addMusicToPlaylist(id: String, musicIds: List<String>): RequestResult<Unit?> {
         val result =
             kotlin.runCatching { api?.addMusicToPlaylist(id, mapOf("musicIds" to musicIds)) }
         return result.toRequestResult()
@@ -314,8 +316,8 @@ class MusicRepository(
     /**
      * 从播放列表删除音乐
      */
-    suspend fun deleteMusicInPlaylist(id: String, musicId: String): RequestResult<Unit?> {
-        val result = kotlin.runCatching { api?.deleteMusicInPlaylist(id, musicId) }
+    suspend fun deleteMusicInPlaylist(id: String, musicIds: List<String>): RequestResult<Unit?> {
+        val result = kotlin.runCatching { api?.deleteMusicInPlaylist(id, mapOf("musicIds" to musicIds)) }
         return result.toRequestResult()
     }
 

@@ -9,6 +9,7 @@ import com.foxluo.baselib.util.Constant
 import com.foxluo.resource.music.data.database.MusicEntity
 import com.foxluo.resource.music.data.domain.viewmodel.SearchMusicViewModel
 import com.foxluo.resource.music.databinding.FragmentRecommendMusicListBinding
+import com.foxluo.resource.music.player.PlayerManager
 import com.xuexiang.xui.R
 import com.xuexiang.xui.utils.XToastUtils.toast
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -66,6 +67,9 @@ class RecommendMusicFragment() : MainPageMusicFragment<FragmentRecommendMusicLis
         super.initData()
         vm.loadMusic()
     }
+    override fun onSelect() {
+        binding.appBar.setExpanded(false,false)
+    }
 
     override fun initBinding() = FragmentRecommendMusicListBinding.inflate(layoutInflater)
 
@@ -82,14 +86,21 @@ class RecommendMusicFragment() : MainPageMusicFragment<FragmentRecommendMusicLis
         music: MusicEntity?
     ) {
         when (action) {
-            0 -> toast("查看歌手: ${music?.artist?.name}")
-            1 -> toast("查看专辑: ")
-            2 -> toast("下一首播放")
-            3 -> toast("添加到歌单: ${music?.title}")
-            4 -> toast("分享: ${music?.title}")
-            5 -> toast("举报: ${music?.title}")
+            0 -> {} //查看歌手
+            1->{}//查看专辑
+            2->{//添加到播放列表
+                toast("已添加到播放队列")
+                PlayerManager.getInstance().appendPlayList(listOf(music))
+            }
+            3->{//添加到歌单
+                music?.musicId ?.let {
+                    addToPlaylist(listOf(it))
+                }
+            }
+            4->{}//分享
+            5->{}//反馈
         }
     }
 
-    override fun showPlayView() = true
+    override fun showPlayView() = !adapter.isSelectModel
 }

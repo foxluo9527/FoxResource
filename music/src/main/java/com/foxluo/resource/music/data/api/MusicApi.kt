@@ -15,6 +15,7 @@ import com.foxluo.resource.music.data.result.Tag
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.HTTP
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
@@ -154,10 +155,10 @@ interface MusicApi : BaseApi {
         @Body map: Map<String, @JvmSuppressWildcards Any>
     ): BaseResponse<Unit>
 
-    @DELETE("/api/playlists/{id}/tracks/{musicId}")
+    @HTTP(method = "DELETE", path = "/api/playlists/{id}/batch/tracks",hasBody = true)
     suspend fun deleteMusicInPlaylist(
         @Path("id") id: String,
-        @Path("musicId") musicId: String
+        @Body body: Map<String, @JvmSuppressWildcards Any>
     ): BaseResponse<Unit>
     
     @GET("/api/tags/music")

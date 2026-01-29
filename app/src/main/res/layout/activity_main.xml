@@ -37,9 +37,9 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:padding="5dp"
-                android:tint="#3E3A39"
                 android:layout_marginStart="20dp"
-                android:src="@drawable/ic_play"/>
+                android:src="@drawable/ic_play"
+                app:tint="#3E3A39" />
         </LinearLayout>
     </com.foxluo.baselib.ui.view.DragView>
     <FrameLayout

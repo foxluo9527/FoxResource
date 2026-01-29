@@ -42,7 +42,7 @@ abstract class BaseMusicFragment<Binding : ViewBinding> : BaseBindingFragment<Bi
     }
 
     protected val adapter by lazy {
-        MusicListAdapter(showItemMore(), clickItem, moreClick)
+        MusicListAdapter(showItemMore(), clickItem, moreClick, this::onSelectChanged)
     }
 
     private val clickItem: (Int) -> Unit = { position: Int ->
@@ -58,6 +58,10 @@ abstract class BaseMusicFragment<Binding : ViewBinding> : BaseBindingFragment<Bi
             PlayerManager.getInstance().loadAlbum(it, true)
         }
         onClickItem(position)
+    }
+
+    open fun onSelectChanged(){
+
     }
 
     private val moreClick: (Int) -> Unit = { position ->

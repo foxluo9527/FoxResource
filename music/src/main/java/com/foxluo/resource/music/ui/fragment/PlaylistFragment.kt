@@ -23,6 +23,7 @@ import com.foxluo.resource.music.data.database.MusicEntity
 import com.foxluo.resource.music.data.domain.viewmodel.PlaylistDetailViewModel
 import com.foxluo.resource.music.data.result.PlaylistDetailResult
 import com.foxluo.resource.music.databinding.FragmentAlbumMusicListBinding
+import com.foxluo.resource.music.player.PlayerManager
 import com.foxluo.resource.music.ui.activity.PlaylistEditActivity
 import com.xuexiang.xui.utils.XToastUtils.error
 import com.xuexiang.xui.utils.XToastUtils.info
@@ -72,7 +73,21 @@ class PlaylistFragment : MainPageMusicFragment<FragmentAlbumMusicListBinding>() 
         action: Int,
         music: MusicEntity?
     ) {
-
+        when (action) {
+            0 -> {} //查看歌手
+            1->{}//查看专辑
+            2->{//添加到播放列表
+                toast("已添加到播放队列")
+                PlayerManager.getInstance().appendPlayList(listOf(music))
+            }
+            3->{//添加到歌单
+                music?.musicId ?.let {
+                    addToPlaylist(listOf(it))
+                }
+            }
+            4->{}//分享
+            5->{}//反馈
+        }
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
@@ -101,6 +116,10 @@ class PlaylistFragment : MainPageMusicFragment<FragmentAlbumMusicListBinding>() 
         )
     }
 
+    override fun onSelect() {
+        binding.appBar.setExpanded(false,false)
+    }
+
     override fun initObserver() {
         super.initObserver()
         vm.isLoading.observe(this) {
@@ -119,15 +138,17 @@ class PlaylistFragment : MainPageMusicFragment<FragmentAlbumMusicListBinding>() 
             adapter.refresh()
         }
         vm.playlistDetail.observe(this) {
-            if (it.isImporting == true) {
+            val isMine = it?.creatorID == AuthManager.authInfo?.user?.id
+            if (it.isImporting == true && isMine) {
                 info("歌单导入中")
             }
+            playlistBinding.delete.visible(isMine)
             binding.collapsingToolbar.title = it.title
             binding.toolbar.title = it.title
             binding.ivCover.loadUrlWithCorner(processUrl(it.coverImage), 10)
             binding.tvSubtitle.visible(!(it.description.isNullOrEmpty()))
             binding.tvSubtitle.text = it.description
-            binding.toolbar.menu[0].setVisible(it?.creatorID == AuthManager.authInfo?.user?.id)
+            binding.toolbar.menu[0].setVisible(isMine)
         }
     }
 
@@ -187,9 +208,22 @@ class PlaylistFragment : MainPageMusicFragment<FragmentAlbumMusicListBinding>() 
                 PreviewBuilder.from(this).setImg(ImageViewInfo(processUrl(it))).start()
             }
         }
+        playlistBinding.delete.setOnClickListener {
+            requireContext().showConfirmDialog(
+                "确认删除选中的${adapter.selectCount}首歌曲吗？",
+                "删除",
+                "取消"
+            ) {
+                vm.deleteMusicInPlaylist(id, adapter.getSelectedList().map { it.musicId }){
+                    playlistBinding.tvComplete.performClick()
+                    statePager.showLoading()
+                    adapter.refresh()
+                }
+            }
+        }
     }
 
     override fun initBinding() = FragmentAlbumMusicListBinding.inflate(layoutInflater)
 
-    override fun showPlayView() = true
+    override fun showPlayView() = !adapter.isSelectModel
 }

@@ -74,10 +74,10 @@ class MainMusicFragment : BaseBindingFragment<FragmentMainMusicBinding>() {
     }
 
     private fun getStatusPager(replaceView: View, block: () -> Unit) =
-        StatusPager.builder(replaceView).emptyViewLayout(com.foxluo.baselib.R.layout.state_empty)
-            .loadingViewLayout(com.foxluo.baselib.R.layout.state_loading)
-            .errorViewLayout(com.foxluo.baselib.R.layout.state_error)
-            .addRetryButtonId(com.foxluo.baselib.R.id.btn_retry).setRetryClickListener { pager, _ ->
+        StatusPager.builder(replaceView).emptyViewLayout(R.layout.state_empty)
+            .loadingViewLayout(R.layout.state_loading)
+            .errorViewLayout(R.layout.state_error)
+            .addRetryButtonId(R.id.btn_retry).setRetryClickListener { pager, _ ->
                 retry(pager, block)
             }.build()
 

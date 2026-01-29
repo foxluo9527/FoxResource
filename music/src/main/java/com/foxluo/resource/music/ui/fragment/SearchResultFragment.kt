@@ -36,6 +36,9 @@ class SearchResultFragment : MainPageMusicFragment<FragmentSearchResultBinding>(
     override val musicPager: MutableStateFlow<PagingData<MusicEntity>>
         get() = vm.musicPager
 
+    override fun onSelect() {
+
+    }
 
     override fun initBinding(): FragmentSearchResultBinding {
         return FragmentSearchResultBinding.inflate(layoutInflater)
@@ -54,12 +57,19 @@ class SearchResultFragment : MainPageMusicFragment<FragmentSearchResultBinding>(
         music: MusicEntity?
     ) {
         when (action) {
-            0 -> toast("查看歌手: ${music?.artist?.name}")
-            1 -> toast("查看专辑: ")
-            2 -> toast("下一首播放")
-            3 -> toast("添加到歌单: ${music?.title}")
-            4 -> toast("分享: ${music?.title}")
-            5 -> toast("举报: ${music?.title}")
+            0 -> {} //查看歌手
+            1->{}//查看专辑
+            2->{//添加到播放列表
+                toast("已添加到播放队列")
+                PlayerManager.getInstance().appendPlayList(listOf(music))
+            }
+            3->{//添加到歌单
+                music?.musicId ?.let {
+                    addToPlaylist(listOf(it))
+                }
+            }
+            4->{}//分享
+            5->{}//反馈
         }
     }
 
@@ -72,7 +82,7 @@ class SearchResultFragment : MainPageMusicFragment<FragmentSearchResultBinding>(
      * 搜索结果页始终显示playview
      */
     override fun showPlayView(): Boolean {
-        return true
+        return !adapter.isSelectModel
     }
 
     override fun initPlayDragPadding(): IntArray? {

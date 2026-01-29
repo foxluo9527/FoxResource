@@ -5,14 +5,25 @@
     android:layout_width="match_parent"
     android:layout_height="60dp">
 
+    <RadioButton
+        android:id="@+id/rb_select"
+        style="@style/ThemeRadioButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <ImageView
         android:id="@+id/cover"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:src="@mipmap/ic_app"
-        android:layout_marginStart="15dp"
+        android:layout_marginStart="13dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@id/rb_select"
         app:layout_constraintTop_toTopOf="parent"/>
 
     <TextView
@@ -26,7 +37,7 @@
         android:maxLines="1"
         android:textColor="@color/black"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@id/rb_select"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="歌名" />
 
@@ -43,7 +54,7 @@
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@id/rb_select"
         tools:text="歌手" />
 
     <ImageView

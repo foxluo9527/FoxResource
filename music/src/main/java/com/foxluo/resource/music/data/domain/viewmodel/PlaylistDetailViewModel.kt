@@ -64,7 +64,20 @@ class PlaylistDetailViewModel : BaseUploadViewModel() {
             }
         }
     }
-    
+
+    fun deleteMusicInPlaylist(id: String, ids: List<String>, block: () -> Unit) {
+        viewModelScope.launch {
+            repository.deleteMusicInPlaylist(id, ids).let {
+                if (it is RequestResult.Success) {
+                    block()
+                    toast.value = true to it.message
+                } else if (it is RequestResult.Error) {
+                    toast.value = false to it.message
+                }
+            }
+        }
+    }
+
     fun updatePlaylist(playlist: PlaylistDetailResult, block: () -> Unit) {
         viewModelScope.launch {
             repository.updatePlaylist(playlist).let {

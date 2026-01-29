@@ -14,4 +14,7 @@
         <item name="android:statusBarColor">@color/color_ED6C40</item>
         <!-- Customize your theme here. -->
     </style>
+    <style name="ThemeRadioButton" parent="Theme.AppCompat.Light">
+        <item name="colorControlActivated">@color/color_ED6C40</item>
+    </style>
 </resources>

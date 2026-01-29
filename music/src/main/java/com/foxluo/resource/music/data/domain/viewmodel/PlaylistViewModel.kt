@@ -47,10 +47,13 @@ class PlaylistViewModel() : BaseViewModel() {
         error: (Throwable) -> Unit
     ) {
         viewModelScope.launch {
+            isLoading.value = true
             val result = repository.getPlaylistList(isRecommend, 1, 10)
             if (result is RequestResult.Success) {
+                isLoading.value = false
                 success(result.data ?: emptyList())
             } else if (result is RequestResult.Error) {
+                isLoading.value = false
                 error(result.getError())
             }
         }
@@ -85,6 +88,21 @@ class PlaylistViewModel() : BaseViewModel() {
             }, onError = {
                 toast.value = false to it
             })
+        }
+    }
+
+    fun addMusicToPlaylist(id: String, ids: List<String>, block: () -> Unit) {
+        viewModelScope.launch {
+            isLoading.value = true
+            repository.addMusicToPlaylist(id, ids).let {
+                isLoading.value = false
+                if (it is RequestResult.Success) {
+                    block()
+                    toast.value = true to it.message
+                } else if (it is RequestResult.Error) {
+                    toast.value = false to it.message
+                }
+            }
         }
     }
 }

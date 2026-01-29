@@ -12,6 +12,7 @@ import com.foxluo.baselib.util.Constant
 import com.foxluo.resource.music.data.database.MusicEntity
 import com.foxluo.resource.music.data.domain.viewmodel.RecentMusicViewModel
 import com.foxluo.resource.music.databinding.FragmentRecentMusicListBinding
+import com.foxluo.resource.music.player.PlayerManager
 import com.xuexiang.xui.R
 import com.xuexiang.xui.utils.XToastUtils.toast
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -60,7 +61,9 @@ class RecentMusicFragment : MainPageMusicFragment<FragmentRecentMusicListBinding
             )
         )
     }
-
+    override fun onSelect() {
+        binding.appBar.setExpanded(false,false)
+    }
     override fun initListener() {
         super.initListener()
         binding.appBar.addOnOffsetChangedListener(this::updateMusicListHeight)
@@ -79,12 +82,19 @@ class RecentMusicFragment : MainPageMusicFragment<FragmentRecentMusicListBinding
         music: MusicEntity?
     ) {
         when (action) {
-            0 -> toast("查看歌手: ${music?.artist?.name}")
-            1 -> toast("查看专辑: ")
-            2 -> toast("下一首播放")
-            3 -> toast("添加到歌单: ${music?.title}")
-            4 -> toast("分享: ${music?.title}")
-            5 -> toast("举报: ${music?.title}")
+            0 -> {} //查看歌手
+            1->{}//查看专辑
+            2->{//添加到播放列表
+                toast("已添加到播放队列")
+                PlayerManager.getInstance().appendPlayList(listOf(music))
+            }
+            3->{//添加到歌单
+                music?.musicId ?.let {
+                    addToPlaylist(listOf(it))
+                }
+            }
+            4->{}//分享
+            5->{}//反馈
         }
     }
 
@@ -95,6 +105,6 @@ class RecentMusicFragment : MainPageMusicFragment<FragmentRecentMusicListBinding
 
     override fun initBinding() = FragmentRecentMusicListBinding.inflate(layoutInflater)
 
-    override fun showPlayView() = true
+    override fun showPlayView() = !adapter.isSelectModel
 
 }
