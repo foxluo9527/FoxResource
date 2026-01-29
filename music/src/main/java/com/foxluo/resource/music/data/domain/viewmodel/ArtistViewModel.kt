@@ -51,8 +51,8 @@ class ArtistViewModel() : BaseViewModel() {
     ) {
         viewModelScope.launch {
             val result = repository.getArtistList(1, 10, keyword, tagId)
-            if (result is RequestResult.Success<*>) {
-                success((result.data as? ListData<ArtistResult>)?.list ?: listOf())
+            if (result is RequestResult.Success) {
+                success(result.data?.list ?: listOf())
             } else if (result is RequestResult.Error) {
                 error(result.getError())
             }

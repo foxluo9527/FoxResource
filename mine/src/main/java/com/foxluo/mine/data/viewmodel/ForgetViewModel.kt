@@ -34,7 +34,7 @@ class ForgetViewModel : BaseViewModel() {
             isLoading.postValue(true)
             val result = repo.sendForgetEmailCode(email)
             isLoading.postValue(false)
-            if (result is RequestResult.Success<*>) {
+            if (result is RequestResult.Success) {
                 setWaitSendCodeTime(60)
             } else if (result is RequestResult.Error) {
                 toast.postValue(false to result.message)
@@ -47,7 +47,7 @@ class ForgetViewModel : BaseViewModel() {
             isLoading.postValue(true)
             val result = repo.resetForgetPassword(email, code, password)
             isLoading.postValue(false)
-            if (result is RequestResult.Success<*>) {
+            if (result is RequestResult.Success) {
                 changePassResult.postValue(true)
             } else if (result is RequestResult.Error) {
                 toast.postValue(false to result.message)

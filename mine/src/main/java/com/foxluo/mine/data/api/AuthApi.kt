@@ -8,37 +8,37 @@ import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.POST
 
-interface AuthApi : com.foxluo.baselib.data.api.BaseApi {
-    @retrofit2.http.FormUrlEncoded
-    @retrofit2.http.POST("/api/auth/login")
+interface AuthApi : BaseApi {
+    @FormUrlEncoded
+    @POST("/api/auth/login")
     suspend fun login(
-        @retrofit2.http.Field("username") username: kotlin.String,
-        @retrofit2.http.Field("password") password: kotlin.String
-    ): com.foxluo.baselib.data.result.BaseResponse<com.foxluo.baselib.data.manager.AuthInfo>
+        @Field("username") username: String,
+        @Field("password") password: String
+    ): BaseResponse<AuthInfo>
 
-    @retrofit2.http.FormUrlEncoded
-    @retrofit2.http.POST("/api/auth/register")
+    @FormUrlEncoded
+    @POST("/api/auth/register")
     suspend fun register(
-        @retrofit2.http.Field("username") username: kotlin.String,
-        @retrofit2.http.Field("password") password: kotlin.String,
-        @retrofit2.http.Field("email") email: kotlin.String
-    ): com.foxluo.baselib.data.result.BaseResponse<com.foxluo.baselib.data.manager.AuthInfo>
+        @Field("username") username: String,
+        @Field("password") password: String,
+        @Field("email") email: String
+    ): BaseResponse<AuthInfo>
 
-    @retrofit2.http.POST("/api/auth/logout")
-    suspend fun logout(): com.foxluo.baselib.data.result.BaseResponse<kotlin.Unit>
+    @POST("/api/auth/logout")
+    suspend fun logout(): BaseResponse<Unit>
 
     /**
      * 登录状态修改密码
      */
-    @retrofit2.http.POST("/api/auth/change-password")
-    suspend fun changePassword(@retrofit2.http.Body body: kotlin.collections.Map<kotlin.String, kotlin.String>): com.foxluo.baselib.data.result.BaseResponse<kotlin.Unit>
+    @POST("/api/auth/change-password")
+    suspend fun changePassword(@Body body: Map<String, String>): BaseResponse<Unit>
 
     /**
      * 忘记密码邮箱验证码发送
      */
-    @retrofit2.http.POST("/api/auth/forgot-password")
-    suspend fun sendForgetEmail(@retrofit2.http.Body body: kotlin.collections.Map<kotlin.String, kotlin.String>): com.foxluo.baselib.data.result.BaseResponse<kotlin.Unit>
+    @POST("/api/auth/forgot-password")
+    suspend fun sendForgetEmail(@Body body: Map<String, String>): BaseResponse<Unit>
 
-    @retrofit2.http.POST("/api/auth/reset-password")
-    suspend fun resetPassword(@retrofit2.http.Body body: kotlin.collections.Map<kotlin.String, kotlin.String>): com.foxluo.baselib.data.result.BaseResponse<kotlin.Unit>
+    @POST("/api/auth/reset-password")
+    suspend fun resetPassword(@Body body: Map<String, String>): BaseResponse<Unit>
 }

@@ -28,9 +28,9 @@ class PlayListPagingSource(
             val page = params.key ?: 1
             val result = musicRepository.getPlaylistList(isRecommend, page, params.loadSize)
             when (result) {
-                is RequestResult.Success<*> -> {
+                is RequestResult.Success -> {
                     // 网络成功，返回分页数据
-                    (result.data as? List<PlaylistResult>) ?: emptyList()
+                    result.data ?: emptyList()
                 }
 
                 is RequestResult.Error -> {

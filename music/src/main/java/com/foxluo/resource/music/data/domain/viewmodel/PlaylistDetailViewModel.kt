@@ -55,8 +55,9 @@ class PlaylistDetailViewModel : BaseUploadViewModel() {
     fun deletePlaylist(id: String, block: () -> Unit) {
         viewModelScope.launch {
             repository.deletePlaylist(id).let {
-                if (it is RequestResult.Success<*>) {
+                if (it is RequestResult.Success) {
                     block()
+                    toast.value = true to it.message
                 } else if (it is RequestResult.Error) {
                     toast.value = false to it.message
                 }
@@ -67,7 +68,7 @@ class PlaylistDetailViewModel : BaseUploadViewModel() {
     fun updatePlaylist(playlist: PlaylistDetailResult, block: () -> Unit) {
         viewModelScope.launch {
             repository.updatePlaylist(playlist).let {
-                if (it is RequestResult.Success<*>) {
+                if (it is RequestResult.Success) {
                     block()
                 } else if (it is RequestResult.Error) {
                     toast.value = false to it.message
@@ -79,8 +80,8 @@ class PlaylistDetailViewModel : BaseUploadViewModel() {
     fun getMusicTags(block: (List<Tag>) -> Unit) {
         viewModelScope.launch {
             repository.getMusicTags().let {
-                if (it is RequestResult.Success<*>) {
-                    val tags = (it as RequestResult.Success<List<Tag>>).data
+                if (it is RequestResult.Success) {
+                    val tags = it.data?:listOf()
                     block(tags)
                 } else if (it is RequestResult.Error) {
                     toast.value = false to it.message

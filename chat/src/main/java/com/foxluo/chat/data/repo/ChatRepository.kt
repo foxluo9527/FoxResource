@@ -55,14 +55,14 @@ class ChatRepository(
      *     "type": "text"
      * }
      */
-    suspend fun sendTextMessage(localMessage: MessageEntity): RequestResult {
+    suspend fun sendTextMessage(localMessage: MessageEntity): RequestResult<MessageEntity?> {
         val map = mapOf<String, String>(
             "receiverId" to localMessage.receiver_id.toString(),
             "content" to (localMessage.content ?: "/"),
             "type" to "text"
         )
         var result = kotlin.runCatching { messageApi?.sendMessage(map) }.toRequestResult()
-        if (result is RequestResult.Success<*>) {
+        if (result is RequestResult.Success) {
             messageDao.deleteMessage(localMessage)
             insertMessages(listOf(localMessage.apply {
                 val resultData = result.data as MessageEntity
@@ -106,7 +106,7 @@ class ChatRepository(
     /**
      * 发送语音消息
      */
-    suspend fun sendVoiceMessage(localMessage: MessageEntity): RequestResult {
+    suspend fun sendVoiceMessage(localMessage: MessageEntity): RequestResult<MessageEntity?> {
         val map = mapOf<String, String>(
             "receiverId" to localMessage.receiver_id.toString(),
             "content" to "/",
@@ -115,7 +115,7 @@ class ChatRepository(
             "voice_duration" to localMessage.voice_duration.toString()
         )
         var result = kotlin.runCatching { messageApi?.sendMessage(map) }.toRequestResult()
-        if (result is RequestResult.Success<*>) {
+        if (result is RequestResult.Success) {
             messageDao.deleteMessage(localMessage)
             insertMessages(listOf(localMessage.apply {
                 val resultData = result.data as MessageEntity
@@ -160,7 +160,7 @@ class ChatRepository(
      * 发送文件类消息
      * @param fileType 'image','video','other'
      */
-    suspend fun sendFileMessage(localMessage: MessageEntity): RequestResult {
+    suspend fun sendFileMessage(localMessage: MessageEntity): RequestResult<MessageEntity?> {
         val map = mapOf<String, String>(
             "receiverId" to localMessage.receiver_id.toString(),
             "content" to "[file]${localMessage.file_name}",
@@ -171,7 +171,7 @@ class ChatRepository(
             "file_size" to (localMessage.file_size?.toString() ?: ""),
         )
         var result = kotlin.runCatching { messageApi?.sendMessage(map) }.toRequestResult()
-        if (result is RequestResult.Success<*>) {
+        if (result is RequestResult.Success) {
             messageDao.deleteMessage(localMessage)
             insertMessages(listOf(localMessage.apply {
                 val resultData = result.data as MessageEntity
@@ -192,7 +192,7 @@ class ChatRepository(
     /**
      * 重试发送
      */
-    suspend fun retrySendMessage(localMessage: MessageEntity): RequestResult {
+    suspend fun retrySendMessage(localMessage: MessageEntity): RequestResult<MessageEntity?> {
         val map = mutableMapOf<String, String>(
             "receiverId" to localMessage.receiver_id.toString(),
             "content" to (localMessage.content ?: "666"),
@@ -215,7 +215,7 @@ class ChatRepository(
         }
         val sender = AuthManager.authInfo?.user ?: return RequestResult.Error(401,"请先登录")
         var result = kotlin.runCatching { messageApi?.sendMessage(map) }.toRequestResult()
-        if (result is RequestResult.Success<*>) {
+        if (result is RequestResult.Success) {
             messageDao.deleteMessage(localMessage)
             insertMessages(listOf((result.data as MessageEntity).apply {
                 sender_avatar = sender.avatar
@@ -234,11 +234,11 @@ class ChatRepository(
     /**
      * 获取新消息
      */
-    suspend fun getUnreadMessages(userId: Int = 0): RequestResult {
+    suspend fun getUnreadMessages(userId: Int = 0): RequestResult<List<MessageEntity>?> {
         var result = kotlin.runCatching {
             messageApi?.getMessages(userId.toString())
         }.toRequestResult()
-        if (result is RequestResult.Success<*>) {
+        if (result is RequestResult.Success) {
             val list = ((result.data as List<MessageEntity>).map { it.apply { sendStatus = 1 } })
             insertMessages(list.map {
                 it.apply {
@@ -250,7 +250,7 @@ class ChatRepository(
         return result
     }
 
-    suspend fun deleteMessage(id:Int): RequestResult{
+    suspend fun deleteMessage(id:Int): RequestResult<Unit?>{
         val result=runCatching {
             messageApi?.deleteMessage(id.toString())
         }.toRequestResult()

@@ -52,7 +52,7 @@ class MainMusicViewModel: BaseViewModel() {
         viewModelScope.launch {
             isLoading.postValue(true)
             val result = repo.favoriteMusic(musicId)
-            if (result is RequestResult.Success<*>) {
+            if (result is RequestResult.Success) {
                 isCurrentMusicByUser = false
                 currentMusic.postValue(currentMusic.value?.apply {
                     isCollection = !isCollection
@@ -67,9 +67,9 @@ class MainMusicViewModel: BaseViewModel() {
     fun loadHotKeywords(limit: Int = 10) {
         viewModelScope.launch {
             val result = repo.getSearchHotKeywords(limit)
-            if (result is RequestResult.Success<*>) {
+            if (result is RequestResult.Success) {
                 EventViewModel.hotKeywords.update {
-                    result.data as? List<SearchHotKeyword> ?: emptyList()
+                    result.data ?: emptyList()
                 }
             }
         }

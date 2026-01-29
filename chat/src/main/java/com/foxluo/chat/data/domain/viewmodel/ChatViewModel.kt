@@ -86,8 +86,10 @@ class ChatViewModel : BaseUploadViewModel() {
     ) {
         viewModelScope.launch {
             isLoading.postValue(true)
-            val localMessage = repo.createTempTextMessage(friend, content) ?: return@launch.also {
+            val localMessage = repo.createTempTextMessage(friend, content) ?: run {
                 toast.postValue(false to "发送失败")
+                isLoading.postValue(false)
+                return@launch
             }
             isLoading.postValue(false)
             // 启动任务
@@ -112,8 +114,10 @@ class ChatViewModel : BaseUploadViewModel() {
                 friend,
                 filePath,
                 if (image.isVideo) "video" else "image"
-            ) ?: return@launch.also {
+            ) ?: run {
                 toast.postValue(false to "发送失败")
+                isLoading.postValue(false)
+                return@launch
             }
             isLoading.postValue(false)
             val uploadWork = enqueueSend(localMessage)

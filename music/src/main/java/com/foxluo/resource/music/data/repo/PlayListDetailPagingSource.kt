@@ -31,9 +31,9 @@ class PlayListDetailPagingSource(
             val result =
                 musicRepository.getPlaylistDetail(id, page, params.loadSize, playlistDetail)
             when (result) {
-                is RequestResult.Success<*> -> {
+                is RequestResult.Success -> {
                     // 网络成功，返回分页数据
-                    (result.data as? ListData<MusicEntity>)?.list ?: emptyList()
+                    result.data?.list ?: emptyList()
                 }
 
                 is RequestResult.Error -> {

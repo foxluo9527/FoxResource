@@ -39,4 +39,13 @@
             android:textSize="12sp"
             tools:text="0首 . 1.5万次播放" />
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_play_list_importing"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:textColor="@color/color_ED6C40"
+        android:textSize="12sp"
+        tools:text="导入中" />
 </LinearLayout>

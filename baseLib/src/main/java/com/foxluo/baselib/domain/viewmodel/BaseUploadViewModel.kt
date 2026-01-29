@@ -19,9 +19,8 @@ open class BaseUploadViewModel : BaseViewModel() {
         viewModelScope.launch {
             isLoading.value = true
             uploadRepo.uploadFile(filePath).let {
-                if (it is RequestResult.Success<*>) {
-                    val data = it.data as FileUploadResponse
-                    processUploadingFile.value = data.url
+                if (it is RequestResult.Success) {
+                    processUploadingFile.value = it.data?.url
                 }
             }
         }
@@ -30,7 +29,7 @@ open class BaseUploadViewModel : BaseViewModel() {
     suspend fun uploadFileAsync(filePath: String): String? {
         isLoading.value = true
         return uploadRepo.uploadFile(filePath).let {
-            if (it is RequestResult.Success<*>) {
+            if (it is RequestResult.Success) {
                 val data = it.data as FileUploadResponse
                 processUploadingFile.value = data.url
                 data.url
@@ -42,7 +41,7 @@ open class BaseUploadViewModel : BaseViewModel() {
 
     protected suspend fun getUploadResult(filePath: String): FileUploadResponse? {
         return uploadRepo.uploadFile(filePath).let {
-            if (it is RequestResult.Success<*>) {
+            if (it is RequestResult.Success) {
                 val data = it.data as FileUploadResponse
                 data
             } else null

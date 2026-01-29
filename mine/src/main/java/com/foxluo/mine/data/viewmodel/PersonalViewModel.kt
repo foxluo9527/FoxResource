@@ -27,8 +27,8 @@ class PersonalViewModel : BaseUploadViewModel() {
         viewModelScope.launch {
             isLoading.postValue(true)
             val result = repo.getProfile()
-            if (result is RequestResult.Success<*>) {
-                (result.data as PersonalProfile).let {
+            if (result is RequestResult.Success) {
+                result.data?.let {
                     profile.value = it
                 }
             } else if (result is RequestResult.Error) {
@@ -48,7 +48,7 @@ class PersonalViewModel : BaseUploadViewModel() {
         viewModelScope.launch {
             isLoading.postValue(true)
             val result = repo.setProfile(nickName, avatar, signature, email)
-            if (result is RequestResult.Success<*>) {
+            if (result is RequestResult.Success) {
                 initProfile()
             } else if (result is RequestResult.Error) {
                 toast.postValue(false to result.message)

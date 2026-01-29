@@ -72,5 +72,7 @@ data class PlaylistResult (
     val type: String,
 
     @SerializedName("view_count")
-    val viewCount: Long
+    val viewCount: Long,
+     @SerializedName("is_importing")
+    val isImporting: Boolean? = null,
 )

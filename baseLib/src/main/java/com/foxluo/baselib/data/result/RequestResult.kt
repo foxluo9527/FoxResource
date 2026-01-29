@@ -1,16 +1,15 @@
 package com.foxluo.baselib.data.result
 
-import com.foxluo.baselib.data.respository.BaseRepository
 import com.foxluo.baselib.domain.AuthorizFailError
 
-sealed class RequestResult {
+sealed class RequestResult<T> {
     abstract fun isSuccess(): Boolean
 
-    class Success<T>(val data: T, val message: String) : RequestResult() {
+    class Success<T>(val data: T, val message: String) : RequestResult<T>() {
         override fun isSuccess() = true
     }
 
-    class Error(val code: Int? = null, val message: String) : RequestResult() {
+    class Error<T>(val code: Int? = null, val message: String) : RequestResult<T>() {
         override fun isSuccess() = false
 
         fun getError() = if (code == 401) {
@@ -20,12 +19,17 @@ sealed class RequestResult {
         }
     }
 
-    fun <T> invokeCallback(callback: BaseRepository.ResultCallback<T>) {
+    fun result(
+        onSuccess: (T) -> Unit = { },
+        onSuccessWithMessage: (T, String) -> Unit = { _, _ -> },
+        onError: (String) -> Unit = {}
+    ) {
         if (isSuccess()) {
             val successResult = (this as Success<T>)
-            callback.onSuccess(successResult.data, successResult.message)
+            onSuccess(successResult.data)
+            onSuccessWithMessage(successResult.data, successResult.message)
         } else {
-            callback.onError((this as Error).message)
+            onError((this as Error<T>).message)
         }
     }
 }

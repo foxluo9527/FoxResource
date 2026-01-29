@@ -47,13 +47,18 @@ import kotlinx.coroutines.runBlocking
 const val PERMISSIONS_REQUEST_FOREGROUND_SERVICE = 2333
 
 class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
-    private val fragments by lazy {
-        arrayListOf<Fragment>(
+    private val fixedFragments by lazy {
+        listOf(
             HomeFragment(),
             ChatHomeFragment(),
             CommunityFragment(),
             MineFragment()
         )
+    }
+    private val fragments by lazy {
+        arrayListOf<Fragment>().apply {
+            addAll(fixedFragments)
+        }
     }
 
     private var controller: MediaController? = null
@@ -156,11 +161,14 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>() {
     private fun currentFragmentChanged(fragment: Fragment) {
         if (currentFragment != fragment) {
             val transaction = supportFragmentManager.beginTransaction()
-
             currentFragment?.let {
-                transaction.hide(it)
+                if (!(fixedFragments.contains(currentFragment))){
+                    transaction.remove(it)
+                    fragments.remove(it)
+                }else{
+                    transaction.hide(it)
+                }
             }
-
             if (fragment.isAdded) {
                 transaction.show(fragment)
             } else {

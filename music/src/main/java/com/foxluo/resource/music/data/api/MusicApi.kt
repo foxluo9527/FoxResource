@@ -5,6 +5,7 @@ import com.foxluo.baselib.data.result.BaseListResponse
 import com.foxluo.baselib.data.result.BaseResponse
 import com.foxluo.baselib.domain.bean.SearchHotKeyword
 import com.foxluo.resource.music.data.result.ArtistResult
+import com.foxluo.resource.music.data.result.DashboardStats
 import com.foxluo.resource.music.data.result.MusicComment
 import com.foxluo.resource.music.data.result.MusicCommentReplay
 import com.foxluo.resource.music.data.result.MusicResult
@@ -117,6 +118,13 @@ interface MusicApi : BaseApi {
      */
     @POST("/api/playlists")
     suspend fun createPlaylist(@Body map: Map<String, @JvmSuppressWildcards Any>): BaseResponse<Unit>
+    /**
+     * 导入播放列表
+     */
+    @POST("/api/import/music")
+    suspend fun importPlaylist(@Body map: Map<String, @JvmSuppressWildcards Any>): BaseResponse<Unit>
+
+
 
     /**
      * {
@@ -154,4 +162,7 @@ interface MusicApi : BaseApi {
     
     @GET("/api/tags/music")
     suspend fun getMusicTags(): BaseResponse<List<Tag>>
+
+    @GET("/api/admin/dashboard/stats")
+    suspend fun getDashBoardStats(): BaseResponse<DashboardStats>
 }

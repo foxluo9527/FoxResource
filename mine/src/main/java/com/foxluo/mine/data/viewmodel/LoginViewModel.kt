@@ -19,11 +19,11 @@ class LoginViewModel : BaseViewModel() {
             isLoading.postValue(true)
             val result = repo.login(username, password)
             isLoading.postValue(false)
-            if (result is RequestResult.Success<*>) {
-                (result.data as AuthInfo).let {
-                    toast.postValue(true to result.message)
+            if (result is RequestResult.Success) {
+                toast.postValue(true to result.message)
+                result.data?.let {
                     AuthManager.login(it)
-                    com.foxluo.mine.data.repo.PersonalRepository().getProfile()
+                    PersonalRepository().getProfile()
                 }
             } else if (result is RequestResult.Error) {
                 toast.postValue(false to result.message)
@@ -36,7 +36,7 @@ class LoginViewModel : BaseViewModel() {
             isLoading.postValue(true)
             val result = repo.logout()
             isLoading.postValue(false)
-            if (result is RequestResult.Success<*>) {
+            if (result is RequestResult.Success) {
                 toast.postValue(true to result.message)
                 AuthManager.logout()
             } else if (result is RequestResult.Error) {

@@ -10,6 +10,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.PagingData
+import com.blankj.utilcode.util.BarUtils
 import com.foxluo.baselib.data.manager.AuthManager
 import com.foxluo.baselib.domain.viewmodel.EventViewModel
 import com.foxluo.baselib.ui.ImageViewInfo
@@ -24,6 +25,7 @@ import com.foxluo.resource.music.data.result.PlaylistDetailResult
 import com.foxluo.resource.music.databinding.FragmentAlbumMusicListBinding
 import com.foxluo.resource.music.ui.activity.PlaylistEditActivity
 import com.xuexiang.xui.utils.XToastUtils.error
+import com.xuexiang.xui.utils.XToastUtils.info
 import com.xuexiang.xui.utils.XToastUtils.success
 import com.xuexiang.xui.utils.XToastUtils.toast
 import com.xuexiang.xui.widget.dialog.bottomsheet.BottomSheet
@@ -80,6 +82,11 @@ class PlaylistFragment : MainPageMusicFragment<FragmentAlbumMusicListBinding>() 
         binding.toolbar.navigationIcon =
             resources.getDrawable(com.xuexiang.xui.R.drawable.xui_ic_navigation_back_white, null)
         binding.toolbar.setTitleTextColor(Color.WHITE)
+        binding.toolbar.apply {
+            layoutParams = layoutParams?.apply {
+                height = BarUtils.getStatusBarHeight()
+            }
+        }
         // 设置返回键点击事件
         binding.toolbar.setNavigationOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
@@ -112,6 +119,9 @@ class PlaylistFragment : MainPageMusicFragment<FragmentAlbumMusicListBinding>() 
             adapter.refresh()
         }
         vm.playlistDetail.observe(this) {
+            if (it.isImporting == true) {
+                info("歌单导入中")
+            }
             binding.collapsingToolbar.title = it.title
             binding.toolbar.title = it.title
             binding.ivCover.loadUrlWithCorner(processUrl(it.coverImage), 10)

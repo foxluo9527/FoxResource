@@ -88,9 +88,12 @@ data class UserInfo(
     var username: String,
     var signature: String?,
     var nickname: String?,
+    val role:String?,
     val email: String,
     val status: String,
     var avatar: String?,
     val created_at: String,
     val last_login: String
-)
+){
+    fun isAdmin() = role?.contains( "admin")
+}

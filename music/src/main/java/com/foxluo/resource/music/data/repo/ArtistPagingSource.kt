@@ -21,9 +21,9 @@ class ArtistPagingSource(
             val page = params.key ?: 1
             val result = repository.getArtistList(page, params.loadSize, keyword, tagId)
             when (result) {
-                is RequestResult.Success<*> -> {
+                is RequestResult.Success -> {
                     // 网络成功，返回分页数据
-                    (result.data as? ListData<ArtistResult>)?.list ?: emptyList()
+                    result.data?.list ?: emptyList()
                 }
 
                 is RequestResult.Error -> {

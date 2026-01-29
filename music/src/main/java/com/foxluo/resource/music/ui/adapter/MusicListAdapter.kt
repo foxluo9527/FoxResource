@@ -1,5 +1,9 @@
 package com.foxluo.resource.music.ui.adapter
 
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.StrikethroughSpan
+import android.text.style.UnderlineSpan
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
@@ -11,6 +15,7 @@ import com.foxluo.baselib.util.ImageExt.processUrl
 import com.foxluo.baselib.util.ViewExt.visible
 import com.foxluo.resource.music.data.database.MusicEntity
 import com.foxluo.resource.music.databinding.ItemMusicListBinding
+import com.xuexiang.xui.utils.ResUtils
 
 class MusicListAdapter(
     val moreVisible: Boolean,
@@ -63,9 +68,18 @@ class MusicListAdapter(
         fun setData(data: MusicEntity) {
             binding.root.setBackgroundResource(if (currentMusicId == data.musicId) R.color.F7F7F7 else R.color.white)
             binding.cover.loadUrlWithCorner(processUrl(data.coverImg), 6)
-            binding.name.text = data.title
-            binding.singer.text = data.artist?.name
             binding.more.visible(moreVisible)
+            if (data.url.isNullOrEmpty()) {
+                binding.name.text = SpannableString(data.title).apply {
+                    setSpan(StrikethroughSpan(), 0, data.title?.length?:0, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
+                }
+                binding.singer.text = SpannableString(data.artist?.name).apply {
+                    setSpan(StrikethroughSpan(), 0, data.artist?.name?.length?:0, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
+                }
+            } else {
+                binding.name.text = data.title
+                binding.singer.text = data.artist?.name
+            }
         }
     }
 

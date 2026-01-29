@@ -9,6 +9,7 @@ import com.foxluo.baselib.data.result.BaseListResponse
 import com.foxluo.baselib.data.result.BaseResponse.Companion.toRequestResult
 import com.foxluo.baselib.data.result.ListData
 import com.foxluo.baselib.data.result.RequestResult
+import com.foxluo.baselib.domain.bean.SearchHotKeyword
 import com.foxluo.baselib.ui.adapter.CommentAdapter
 import com.foxluo.baselib.util.Constant
 import com.foxluo.resource.music.data.api.MusicApi
@@ -16,9 +17,12 @@ import com.foxluo.resource.music.data.database.ArtistDAO
 import com.foxluo.resource.music.data.database.MusicDAO
 import com.foxluo.resource.music.data.database.MusicEntity
 import com.foxluo.resource.music.data.result.ArtistResult
+import com.foxluo.resource.music.data.result.DashboardStats
+import com.foxluo.resource.music.data.result.MusicComment
 import com.foxluo.resource.music.data.result.MusicResult
 import com.foxluo.resource.music.data.result.PlaylistDetailResult
 import com.foxluo.resource.music.data.result.PlaylistResult
+import com.foxluo.resource.music.data.result.Tag
 import com.foxluo.resource.music.data.result.toCommentList
 import com.foxluo.resource.music.data.result.toCommentReplay
 import kotlinx.coroutines.flow.Flow
@@ -31,22 +35,22 @@ class MusicRepository(
         createApi<MusicApi>()
     }
 
-    suspend fun favoriteMusic(id: String): RequestResult {
+    suspend fun favoriteMusic(id: String): RequestResult<Unit?> {
         val result = kotlin.runCatching { api?.favoriteMusic(id) }
         return result.toRequestResult()
     }
 
-    suspend fun recordPlay(id: String,progress:Int): RequestResult {
+    suspend fun recordPlay(id: String,progress:Int): RequestResult<Unit?> {
         val result = kotlin.runCatching { api?.recordMusicPlay(id, mapOf("progress" to progress)) }
         return result.toRequestResult()
     }
 
-    suspend fun getMusicList(page: Int, size: Int, keyword: String = "",sort: String = ""): RequestResult {
+    suspend fun getMusicList(page: Int, size: Int, keyword: String = "",sort: String = ""): RequestResult<ListData<MusicEntity>?> {
         val result = kotlin.runCatching { api?.getMusicList(page, size, keyword, sort) }
         return processNetworkResult(result)
     }
 
-    suspend fun getHistoryMusicList(page: Int, size: Int): RequestResult {
+    suspend fun getHistoryMusicList(page: Int, size: Int): RequestResult<ListData<MusicEntity>?> {
         val result = kotlin.runCatching { api?.getHistoryMusicList(page, size) }
         return processNetworkResult(result, false)
     }
@@ -78,7 +82,7 @@ class MusicRepository(
             config = PagingConfig(
                 pageSize = 100,
                 prefetchDistance = 2,
-                initialLoadSize = 20
+                initialLoadSize = 100
             ),
             pagingSourceFactory = { RecentMusicPagingSource(this) }
         ).flow
@@ -87,7 +91,7 @@ class MusicRepository(
     private suspend fun processNetworkResult(
         result: Result<BaseListResponse<MusicResult>?>,
         cacheMusic: Boolean = true
-    ): RequestResult {
+    ): RequestResult<ListData<MusicEntity>?> {
         val resultData = result.getOrNull()
         val resultError = result.exceptionOrNull()
         val dataResult = ListData<MusicEntity>()
@@ -113,7 +117,7 @@ class MusicRepository(
         }
     }
 
-    suspend fun getMusicComment(musicId: String, page: Int, size: Int): RequestResult {
+    suspend fun getMusicComment(musicId: String, page: Int, size: Int): RequestResult<ListData<CommentAdapter.CommentBean>?> {
         val result = kotlin.runCatching { api?.getMusicComments(musicId, page, size) }.getOrNull()
         val dataResult = ListData<CommentAdapter.CommentBean>()
         val dataList = result?.data?.let { data ->
@@ -135,7 +139,7 @@ class MusicRepository(
         }
     }
 
-    suspend fun getMusicCommentReply(commentId: String, page: Int, size: Int): RequestResult {
+    suspend fun getMusicCommentReply(commentId: String, page: Int, size: Int): RequestResult<ListData<CommentAdapter.CommentBean>?> {
         val result = kotlin.runCatching { api?.getMusicReplies(commentId, page, size) }.getOrNull()
         val dataResult = ListData<CommentAdapter.CommentBean>()
         val dataList = result?.data?.let { data ->
@@ -164,7 +168,7 @@ class MusicRepository(
         musicId: String,
         content: String,
         commentId: String?
-    ): RequestResult {
+    ): RequestResult<ListData<MusicComment>?> {
         val map = mutableMapOf("music_id" to musicId, "content" to content)
         if (commentId != null) {
             map["parent_id"] = commentId
@@ -173,17 +177,17 @@ class MusicRepository(
         return result.toRequestResult()
     }
 
-    suspend fun likeMusicComment(commentId: String): RequestResult {
+    suspend fun likeMusicComment(commentId: String): RequestResult<Unit?> {
         val result = kotlin.runCatching { api?.likeMusicComment(commentId) }
         return result.toRequestResult()
     }
 
-    suspend fun getSearchHotKeywords(limit: Int = 10): RequestResult {
+    suspend fun getSearchHotKeywords(limit: Int = 10): RequestResult<List<SearchHotKeyword>?> {
         val result = kotlin.runCatching { api?.getSearchHotKeywords("music", limit) }
         return result.toRequestResult()
     }
 
-    suspend fun getPlaylistDetail(id: String): RequestResult {
+    suspend fun getPlaylistDetail(id: String): RequestResult<PlaylistDetailResult?> {
         val result = kotlin.runCatching { api?.getPlaylistDetail(id, 1, 10) }
         return result.toRequestResult()
     }
@@ -192,7 +196,7 @@ class MusicRepository(
      * 获取播放列表
      * @param isRecommend 是否推荐列表
      */
-    suspend fun getPlaylistList(isRecommend: Boolean, page: Int, limit: Int): RequestResult {
+    suspend fun getPlaylistList(isRecommend: Boolean, page: Int, limit: Int): RequestResult<List<PlaylistResult>?> {
         val result = kotlin.runCatching {
             if (isRecommend) api?.getRecommendedPlaylistList(
                 page,
@@ -210,7 +214,7 @@ class MusicRepository(
             config = PagingConfig(
                 pageSize = 100,
                 prefetchDistance = 2,
-                initialLoadSize = 20
+                initialLoadSize = 100
             ),
             pagingSourceFactory = { PlayListPagingSource(this, isRecommend) }
         ).flow
@@ -221,7 +225,7 @@ class MusicRepository(
         page: Int,
         size: Int,
         playlistDetail: MutableLiveData<PlaylistDetailResult>
-    ): RequestResult {
+    ): RequestResult<ListData<MusicEntity>?> {
         val result = runCatching {
             api?.getPlaylistDetail(id, page, size)?.let {
                 BaseListResponse<MusicResult>().apply {
@@ -246,7 +250,7 @@ class MusicRepository(
             config = PagingConfig(
                 pageSize = 100,
                 prefetchDistance = 2,
-                initialLoadSize = 20
+                initialLoadSize = 100
             ),
             pagingSourceFactory = { PlayListDetailPagingSource(this, id, playlistDetail) }
         ).flow
@@ -255,16 +259,23 @@ class MusicRepository(
     /**
      * 创建播放列表
      */
-    suspend fun createPlaylist(title: String): RequestResult {
+    suspend fun createPlaylist(title: String): RequestResult<Unit?> {
         val result = kotlin.runCatching { api?.createPlaylist(mapOf("title" to title)) }
         return result.toRequestResult()
     }
 
-    
+    /**
+     * 导入播放列表
+     */
+    suspend fun importPlaylist(url: String): RequestResult<Unit?> {
+        val result = kotlin.runCatching { api?.importPlaylist(mapOf("url" to url, "platform" to "mobile")) }
+        return result.toRequestResult()
+    }
+
     /**
      * 更新播放列表
      */
-    suspend fun updatePlaylist(playlist: PlaylistDetailResult): RequestResult {
+    suspend fun updatePlaylist(playlist: PlaylistDetailResult): RequestResult<Unit?> {
         val map = mutableMapOf<String, Any>()
         playlist.title?.let { map["title"] = it }
         playlist.description?.let { map["description"] = it }
@@ -278,7 +289,7 @@ class MusicRepository(
     /**
      * 获取音乐标签
      */
-    suspend fun getMusicTags(): RequestResult {
+    suspend fun getMusicTags(): RequestResult<List<Tag>?> {
         val result = kotlin.runCatching { api?.getMusicTags() }
         return result.toRequestResult()
     }
@@ -286,7 +297,7 @@ class MusicRepository(
     /**
      * 删除播放列表
      */
-    suspend fun deletePlaylist(id: String): RequestResult {
+    suspend fun deletePlaylist(id: String): RequestResult<Unit?> {
         val result = kotlin.runCatching { api?.deletePlaylist(id) }
         return result.toRequestResult()
     }
@@ -294,7 +305,7 @@ class MusicRepository(
     /**
      * 向播放列表添加音乐
      */
-    suspend fun addMusicToPlaylist(id: String, musicIds: List<Int>): RequestResult {
+    suspend fun addMusicToPlaylist(id: String, musicIds: List<Int>): RequestResult<Unit?> {
         val result =
             kotlin.runCatching { api?.addMusicToPlaylist(id, mapOf("musicIds" to musicIds)) }
         return result.toRequestResult()
@@ -303,7 +314,7 @@ class MusicRepository(
     /**
      * 从播放列表删除音乐
      */
-    suspend fun deleteMusicInPlaylist(id: String, musicId: String): RequestResult {
+    suspend fun deleteMusicInPlaylist(id: String, musicId: String): RequestResult<Unit?> {
         val result = kotlin.runCatching { api?.deleteMusicInPlaylist(id, musicId) }
         return result.toRequestResult()
     }
@@ -313,7 +324,7 @@ class MusicRepository(
             config = PagingConfig(
                 pageSize = 100,
                 prefetchDistance = 2,
-                initialLoadSize = 20
+                initialLoadSize = 100
             ),
             pagingSourceFactory = { ArtistPagingSource(this, keyword, tagId) }
         ).flow
@@ -324,8 +335,12 @@ class MusicRepository(
         limit: Int,
         keyword: String,
         tagId: String? = null
-    ): RequestResult {
+    ): RequestResult<ListData<ArtistResult>?> {
         val result = kotlin.runCatching { api?.getArtistList(page, limit, keyword, tagId) }
         return result.toRequestResult()
+    }
+
+    suspend fun getDashboardStats(): RequestResult<DashboardStats?>{
+        return runCatching { api?.getDashBoardStats() }.toRequestResult()
     }
 }

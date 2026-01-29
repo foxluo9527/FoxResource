@@ -1,5 +1,6 @@
 package com.foxluo.mine.data.repo
 
+import com.foxluo.baselib.data.manager.AuthInfo
 import com.foxluo.baselib.data.respository.BaseRepository
 import com.foxluo.baselib.data.result.BaseResponse.Companion.toRequestResult
 import com.foxluo.baselib.data.result.RequestResult
@@ -10,17 +11,17 @@ class AuthRepository : BaseRepository() {
         createApi<AuthApi>()
     }
 
-    suspend fun login(username: String, password: String): RequestResult {
-        return api?.login(username, password).toRequestResult()
+    suspend fun login(username: String, password: String): RequestResult<AuthInfo?> {
+        return runCatching { api?.login(username, password) }.toRequestResult()
     }
 
-    suspend fun register(username: String, email: String, password: String): RequestResult {
-        return api?.register(username, password, email).toRequestResult()
+    suspend fun register(username: String, email: String, password: String): RequestResult<AuthInfo?> {
+        return runCatching { api?.register(username, password, email) }.toRequestResult()
     }
 
-    suspend fun sendForgetEmailCode(email: String): RequestResult {
+    suspend fun sendForgetEmailCode(email: String): RequestResult<Unit?> {
         val body = mapOf("email" to email)
-        val result = api?.sendForgetEmail(body)
+        val result = runCatching{ api?.sendForgetEmail(body) }
         return result.toRequestResult()
     }
 
@@ -28,12 +29,12 @@ class AuthRepository : BaseRepository() {
         email: String,
         code: String,
         newPassword: String
-    ): RequestResult {
+    ): RequestResult<Unit?> {
         val body = mapOf("email" to email, "code" to code, "newPassword" to newPassword)
-        return api?.resetPassword(body).toRequestResult()
+        return runCatching{ api?.resetPassword(body) }.toRequestResult()
     }
 
-    suspend fun logout(): RequestResult {
-        return api?.logout().toRequestResult()
+    suspend fun logout(): RequestResult<Unit?> {
+        return runCatching{ api?.logout() }.toRequestResult()
     }
 }

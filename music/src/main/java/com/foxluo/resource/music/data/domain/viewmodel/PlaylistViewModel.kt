@@ -1,7 +1,5 @@
 package com.foxluo.resource.music.data.domain.viewmodel
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
@@ -9,7 +7,7 @@ import com.foxluo.baselib.data.result.RequestResult
 import com.foxluo.baselib.domain.viewmodel.BaseViewModel
 import com.foxluo.resource.music.data.domain.MusicModuleInitializer
 import com.foxluo.resource.music.data.repo.MusicRepository
-import com.foxluo.resource.music.data.result.PlaylistDetailResult
+import com.foxluo.resource.music.data.result.DashboardStats
 import com.foxluo.resource.music.data.result.PlaylistResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -50,8 +48,8 @@ class PlaylistViewModel() : BaseViewModel() {
     ) {
         viewModelScope.launch {
             val result = repository.getPlaylistList(isRecommend, 1, 10)
-            if (result is RequestResult.Success<*>) {
-                success((result.data as? List<PlaylistResult>) ?: emptyList())
+            if (result is RequestResult.Success) {
+                success(result.data ?: emptyList())
             } else if (result is RequestResult.Error) {
                 error(result.getError())
             }
@@ -61,7 +59,7 @@ class PlaylistViewModel() : BaseViewModel() {
     fun createPlaylist(title: String, block: () -> Unit) {
         viewModelScope.launch {
             val result = repository.createPlaylist(title)
-            if (result is RequestResult.Success<*>) {
+            if (result is RequestResult.Success) {
                 block()
             } else if (result is RequestResult.Error) {
                 toast.value = false to result.message
@@ -69,4 +67,24 @@ class PlaylistViewModel() : BaseViewModel() {
         }
     }
 
+    fun importPlaylist(url: String, block: () -> Unit) {
+        viewModelScope.launch {
+            val result = repository.importPlaylist(url)
+            if (result is RequestResult.Success) {
+                block()
+            } else if (result is RequestResult.Error) {
+                toast.value = false to result.message
+            }
+        }
+    }
+
+    fun getMusicStats(block: (DashboardStats?) -> Unit){
+        viewModelScope.launch {
+            repository.getDashboardStats().result(onSuccess = {
+                block(it)
+            }, onError = {
+                toast.value = false to it
+            })
+        }
+    }
 }

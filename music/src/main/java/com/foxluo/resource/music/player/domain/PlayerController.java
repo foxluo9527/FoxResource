@@ -303,7 +303,7 @@ public class PlayerController<
             @Override
             public void accept(M m) {
                 MediaItem mediaItem = getMusicMediaItem(m);
-                if (m != null && !playingList.contains(mediaItem)) {
+                if (m != null && mediaItem != null && !playingList.contains(mediaItem)) {
                     playingList.add(mediaItem);
                     appendList.add(mediaItem);
                 }

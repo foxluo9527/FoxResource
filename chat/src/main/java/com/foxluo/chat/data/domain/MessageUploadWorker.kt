@@ -94,7 +94,7 @@ class MessageUploadWorker(
 
     private suspend fun getUploadResult(filePath: String): FileUploadResponse? {
         return uploadRepo.uploadFile(filePath).let {
-            if (it is RequestResult.Success<*>) {
+            if (it is RequestResult.Success) {
                 val data = it.data as FileUploadResponse
                 data
             } else null

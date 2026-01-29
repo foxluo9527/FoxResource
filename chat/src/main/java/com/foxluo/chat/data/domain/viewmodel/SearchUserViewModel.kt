@@ -29,8 +29,8 @@ class SearchUserViewModel : BaseViewModel() {
             val result = repo.searchUser(keyword)
             if (result is RequestResult.Error) {
                 toast.postValue(Pair(false, result.message))
-            } else if (result is RequestResult.Success<*>) {
-                val dataList = (result as RequestResult.Success<List<UserSearchResult>>).data
+            } else if (result is RequestResult.Success) {
+                val dataList = result.data?:listOf()
                 _users.postValue(dataList)
             }
             isLoading.postValue(false)

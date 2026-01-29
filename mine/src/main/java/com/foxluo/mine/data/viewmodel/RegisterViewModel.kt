@@ -10,7 +10,7 @@ import kotlinx.coroutines.launch
 
 class RegisterViewModel: BaseViewModel() {
     private val repo by lazy {
-        com.foxluo.mine.data.repo.AuthRepository()
+        AuthRepository()
     }
 
     fun register(userName:String,password:String,email:String){
@@ -18,9 +18,9 @@ class RegisterViewModel: BaseViewModel() {
             isLoading.postValue(true)
             val result=repo.register(userName,email,password)
             isLoading.postValue(false)
-            if (result is RequestResult.Success<*>) {
-                (result.data as AuthInfo).let {
-                    toast.postValue(true to result.message)
+            if (result is RequestResult.Success) {
+                toast.postValue(true to result.message)
+                result.data?.let {
                     AuthManager.login(it)
                 }
             } else if (result is RequestResult.Error) {

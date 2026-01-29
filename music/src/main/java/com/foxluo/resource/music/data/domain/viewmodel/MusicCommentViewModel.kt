@@ -53,8 +53,8 @@ class MusicCommentViewModel : BaseViewModel() {
                 page = 1
             }
             val result = repo.getMusicComment(musicId, page, size)
-            if (result is RequestResult.Success<*>) {
-                (result.data as? ListData<CommentAdapter.CommentBean>)?.let { data ->
+            if (result is RequestResult.Success) {
+                result.data?.let { data ->
                     if (!isLoadMore) {
                         commentList.postValue(data.list)
                     } else {
@@ -77,7 +77,7 @@ class MusicCommentViewModel : BaseViewModel() {
             processLoading.postValue(true)
             val result = repo.likeMusicComment(commentId)
             processLoading.postValue(false)
-            if (result is RequestResult.Success<*>) {
+            if (result is RequestResult.Success) {
                 block.invoke(true)
             } else if (result is RequestResult.Error) {
                 toast.postValue(Pair(false, result.message))
@@ -98,9 +98,9 @@ class MusicCommentViewModel : BaseViewModel() {
                     if (!isAddRefresh) comment.replyCount else comment.replyCount - comment.displayReplyCount + 1
                 )
                 processLoading.postValue(false)
-                if (result is RequestResult.Success<*>) {
+                if (result is RequestResult.Success) {
                     var replyId = commentId
-                    (result.data as? ListData<CommentAdapter.CommentBean>)?.let { data ->
+                    result.data?.let { data ->
                         val list = data.list
                         comment.replyCount = data.total
                         list?.toMutableList()?.apply {
@@ -127,7 +127,7 @@ class MusicCommentViewModel : BaseViewModel() {
         viewModelScope.launch {
             processLoading.postValue(true)
             val result = repo.postMusicComment(musicId, content, replyComment.value?.id)
-            if (result is RequestResult.Success<*>) {
+            if (result is RequestResult.Success) {
                 delay(200)
                 block.invoke(true)
             } else if (result is RequestResult.Error) {

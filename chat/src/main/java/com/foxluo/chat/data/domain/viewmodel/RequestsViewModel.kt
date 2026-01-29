@@ -29,8 +29,8 @@ class RequestsViewModel : BaseViewModel() {
             if (result is RequestResult.Error) {
                 toast.postValue(Pair(false, result.message))
                 _requests.postValue(listOf<FriendRequestResult>())
-            } else if (result is RequestResult.Success<*>) {
-                _requests.postValue(result.data as List<FriendRequestResult>)
+            } else if (result is RequestResult.Success) {
+                _requests.postValue(result.data?:listOf())
             }
             isLoading.postValue(false)
         }

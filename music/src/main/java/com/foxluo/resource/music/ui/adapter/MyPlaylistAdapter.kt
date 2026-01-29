@@ -25,6 +25,7 @@ class MyPlaylistAdapter(
             binding.ivPlayListCover.loadUrlWithCorner(processUrl(data.coverImage), 8)
             binding.tvPlayListName.text = data.title
             binding.tvPlayListCount.text = "${data.trackCount}首"
+            binding.tvPlayListImporting.text = if (data.isImporting == true) "导入中" else ""
         }
     }
 

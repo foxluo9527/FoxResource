@@ -9,13 +9,13 @@ import com.foxluo.mine.data.bean.PersonalProfile
 
 class PersonalRepository : BaseRepository() {
     private val api by lazy {
-        createApi<com.foxluo.mine.data.api.PersonalApi>()
+        createApi<PersonalApi>()
     }
 
-    suspend fun getProfile(): RequestResult {
-        return api?.profile().toRequestResult().also { result ->
+    suspend fun getProfile(): RequestResult<PersonalProfile?> {
+        return runCatching{ api?.profile() }.toRequestResult().also { result ->
             if (result.isSuccess()) {
-                (result as RequestResult.Success<PersonalProfile>).data.let {
+                (result as RequestResult.Success).data?.let {
                     AuthManager.updatePersonalInfo(
                         it.username,
                         it.nickname,
@@ -32,7 +32,7 @@ class PersonalRepository : BaseRepository() {
         avatar: String? = null,
         signature: String? = null,
         email: String? = null
-    ): RequestResult {
+    ): RequestResult<Unit?> {
         val body = mutableMapOf<String, String>()
         if (nickname != null) {
             body["nickname"] = nickname
@@ -46,6 +46,6 @@ class PersonalRepository : BaseRepository() {
         if (email != null) {
             body["email"] = email
         }
-        return api?.profile(body).toRequestResult()
+        return runCatching{ api?.profile(body) }.toRequestResult()
     }
 }

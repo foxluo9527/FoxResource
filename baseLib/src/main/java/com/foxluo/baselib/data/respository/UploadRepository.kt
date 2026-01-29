@@ -2,6 +2,7 @@ package com.foxluo.baselib.data.respository
 
 import com.foxluo.baselib.data.api.UploadApi
 import com.foxluo.baselib.data.result.BaseResponse.Companion.toRequestResult
+import com.foxluo.baselib.data.result.FileUploadResponse
 import com.foxluo.baselib.data.result.RequestResult
 import com.foxluo.baselib.util.StringUtil.getMediaType
 import okhttp3.MediaType
@@ -15,7 +16,7 @@ class UploadRepository: BaseRepository() {
         createApi<UploadApi>()
     }
 
-    suspend fun uploadFile(filePath: String): RequestResult {
+    suspend fun uploadFile(filePath: String): RequestResult<FileUploadResponse?> {
         val file = File(filePath)
         val fileName = Paths.get(filePath).fileName.toString()
         val fileType = if (fileName.contains(".")) {

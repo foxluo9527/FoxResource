@@ -10,6 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.alibaba.android.arouter.launcher.ARouter
 import com.blankj.utilcode.util.ActivityUtils
+import com.blankj.utilcode.util.ToastUtils
 import com.foxluo.baselib.R
 import com.foxluo.baselib.data.manager.AuthManager
 import com.foxluo.baselib.domain.AuthorizFailError
@@ -18,12 +19,16 @@ import com.foxluo.baselib.ui.BaseBindingFragment
 import com.foxluo.baselib.ui.fragment.TempFragment
 import com.foxluo.baselib.ui.view.StatusPager
 import com.foxluo.baselib.util.DialogUtil.showInputDialog
+import com.foxluo.baselib.util.ViewExt.visible
 import com.foxluo.resource.music.data.domain.viewmodel.ArtistViewModel
 import com.foxluo.resource.music.data.domain.viewmodel.PlaylistViewModel
 import com.foxluo.resource.music.databinding.FragmentMainMusicBinding
 import com.foxluo.resource.music.ui.adapter.HotSingerAdapter
 import com.foxluo.resource.music.ui.adapter.MyPlaylistAdapter
 import com.foxluo.resource.music.ui.adapter.RecommendPlaylistAdapter
+import com.xuexiang.xui.widget.dialog.bottomsheet.BottomSheet
+import com.xuexiang.xui.widget.dialog.bottomsheet.BottomSheet.BottomListSheetBuilder
+
 
 class MainMusicFragment : BaseBindingFragment<FragmentMainMusicBinding>() {
     private val recommendMusicFragment by lazy {
@@ -32,6 +37,10 @@ class MainMusicFragment : BaseBindingFragment<FragmentMainMusicBinding>() {
 
     private val recentMusicFragment by lazy {
         RecentMusicFragment()
+    }
+
+    private val manageMusicFragment by lazy {
+        ManageMusicFragment.getFragment(true,false)
     }
 
     private val playListFragment by lazy {
@@ -122,6 +131,11 @@ class MainMusicFragment : BaseBindingFragment<FragmentMainMusicBinding>() {
         MutableLiveData<Int>(0)
     }
 
+    private val isAdmin
+        get() = AuthManager.userInfoStateFlow.value.let {
+            it?.isAdmin() == true
+        }
+
     override fun initView() {
         super.initView()
         // 设置推荐歌单 RecyclerView
@@ -154,6 +168,7 @@ class MainMusicFragment : BaseBindingFragment<FragmentMainMusicBinding>() {
         super.initObserver()
         AuthManager.userInfoStateFlow.asLiveData(lifecycleScope.coroutineContext).observe(this){
             loadData()
+            binding.musicManage.visible(isAdmin)
         }
         EventViewModel.updatePlaylist.observe(this) {
             if (it > 0L) {
@@ -195,16 +210,45 @@ class MainMusicFragment : BaseBindingFragment<FragmentMainMusicBinding>() {
 
         // 创建歌单按钮
         binding.createPlayList.setOnClickListener {
-            // 处理创建歌单点击事件
-            requireContext().showInputDialog(content = "请输入歌单名称") {
-                playlistViewModel.createPlaylist(it) {
-                    loadMyPlaylistData()
-                }
-            }
+            BottomListSheetBuilder(getActivity())
+                .addItem("导入网易云/QQ音乐歌单")
+                .addItem("新建歌单")
+                .setOnSheetItemClickListener(object :
+                    BottomListSheetBuilder.OnSheetItemClickListener {
+                    override fun onClick(
+                        dialog: BottomSheet,
+                        itemView: View?,
+                        position: Int,
+                        tag: String?
+                    ) {
+                        dialog.dismiss()
+                        if (position==0){
+                            // 导入歌单
+                            requireContext().showInputDialog(content = "请输入歌单URL") {
+                                playlistViewModel.importPlaylist(it) {
+                                    loadMyPlaylistData()
+                                }
+                            }
+                        }else{
+                            // 处理创建歌单点击事件
+                            requireContext().showInputDialog(content = "请输入歌单名称") {
+                                playlistViewModel.createPlaylist(it) {
+                                    loadMyPlaylistData()
+                                }
+                            }
+                        }
+                    }
+                })
+                .build()
+                .show()
         }
         binding.root.setOnRefreshListener {
             loadedDataList.value = 0
             loadData()
+        }
+        binding.musicManage.setOnClickListener {
+            EventViewModel.showMainPageFragment.value =
+                manageMusicFragment to System.currentTimeMillis()
         }
     }
 
@@ -227,6 +271,7 @@ class MainMusicFragment : BaseBindingFragment<FragmentMainMusicBinding>() {
             loadedDataList.value = (loadedDataList.value ?: 0) + 1
         }, error = { error ->
             onLoadError(recommendMusicStatusPager, error)
+            loadedDataList.value = (loadedDataList.value ?: 0) + 1
         })
     }
 
@@ -243,6 +288,7 @@ class MainMusicFragment : BaseBindingFragment<FragmentMainMusicBinding>() {
             loadedDataList.value = (loadedDataList.value ?: 0) + 1
         }, error = { error ->
             onLoadError(hotSingerStatusPager, error)
+            loadedDataList.value = (loadedDataList.value ?: 0) + 1
         })
     }
 
@@ -261,7 +307,13 @@ class MainMusicFragment : BaseBindingFragment<FragmentMainMusicBinding>() {
             loadedDataList.value = (loadedDataList.value ?: 0) + 1
         }, error = { error ->
             onLoadError(playlistMusicStatusPager, error)
+            loadedDataList.value = (loadedDataList.value ?: 0) + 1
         })
+        if (isAdmin) {
+            playlistViewModel.getMusicStats { result ->
+                binding.moreMusicManage.text = result?.music?.total?.let { "${it}首" } ?: ""
+            }
+        }
     }
 
     private fun onLoadError(statePager: StatusPager, error: Throwable) {

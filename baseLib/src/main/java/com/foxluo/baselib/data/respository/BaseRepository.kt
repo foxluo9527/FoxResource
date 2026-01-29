@@ -45,10 +45,6 @@ open class BaseRepository {
     }
 
     private fun handleUnauthorized(originalResponse: Response, request: Request): Response {
-        val topActivity = ActivityUtils.getTopActivity()
-        if (topActivity.javaClass.simpleName != "LoginActivity") {
-            ARouter.getInstance().build("/mine/login").navigation(topActivity)
-        }
         AuthManager.logout()
         return originalResponse.newBuilder()
             .code(200)

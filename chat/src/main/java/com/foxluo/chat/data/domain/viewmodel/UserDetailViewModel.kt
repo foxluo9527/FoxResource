@@ -23,7 +23,7 @@ class UserDetailViewModel : BaseViewModel() {
             val result = repo.delete(user.id)
             if (result is RequestResult.Error) {
                 toast.postValue(Pair(false, result.message))
-            } else if (result is RequestResult.Success<*>) {
+            } else if (result is RequestResult.Success) {
                 block.invoke()
                 dao.deleteFriend(user.toEntity())//直接通过room关系好友列表数据
             }
@@ -37,7 +37,7 @@ class UserDetailViewModel : BaseViewModel() {
             val result = repo.remark(user.id, mark)
             if (result is RequestResult.Error) {
                 toast.postValue(Pair(false, result.message))
-            } else if (result is RequestResult.Success<*>) {
+            } else if (result is RequestResult.Success) {
                 block.invoke()
                 user.mark = mark
                 dao.updateFriend(user.toEntity())//直接通过room关系好友列表数据

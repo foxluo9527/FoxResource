@@ -6,6 +6,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.PagingData
+import com.blankj.utilcode.util.BarUtils
 import com.foxluo.baselib.data.manager.AuthManager
 import com.foxluo.baselib.util.Constant
 import com.foxluo.resource.music.data.database.MusicEntity
@@ -40,6 +41,11 @@ class RecentMusicFragment : MainPageMusicFragment<FragmentRecentMusicListBinding
         binding.toolbar.navigationIcon =
             resources.getDrawable(R.drawable.xui_ic_navigation_back_white, null)
         binding.toolbar.setTitleTextColor(Color.WHITE)
+        binding.toolbar.apply {
+            layoutParams = layoutParams?.apply {
+                height = BarUtils.getStatusBarHeight()
+            }
+        }
         // 设置返回键点击事件
         binding.toolbar.setNavigationOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
